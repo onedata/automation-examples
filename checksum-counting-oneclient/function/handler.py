@@ -26,7 +26,11 @@ def handle(req: bytes):
         if metadata_key != "":
             xd = xattr.xattr(file_path)
             xd.set(metadata_key, str.encode(checksum))
-        return json.dumps({"checksum": checksum})
+        return json.dumps({"result": {
+            "file_id": file_id,
+            "checksum": checksum,
+            "algorithm": algorithm
+        }})
 
 
 def calculate_checksum(fd, algorithm):
