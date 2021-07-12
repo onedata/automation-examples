@@ -15,22 +15,25 @@ def handle(req: bytes):
     """
     args = json.loads(req)
 
-    file_id = args["item"]["file_id"]
-    file_path = f'/mnt/onedata/.__onedata__file_id__{file_id}'
-    metadata_key = args["metadata_key"]
-    algorithm = args["algorithm"]
-    assert algorithm in SUPPORTED_CHECKSUM_ALGORITHMS
+    if args["item"]["type"] == "REG":
+        file_id = args["item"]["file_id"]
+        file_path = f'/mnt/onedata/.__onedata__file_id__{file_id}'
+        metadata_key = args["metadata_key"]
+        algorithm = args["algorithm"]
+        assert algorithm in SUPPORTED_CHECKSUM_ALGORITHMS
 
-    with open(file_path, 'rb') as fd:
-        checksum = calculate_checksum(fd, algorithm)
-        if metadata_key != "":
-            xd = xattr.xattr(file_path)
-            xd.set(metadata_key, str.encode(checksum))
-        return json.dumps({"result": {
-            "file_id": file_id,
-            "checksum": checksum,
-            "algorithm": algorithm
-        }})
+        with open(file_path, 'rb') as fd:
+            checksum = calculate_checksum(fd, algorithm)
+            if metadata_key != "":
+                xd = xattr.xattr(file_path)
+                xd.set(metadata_key, str.encode(checksum))
+            return json.dumps({"result": {
+                "file_id": file_id,
+                "checksum": checksum,
+                "algorithm": algorithm
+            }})
+
+    return json.dumps({"result": {}})
 
 
 def calculate_checksum(fd, algorithm):
