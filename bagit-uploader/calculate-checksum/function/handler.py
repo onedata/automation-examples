@@ -4,6 +4,7 @@ import zlib
 import json
 import xattr
 import requests
+import time
 
 SUPPORTED_CHECKSUM_ALGORITHMS = ['md5', 'sha1', 'sha256', 'sha512', 'adler32']
 
@@ -15,12 +16,14 @@ def handle(req: bytes):
     Args:
         req (str): request body
     """
+    global HEARTBEAT_URL, LAST_HEARTBEAT
+
     args = json.loads(req)
 
-    r = requests.post(args["heartbeatUrl"], data = {})
-    assert r.ok
+    LAST_HEARTBEAT = time.time()
+    HEARTBEAT_URL = args["heartbeatUrl"]
 
-    file_path = args["file_path"]
+    file_path = args["filePath"]
     file_info = {}
 
     if os.path.isfile(file_path):
@@ -36,7 +39,7 @@ def handle(req: bytes):
                     if exp_checksum != calculated_checksum:
                         file_info["file"] = file_path
                         file_info[algorithm] = {"expected": exp_checksum, "calculated": calculated_checksum}
-    return json.dumps({"broken_file": file_info})
+    return json.dumps({"brokenFile": file_info})
 
 
 def calculate_checksum(fd, algorithm):
@@ -56,3 +59,11 @@ def calculate_checksum(fd, algorithm):
                 break
             checksum.update(data)
         return checksum.hexdigest()
+
+
+def heartbeat():
+    global HEARTBEAT_URL, LAST_HEARTBEAT, HEARTBEAT_CYCLE
+    if time.time() - LAST_HEARTBEAT > HEARTBEAT_CYCLE:
+        r = requests.post(url=HEARTBEAT_URL, data={})
+        assert r.ok
+        LAST_HEARTBEAT = time.time()

@@ -2,7 +2,8 @@ import json
 import requests
 import time
 import os
-
+from pathlib import Path
+import threading
 
 BLOCK_SIZE = 262144
 HEARTBEAT_CYCLE = 150
@@ -22,9 +23,11 @@ def handle(req: bytes):
     LAST_HEARTBEAT = time.time()
     HEARTBEAT_URL = args["heartbeatUrl"]
 
-    files = args["files_to_fetch"]
+    files = args["filesToFetch"]
 
     uploaded_files = []
+
+    # time.sleep(2000)
 
     for file_info in files:
         url = file_info["url"]
@@ -34,6 +37,8 @@ def handle(req: bytes):
         os.makedirs(os.path.dirname(path), exist_ok=True)
 
         if is_xrootd(url):
+            x = threading.Thread(target=monitor_download, args=(path, size))
+            x.start()
             os.system(f"xrdcp {url} {path}")
             heartbeat()
         else:
@@ -44,9 +49,7 @@ def handle(req: bytes):
                     f.write(chunk)
             uploaded_files.append(path)
 
-    return json.dumps({"uploaded_files": uploaded_files})
-
-
+    return json.dumps({"uploadedFiles": uploaded_files})
 
 
 def is_xrootd(url):
@@ -59,3 +62,14 @@ def heartbeat():
         r = requests.post(url=HEARTBEAT_URL, data={})
         assert r.ok
         LAST_HEARTBEAT = time.time()
+
+
+def monitor_download(file_path, file_size):
+    size = 0
+    while size < file_size:
+        time.sleep(HEARTBEAT_CYCLE)
+        current_size = Path(file_path).stat().st_size
+        if current_size > size:
+            heartbeat()
+            size = current_size
+    return

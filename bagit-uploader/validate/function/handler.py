@@ -5,10 +5,16 @@ import tarfile
 import zipfile
 import re
 import zlib
+import time
+import requests
 
 SUPPORTED_CHECKSUM_ALGORITHMS = ('md5', 'sha1', 'sha256', 'sha512', 'adler32')
 
 BLOCK_SIZE = 262144
+
+HEARTBEAT_CYCLE = 150
+LAST_HEARTBEAT = 0
+HEARTBEAT_URL = ""
 
 
 def handle(req: bytes):
@@ -16,12 +22,18 @@ def handle(req: bytes):
     Args:
         req (str): request body
     """
+    global HEARTBEAT_URL, LAST_HEARTBEAT
+
     args = json.loads(req)
+
+    LAST_HEARTBEAT = time.time()
+    HEARTBEAT_URL = args["heartbeatUrl"]
 
     valid_bagit_archives = []
 
     for archive in args["archives"]:
         try:
+            assert archive["type"] == "REG"
             archive_filename = archive["name"]
             assert_valid_bagit_archive(f'/mnt/onedata/.__onedata__file_id__{archive["file_id"]}', archive_filename)
         except:
@@ -123,6 +135,7 @@ def calculate_checksum(fd, algorithm):
     if algorithm == "adler32":
         checksum = 1
         while True:
+            heartbeat()
             data = fd.read(BLOCK_SIZE)
             if not data:
                 break
@@ -131,6 +144,7 @@ def calculate_checksum(fd, algorithm):
     else:
         checksum = getattr(hashlib, algorithm)()
         while True:
+            heartbeat()
             data = fd.read(BLOCK_SIZE)
             if not data:
                 break
@@ -154,3 +168,11 @@ def assert_proper_bagit_txt_content(fd):
 def assert_correct_bagit_version(bagit_version):
     match = re.match("^[0-9]+.[0-9]+$", bagit_version)
     assert bool(match)
+
+
+def heartbeat():
+    global HEARTBEAT_URL, LAST_HEARTBEAT, HEARTBEAT_CYCLE
+    if time.time() - LAST_HEARTBEAT > HEARTBEAT_CYCLE:
+        r = requests.post(url=HEARTBEAT_URL, data={})
+        assert r.ok
+        LAST_HEARTBEAT = time.time()

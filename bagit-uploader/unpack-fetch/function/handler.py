@@ -2,6 +2,12 @@ import json
 import os.path
 import tarfile
 import zipfile
+import time
+import requests
+
+HEARTBEAT_CYCLE = 150
+LAST_HEARTBEAT = 0
+HEARTBEAT_URL = ""
 
 
 def handle(req: bytes):
@@ -9,16 +15,21 @@ def handle(req: bytes):
     Args:
         req (str): request body
     """
+    global HEARTBEAT_URL, LAST_HEARTBEAT
+
     args = json.loads(req)
 
+    LAST_HEARTBEAT = time.time()
+    HEARTBEAT_URL = args["heartbeatUrl"]
+
     try:
-        return json.dumps({"download": get_files_to_download(args)})
+        return json.dumps({"filesToFetch": get_files_to_download(args)})
     except:
         return json.dumps("FAILED")
 
 
 def get_files_to_download(args):
-    archive_filename = args["bagit"]["name"]
+    archive_filename = args["archive"]["name"]
     archive_name, archive_type = os.path.splitext(archive_filename)
 
     if archive_type == '.tar':
@@ -30,9 +41,8 @@ def get_files_to_download(args):
 
 
 def get_files_to_fetch_from_tar_bagit_archive(args):
-    archive_path = f'/mnt/onedata/.__onedata__file_id__{args["bagit"]["file_id"]}'
+    archive_path = f'/mnt/onedata/.__onedata__file_id__{args["archive"]["file_id"]}'
     dst_id = args["destination"]["file_id"]
-    dst_dir = f'/mnt/onedata/.__onedata__file_id__{dst_id}'
 
     with tarfile.TarFile(archive_path) as archive:
         archive_files = archive.getnames()
@@ -49,15 +59,15 @@ def get_files_to_fetch_from_tar_bagit_archive(args):
                     "size": int(size),
                     "path": f'.__onedata__file_id__{dst_id}/{dst_path[len("data/"):]}'
                 })
+                heartbeat()
             return files_to_download
         else:
             return []
 
 
 def get_files_to_fetch_from_zip_bagit_archive(args):
-    archive_path = f'/mnt/onedata/.__onedata__file_id__{args["bagit"]["file_id"]}'
+    archive_path = f'/mnt/onedata/.__onedata__file_id__{args["archive"]["file_id"]}'
     dst_id = args["destination"]["file_id"]
-    dst_dir = f'/mnt/onedata/.__onedata__file_id__{dst_id}'
 
     with zipfile.ZipFile(archive_path) as archive:
         archive_files = archive.namelist()
@@ -75,15 +85,15 @@ def get_files_to_fetch_from_zip_bagit_archive(args):
                         "size": int(size),
                         "path": f'.__onedata__file_id__{dst_id}/{dst_path[len("data/"):]}'
                     })
+                    heartbeat()
             return files_to_download
         else:
             return []
 
 
 def get_files_to_fetch_from_tgz_bagit_archive(args):
-    archive_path = f'/mnt/onedata/.__onedata__file_id__{args["bagit"]["file_id"]}'
+    archive_path = f'/mnt/onedata/.__onedata__file_id__{args["archive"]["file_id"]}'
     dst_id = args["destination"]["file_id"]
-    dst_dir = f'/mnt/onedata/.__onedata__file_id__{dst_id}'
 
     with tarfile.open(archive_path, "r:gz") as archive:
         archive_files = archive.getnames()
@@ -100,6 +110,7 @@ def get_files_to_fetch_from_tgz_bagit_archive(args):
                     "size": int(size),
                     "path": f'.__onedata__file_id__{dst_id}/{dst_path[len("data/"):]}'
                 })
+                heartbeat()
             return files_to_download
         else:
             return []
@@ -110,3 +121,11 @@ def find_bagit_dir(archive_files):
         dir_path, file_name = os.path.split(file_path)
         if file_name == 'bagit.txt':
             return dir_path
+
+
+def heartbeat():
+    global HEARTBEAT_URL, LAST_HEARTBEAT, HEARTBEAT_CYCLE
+    if time.time() - LAST_HEARTBEAT > HEARTBEAT_CYCLE:
+        r = requests.post(url=HEARTBEAT_URL, data={})
+        assert r.ok
+        LAST_HEARTBEAT = time.time()
