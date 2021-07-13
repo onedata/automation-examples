@@ -9,7 +9,7 @@ def handle(req: bytes):
     """
     args = json.loads(req)
 
-    file_path = f'/mnt/onedata/.__onedata_file_id_{args["fetch_file"]["file_id"]}'
+    file_path = f'/mnt/onedata/.__onedata__file_id__{args["fetch_file"]["file_id"]}'
     target_dir_id = args["target_dir"]["file_id"]
 
     with open(file_path, "rb") as fd:
