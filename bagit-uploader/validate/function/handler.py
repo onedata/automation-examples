@@ -13,7 +13,7 @@ SUPPORTED_CHECKSUM_ALGORITHMS = ('md5', 'sha1', 'sha256', 'sha512', 'adler32')
 BLOCK_SIZE = 262144
 
 HEARTBEAT_CYCLE = 150
-LAST_HEARTBEAT = 0
+LAST_HEARTBEAT_TIME = 0
 HEARTBEAT_URL = ""
 
 
@@ -22,12 +22,12 @@ def handle(req: bytes):
     Args:
         req (str): request body
     """
-    global HEARTBEAT_URL, LAST_HEARTBEAT
+    global HEARTBEAT_URL
 
     args = json.loads(req)
 
-    LAST_HEARTBEAT = time.time()
     HEARTBEAT_URL = args["heartbeatUrl"]
+    heartbeat()
 
     valid_bagit_archives = []
 
@@ -171,8 +171,9 @@ def assert_correct_bagit_version(bagit_version):
 
 
 def heartbeat():
-    global HEARTBEAT_URL, LAST_HEARTBEAT, HEARTBEAT_CYCLE
-    if time.time() - LAST_HEARTBEAT > HEARTBEAT_CYCLE:
+    global LAST_HEARTBEAT_TIME
+    current_time = int(time.time())
+    if current_time - LAST_HEARTBEAT_TIME > 150:
         r = requests.post(url=HEARTBEAT_URL, data={})
         assert r.ok
-        LAST_HEARTBEAT = time.time()
+        LAST_HEARTBEAT_TIME = current_time
