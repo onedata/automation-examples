@@ -7,7 +7,7 @@ import threading
 
 BLOCK_SIZE = 262144
 HEARTBEAT_CYCLE = 150
-LAST_HEARTBEAT = 0
+LAST_HEARTBEAT_TIME = 0
 HEARTBEAT_URL = ""
 
 
@@ -16,18 +16,16 @@ def handle(req: bytes):
     Args:
         req (str): request body
     """
-    global HEARTBEAT_URL, LAST_HEARTBEAT
+    global HEARTBEAT_URL
 
     args = json.loads(req)
 
-    LAST_HEARTBEAT = time.time()
     HEARTBEAT_URL = args["heartbeatUrl"]
+    heartbeat()
 
     files = args["filesToFetch"]
 
     uploaded_files = []
-
-    # time.sleep(2000)
 
     for file_info in files:
         url = file_info["url"]
@@ -36,16 +34,16 @@ def handle(req: bytes):
 
         os.makedirs(os.path.dirname(path), exist_ok=True)
 
+        monitor_thread = threading.Thread(target=monitor_download, args=(path, size,), daemon=True)
+        monitor_thread.start()
+
         if is_xrootd(url):
-            x = threading.Thread(target=monitor_download, args=(path, size))
-            x.start()
             os.system(f"xrdcp {url} {path}")
-            heartbeat()
+            uploaded_files.append(path)
         else:
             r = requests.get(url, stream=True, allow_redirects=True)
             with open(path, 'wb') as f:
                 for chunk in r.iter_content(32 * 1024):
-                    heartbeat()
                     f.write(chunk)
             uploaded_files.append(path)
 
@@ -53,15 +51,16 @@ def handle(req: bytes):
 
 
 def is_xrootd(url):
-    url.startswith("root:/")
+    return url.startswith("root:/")
 
 
 def heartbeat():
-    global HEARTBEAT_URL, LAST_HEARTBEAT, HEARTBEAT_CYCLE
-    if time.time() - LAST_HEARTBEAT > HEARTBEAT_CYCLE:
+    global LAST_HEARTBEAT_TIME
+    current_time = int(time.time())
+    if current_time - LAST_HEARTBEAT_TIME > HEARTBEAT_CYCLE:
         r = requests.post(url=HEARTBEAT_URL, data={})
         assert r.ok
-        LAST_HEARTBEAT = time.time()
+        LAST_HEARTBEAT_TIME = current_time
 
 
 def monitor_download(file_path, file_size):
@@ -72,4 +71,3 @@ def monitor_download(file_path, file_size):
         if current_size > size:
             heartbeat()
             size = current_size
-    return
