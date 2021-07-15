@@ -10,9 +10,16 @@ LAST_HEARTBEAT_TIME = 0
 
 
 def handle(req: bytes):
-    """handle a request to the function
-    Args:
-        req (str): request body
+    """Unpack files from /data directory from archive and puts them under destination directory.
+
+    Args Structure:
+        heartbeatUrl (str): url where heartbeats are posted to, automatically added to lambda
+        destination (dir-file): destination where all files will be extracted to
+        archive (regular-file): archive to process
+
+    Return:
+        uploadedFiles (batch/list of strings): list of file paths, which were successfully extracted
+            into destination directory.
     """
     global HEARTBEAT_URL
 

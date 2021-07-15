@@ -14,9 +14,15 @@ HEARTBEAT_URL = ""
 
 
 def handle(req: bytes):
-    """handle a request to the function
-    Args:
-        req (str): request body
+    """Reads manifests from bagit archives and sets them as custom metadata for each file.
+        Registers json metadata from *metadata.json files (does not include files from data/ directory)
+        as json metadata for each file.
+
+    Args Structure:
+        heartbeatUrl (str): url where heartbeats are posted to, automatically added to lambda
+        destination (dir-file): destination where all files has been extracted to befor
+        archive (regular-file): archive to process
+
     """
     global HEARTBEAT_URL, LAST_HEARTBEAT
 

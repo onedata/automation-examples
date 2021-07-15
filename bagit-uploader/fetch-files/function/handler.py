@@ -12,9 +12,16 @@ HEARTBEAT_URL = ""
 
 
 def handle(req: bytes):
-    """handle a request to the function
-    Args:
-        req (str): request body
+    """Downloads files to be fetched and puts them under given path
+
+    Args Structure:
+        heartbeatUrl (str): url where heartbeats are posted to, automatically added to lambda
+        filesToFetch (batch/list of objects): informations about files to be fetched,
+            using format:{"url": <str>, "size": <int>, "path": <str>}
+
+    Return:
+        uploadedFiles (batch/list of strings): list of file paths, which were successfully fetched and
+            placed under given path.
     """
     global HEARTBEAT_URL
 

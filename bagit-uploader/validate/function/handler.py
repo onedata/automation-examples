@@ -18,9 +18,14 @@ HEARTBEAT_URL = ""
 
 
 def handle(req: bytes):
-    """handle a request to the function
-    Args:
-        req (str): request body
+    """Validates bagit archives and returns correct ones.
+
+    Args Structure:
+        heartbeatUrl (str): url where heartbeats are posted to, automatically added to lambda
+        archives (batch/list of any-files): list of archives to process
+
+    Return:
+        validBagitArchives (batch/list of reg-files): list of regular-file validated bagit archives
     """
     global HEARTBEAT_URL
 

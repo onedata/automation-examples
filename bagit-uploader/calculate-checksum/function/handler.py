@@ -15,9 +15,14 @@ LAST_HEARTBEAT_TIME = 0
 
 
 def handle(req: bytes):
-    """handle a request to the function
-    Args:
-        req (str): request body
+    """Calculates checksums for file, and compares them with checksums from manifests, whch were set as custom metadata
+        under checksum.<algorithm>.expected previously.
+    Args Structure:
+        filePath (str): file path to proceed
+
+    Returns:
+        brokenFile (object): information about checksums correctness
+            using format: {"filePath": (str), <algorithm>: "ok"/{"calculated": (str), "expected": (str)}}
     """
     global HEARTBEAT_URL
 
