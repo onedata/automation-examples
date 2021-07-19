@@ -1,9 +1,14 @@
 REPO=docker.onedata.org
 TAG=v1
 
-.PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data
+.PHONY: infer-destination all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data archive-destination
 
-all: validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data
+all: infer-destination validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data archive-destination
+
+
+infer-destination:
+	docker build ./infer-destination -t ${REPO}/bagit-uploader-infer-destination:${TAG}
+	docker push ${REPO}/bagit-uploader-infer-destination:${TAG}
 
 validate:
 	docker build ./validate -t ${REPO}/bagit-uploader-validate:${TAG}
@@ -38,3 +43,8 @@ register-metadata-from-data:
 calculate-checksum:
 	docker build ./calculate-checksum -t ${REPO}/bagit-uploader-calculate-checksum:${TAG}
 	docker push ${REPO}/bagit-uploader-calculate-checksum:${TAG}
+
+
+archive-destination:
+	docker build ./archive-destination -t ${REPO}/bagit-uploader-archive-destination:${TAG}
+	docker push ${REPO}/bagit-uploader-archive-destination:${TAG}
