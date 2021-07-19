@@ -24,8 +24,8 @@ def handle(req: bytes):
         xd = xattr.xattr(file_path)
         xd.set(metadata_key, str.encode(file_format))
     file_info = {
-        "mime_type": mime_type,
-        "guessed_language": guessed_language
+        "content_type": mime_type,
+        "guessed_programming_language": guessed_language
     }
     return json.dumps({"format": file_format})
 
