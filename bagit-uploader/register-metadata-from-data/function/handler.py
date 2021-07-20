@@ -57,33 +57,7 @@ def register_json_metadata_tar_archive(args):
             if is_json_metadata_file(file_path):
                 json_metadata_file = archive.extractfile(file_path)
                 json_metadata = json.loads(json_metadata_file.read())
-                metadata_list = json_metadata["metadata"]
-                for file_metadata in metadata_list:
-                    try:
-                        file_name = file_metadata["filename"].replace("data/", "")
-                        file_path = f'{dst_dir_path}/{file_name}'
-                        x = xattr.xattr(file_path)
-                        current_metadata = {}
-                        try:
-                            current_metadata_str = x.get("onedata_json")
-                            current_metadata = json.loads(current_metadata_str)
-                        except:
-                            pass
-                        current_metadata.update(file_metadata)
-                        x.set("onedata_json", str.encode(json.dumps(current_metadata)))
-                    except:
-                        pass
-
-
-def register_json_metadata_zip_archive(args):
-    archive_path = f'/mnt/onedata/.__onedata__file_id__{args["archive"]["file_id"]}'
-    dst_dir_path = f'/mnt/onedata/.__onedata__file_id__{args["destination"]["file_id"]}'
-    with zipfile.ZipFile(archive_path) as archive:
-        file_paths = archive.namelist()
-        for file_path in file_paths:
-            if is_json_metadata_file(file_path):
-                with archive.open(file_path) as fd:
-                    json_metadata = json.loads(fd.read())
+                if "metadata" in json_metadata:
                     metadata_list = json_metadata["metadata"]
                     for file_metadata in metadata_list:
                         try:
@@ -102,6 +76,34 @@ def register_json_metadata_zip_archive(args):
                             pass
 
 
+def register_json_metadata_zip_archive(args):
+    archive_path = f'/mnt/onedata/.__onedata__file_id__{args["archive"]["file_id"]}'
+    dst_dir_path = f'/mnt/onedata/.__onedata__file_id__{args["destination"]["file_id"]}'
+    with zipfile.ZipFile(archive_path) as archive:
+        file_paths = archive.namelist()
+        for file_path in file_paths:
+            if is_json_metadata_file(file_path):
+                with archive.open(file_path) as fd:
+                    json_metadata = json.loads(fd.read())
+                    if "metadata" in json_metadata:
+                        metadata_list = json_metadata["metadata"]
+                        for file_metadata in metadata_list:
+                            try:
+                                file_name = file_metadata["filename"].replace("data/", "")
+                                file_path = f'{dst_dir_path}/{file_name}'
+                                x = xattr.xattr(file_path)
+                                current_metadata = {}
+                                try:
+                                    current_metadata_str = x.get("onedata_json")
+                                    current_metadata = json.loads(current_metadata_str)
+                                except:
+                                    pass
+                                current_metadata.update(file_metadata)
+                                x.set("onedata_json", str.encode(json.dumps(current_metadata)))
+                            except:
+                                pass
+
+
 def register_json_metadata_tgz_archive(args):
     archive_path = f'/mnt/onedata/.__onedata__file_id__{args["archive"]["file_id"]}'
     dst_dir_path = f'/mnt/onedata/.__onedata__file_id__{args["destination"]["file_id"]}'
@@ -111,22 +113,23 @@ def register_json_metadata_tgz_archive(args):
             if is_json_metadata_file(file_path):
                 json_metadata_file = archive.extractfile(file_path)
                 json_metadata = json.loads(json_metadata_file.read())
-                metadata_list = json_metadata["metadata"]
-                for file_metadata in metadata_list:
-                    try:
-                        file_name = file_metadata["filename"].replace("data/", "")
-                        file_path = f'{dst_dir_path}/{file_name}'
-                        x = xattr.xattr(file_path)
-                        current_metadata = {}
+                if "metadata" in json_metadata:
+                    metadata_list = json_metadata["metadata"]
+                    for file_metadata in metadata_list:
                         try:
-                            current_metadata_str = x.get("onedata_json")
-                            current_metadata = json.loads(current_metadata_str)
+                            file_name = file_metadata["filename"].replace("data/", "")
+                            file_path = f'{dst_dir_path}/{file_name}'
+                            x = xattr.xattr(file_path)
+                            current_metadata = {}
+                            try:
+                                current_metadata_str = x.get("onedata_json")
+                                current_metadata = json.loads(current_metadata_str)
+                            except:
+                                pass
+                            current_metadata.update(file_metadata)
+                            x.set("onedata_json", str.encode(json.dumps(current_metadata)))
                         except:
                             pass
-                        current_metadata.update(file_metadata)
-                        x.set("onedata_json", str.encode(json.dumps(current_metadata)))
-                    except:
-                        pass
 
 
 def append_xattr(file_path, checksum, algorithm, dst_dir_path):
