@@ -1,8 +1,12 @@
+import os
+import mimetypes
 import json
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 import xattr
 import magic
 from guesslang import Guess
-import mimetypes
 
 
 def handle(req: bytes):
@@ -16,42 +20,30 @@ def handle(req: bytes):
     file_path = f'/mnt/onedata/.__onedata__file_id__{file_id}'
     metadata_key = args["metadata_key"]
 
-    guessed_language = guess_language(file_path)
-    mime_type = get_mime_type(file_path)
-    file_format = get_file_format(file_path)
-    valid_csv = is_valid_csv(file_path)
     if metadata_key != "":
         xd = xattr.xattr(file_path)
-        xd.set(metadata_key, str.encode(file_format))
+        xd.set(metadata_key, str.encode("calculated-type"))
+
     file_info = {
-        "content_type": mime_type,
-        "guessed_programming_language": guessed_language
+        "mime-filename-type": get_mime_filename_type(file_path),
+        "mime-content-type": get_mime_content_type(file_path),
+        "guessed-code-language": guess_content_code_language(file_path)
     }
-    return json.dumps({"format": file_format})
+    return json.dumps({"format": file_info})
 
 
-def get_file_format(file_path):
-    file_info = magic.from_file(file_path)
-    file_format = file_info.split(",")[0]
-    file_format_underscore = file_format.replace(" ", "_")
-    return file_format_underscore
+def get_mime_filename_type(file_path):
+    type, encoding = mimetypes.guess_type(file_path, strict=True)
+    return type
 
 
-def guess_language(file_path):
+def get_mime_content_type(file_path):
+    return magic.from_file(file_path, mime=True)
+
+
+def guess_content_code_language(file_path):
     guess = Guess()
-    with open(file_path, 'r') as file:
+    with open(file_path, 'rb') as file:
         data = file.read()
         language = guess.language_name(data)
-        return language
-
-
-def get_mime_type(file_path):
-    mime_type, encoding = mimetypes.guess_type(file_path, strict=True)
-    return mime_type
-
-def is_valid_csv(file_path):
-    try:
-        return True
-    except:
-        return False
-
+    return language
