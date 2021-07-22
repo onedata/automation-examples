@@ -118,7 +118,7 @@ def heartbeat():
 def monitor_unpack(file_path: str, file_size: int):
     size = 0
     while size < file_size:
-        time.sleep(HEARTBEAT_INTERVAL_SEC//2)
+        time.sleep(HEARTBEAT_INTERVAL_SEC // 2)
         current_size = Path(file_path).stat().st_size
         if current_size > size:
             heartbeat()
