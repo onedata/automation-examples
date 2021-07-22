@@ -1,14 +1,16 @@
 import json
-import requests
+import os.path
 import time
-import os
-from pathlib import Path
 import threading
+from pathlib import Path
 
-BLOCK_SIZE = 262144
-HEARTBEAT_CYCLE = 150
-LAST_HEARTBEAT_TIME = 0
-HEARTBEAT_URL = ""
+import requests
+
+BLOCK_SIZE: int = 262144
+
+HEARTBEAT_INTERVAL_SEC: int = 150
+LAST_HEARTBEAT_TIME: int = 0
+HEARTBEAT_URL: str = ""
 
 
 def handle(req: bytes):
@@ -32,6 +34,7 @@ def handle(req: bytes):
 
     files = args["filesToFetch"]
 
+    fetch_threads = {}
     uploaded_files = []
 
     for file_info in files:
@@ -41,40 +44,49 @@ def handle(req: bytes):
 
         os.makedirs(os.path.dirname(path), exist_ok=True)
 
-        monitor_thread = threading.Thread(target=monitor_download, args=(path, size,), daemon=True)
-        monitor_thread.start()
+        fetch_thread = threading.Thread(target=download_file, args=(url, size, path))
+        fetch_thread.start()
+        fetch_threads[path] = fetch_thread
 
-        if is_xrootd(url):
-            os.system(f"xrdcp {url} {path}")
-            uploaded_files.append(path)
-        else:
-            r = requests.get(url, stream=True, allow_redirects=True)
-            with open(path, 'wb') as f:
-                for chunk in r.iter_content(32 * 1024):
-                    f.write(chunk)
-            uploaded_files.append(path)
+    for path in fetch_threads:
+        fetch_threads[path].join()
+        uploaded_files.append(path)
 
     return json.dumps({"uploadedFiles": uploaded_files})
 
 
-def is_xrootd(url):
+def is_xrootd(url: str):
     return url.startswith("root:/")
 
 
 def heartbeat():
     global LAST_HEARTBEAT_TIME
     current_time = int(time.time())
-    if current_time - LAST_HEARTBEAT_TIME > HEARTBEAT_CYCLE:
+    if current_time - LAST_HEARTBEAT_TIME > HEARTBEAT_INTERVAL_SEC:
         r = requests.post(url=HEARTBEAT_URL, data={})
-        assert r.ok
-        LAST_HEARTBEAT_TIME = current_time
+        if r.ok:
+            LAST_HEARTBEAT_TIME = current_time
 
 
-def monitor_download(file_path, file_size):
+def monitor_download(file_path: str, file_size: int):
     size = 0
     while size < file_size:
-        time.sleep(HEARTBEAT_CYCLE)
+        time.sleep(int(HEARTBEAT_INTERVAL_SEC / 2))
         current_size = Path(file_path).stat().st_size
         if current_size > size:
             heartbeat()
             size = current_size
+
+
+def download_file(file_url: str, file_size: int, file_path: str):
+    monitor_thread = threading.Thread(target=monitor_download, args=(file_path, file_size,), daemon=True)
+    monitor_thread.start()
+
+    if is_xrootd(file_url):
+        os.system(f"xrdcp {file_url} {file_path}")
+    else:
+        r = requests.get(file_url, stream=True, allow_redirects=True)
+        with open(file_path, 'wb') as f:
+            for chunk in r.iter_content(32 * 1024):
+                f.write(chunk)
+    return
