@@ -16,7 +16,7 @@ LAST_HEARTBEAT_TIME: int = 0
 HEARTBEAT_URL: str = ""
 
 
-def handle(req: bytes):
+def handle(req: bytes) -> str:
     """Calculates checksums for file, and compares them with checksums from manifests, which were set as custom metadata
         under 'checksum.<algorithm>.expected' key previously.
     Args Structure:
@@ -54,7 +54,7 @@ def handle(req: bytes):
     return json.dumps({"checksums": file_info})
 
 
-def calculate_checksum(fd: IO[bytes], algorithm: str):
+def calculate_checksum(fd: IO[bytes], algorithm: str) -> str:
     if algorithm == "adler32":
         checksum = 1
         while True:

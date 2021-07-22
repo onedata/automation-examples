@@ -15,7 +15,7 @@ LAST_HEARTBEAT_TIME: int = 0
 HEARTBEAT_URL: str = ""
 
 
-def handle(req: bytes):
+def handle(req: bytes) -> str:
     """Unpack files from archive /data directory and puts them under destination directory.
 
     Args Structure:
@@ -40,7 +40,7 @@ def handle(req: bytes):
         return json.dumps("FAILED")
 
 
-def unpack_data_dir(args: dict):
+def unpack_data_dir(args: dict) -> list:
     archive_filename = args["archive"]["name"]
     archive_path = f'/mnt/onedata/.__onedata__file_id__{args["archive"]["file_id"]}'
     archive_name, archive_type = os.path.splitext(archive_filename)
@@ -60,7 +60,8 @@ def unpack_bagit_archive(
         args: dict,
         list_archive_files: Callable[[], list],
         get_archive_member: Callable[[str], Union[tarfile.TarInfo, zipfile.ZipInfo]],
-        extract_archive_file: Callable[[Union[tarfile.TarInfo, zipfile.ZipInfo]]]):
+        extract_archive_file: Callable[[Union[tarfile.TarInfo, zipfile.ZipInfo]]]
+) -> list:
     dst_id = args["destination"]["file_id"]
     dst_dir = f'/mnt/onedata/.__onedata__file_id__{dst_id}'
     extracted_files = []
@@ -98,7 +99,7 @@ def unpack_bagit_archive(
     return extracted_files
 
 
-def find_bagit_dir(archive_files: list):
+def find_bagit_dir(archive_files: list) -> str:
     for file_path in archive_files:
         dir_path, file_name = os.path.split(file_path)
         if file_name == 'bagit.txt':
@@ -117,7 +118,7 @@ def heartbeat():
 def monitor_unpack(file_path: str, file_size: int):
     size = 0
     while size < file_size:
-        time.sleep(HEARTBEAT_INTERVAL_SEC)
+        time.sleep(HEARTBEAT_INTERVAL_SEC//2)
         current_size = Path(file_path).stat().st_size
         if current_size > size:
             heartbeat()

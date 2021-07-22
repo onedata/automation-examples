@@ -13,7 +13,7 @@ LAST_HEARTBEAT_TIME: int = 0
 HEARTBEAT_URL: str = ""
 
 
-def handle(req: bytes):
+def handle(req: bytes) -> str:
     """Downloads files to be fetched and puts them under given path
 
     Args Structure:
@@ -55,7 +55,7 @@ def handle(req: bytes):
     return json.dumps({"uploadedFiles": uploaded_files})
 
 
-def is_xrootd(url: str):
+def is_xrootd(url: str) -> bool:
     return url.startswith("root:/")
 
 
@@ -71,7 +71,7 @@ def heartbeat():
 def monitor_download(file_path: str, file_size: int):
     size = 0
     while size < file_size:
-        time.sleep(int(HEARTBEAT_INTERVAL_SEC / 2))
+        time.sleep(HEARTBEAT_INTERVAL_SEC // 2)
         current_size = Path(file_path).stat().st_size
         if current_size > size:
             heartbeat()

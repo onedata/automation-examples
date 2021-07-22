@@ -13,7 +13,7 @@ LAST_HEARTBEAT_TIME: int = 0
 HEARTBEAT_URL: str = ""
 
 
-def handle(req: bytes):
+def handle(req: bytes) -> str:
     """Iterates over fetch.txt file (if exists) and collects data about files to be fetched later.
 
     Args Structure:
@@ -38,7 +38,7 @@ def handle(req: bytes):
         return json.dumps("FAILED")
 
 
-def get_files_to_fetch(args: dict):
+def get_files_to_fetch(args: dict) -> list:
     archive_filename = args["archive"]["name"]
     archive_name, archive_type = os.path.splitext(archive_filename)
     archive_path = f'/mnt/onedata/.__onedata__file_id__{args["archive"]["file_id"]}'
@@ -58,7 +58,8 @@ def get_files_to_fetch(args: dict):
 def get_files_to_fetch_from_archive(
         destination_dir_id: str,
         list_archive_files: Callable[[], list],
-        open_archive_file: Callable[[str], IO[bytes]]):
+        open_archive_file: Callable[[str], IO[bytes]]
+) -> list:
     archive_files = list_archive_files()
 
     bagit_dir = find_bagit_dir(archive_files)
@@ -79,7 +80,7 @@ def get_files_to_fetch_from_archive(
         return []
 
 
-def find_bagit_dir(archive_files: list):
+def find_bagit_dir(archive_files: list) -> str:
     for file_path in archive_files:
         dir_path, file_name = os.path.split(file_path)
         if file_name == 'bagit.txt':

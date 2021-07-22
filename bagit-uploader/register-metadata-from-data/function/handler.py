@@ -16,7 +16,7 @@ LAST_HEARTBEAT_TIME: int = 0
 HEARTBEAT_URL: str = ""
 
 
-def handle(req: bytes):
+def handle(req: bytes) -> str:
     """Registers json metadata from *metadata.json files (only from data/ directory)
         as json metadata for each file.
 
@@ -58,7 +58,8 @@ def register_json_metadata(args: dict):
 def register_json_metadata_from_archive(
         destination_dir_path: str,
         list_archive_files: Callable[[], list],
-        open_archive_file: Callable[[str], IO[bytes]]):
+        open_archive_file: Callable[[str], IO[bytes]]
+):
     file_paths = list_archive_files()
     for file_path in file_paths:
         if is_json_metadata_file(file_path):
@@ -94,7 +95,7 @@ def append_xattr(file_path: str, checksum: str, algorithm: str, dst_dir_path: st
         pass
 
 
-def find_root_dir(file_paths: list):
+def find_root_dir(file_paths: list) -> str:
     for file_path in file_paths:
         dir_path, file_name = os.path.split(file_path)
         if file_name == 'bagit.txt':
@@ -110,7 +111,7 @@ def heartbeat():
             LAST_HEARTBEAT_TIME = current_time
 
 
-def is_json_metadata_file(file_path: str):
+def is_json_metadata_file(file_path: str) -> bool:
     is_in_data_dir = "/data/" in file_path
     is_metadata_name = "metadata.json" in file_path
     return is_metadata_name and is_in_data_dir

@@ -19,7 +19,7 @@ LAST_HEARTBEAT_TIME: int = 0
 HEARTBEAT_URL: str = ""
 
 
-def handle(req: bytes):
+def handle(req: bytes) -> str:
     """Validates bagit archives and returns correct ones.
 
     Args Structure:
@@ -67,7 +67,8 @@ def assert_valid_bagit_archive(archive_path: str, archive_filename: str):
 
 def assert_valid_archive(
         list_archive_files: Callable[[], list],
-        open_archive_file: Callable[[str], IO[bytes]]):
+        open_archive_file: Callable[[str], IO[bytes]]
+):
     archive_files = list_archive_files()
     bagit_dir = find_bagit_dir(archive_files)
     assert bagit_dir is not None
@@ -91,14 +92,14 @@ def assert_valid_archive(
             assert exp_checksum == calculate_checksum(fd, algorithm)
 
 
-def find_bagit_dir(archive_files: list):
+def find_bagit_dir(archive_files: list) -> str:
     for file_path in archive_files:
         dir_path, file_name = os.path.split(file_path)
         if file_name == 'bagit.txt':
             return dir_path
 
 
-def calculate_checksum(fd, algorithm: str):
+def calculate_checksum(fd, algorithm: str) -> str:
     if algorithm == "adler32":
         checksum = 1
         while True:
@@ -120,26 +121,9 @@ def calculate_checksum(fd, algorithm: str):
 
 
 def assert_proper_bagit_txt_content(fd: IO[bytes]):
-    content = fd.readlines()
-
-    assert len(content) == 2
-
-    key1 = content[0].decode("utf-8").split(":")[0].strip()
-    assert key1 == "BagIt-Version"
-
-    bagit_version = content[0].decode("utf-8").split(":")[1].strip()
-    assert_correct_bagit_version(bagit_version)
-
-    key2 = content[1].decode("utf-8").split(":")[0].strip()
-    assert key2 == "Tag-File-Character-Encoding"
-
-    encoding = content[1].decode("utf-8").split(":")[1].strip()
-    assert encoding != ""
-
-
-def assert_correct_bagit_version(bagit_version):
-    match = re.match("^[0-9]+.[0-9]+$", bagit_version)
-    assert bool(match)
+    line1, line2 = fd.readlines()
+    assert re.match(r"^\s*BagIt-Version: [0-9]+.[0-9]+\s*$", line1.decode("utf-8"))
+    assert re.match(r"^\s*Tag-File-Character-Encoding: \w+", line2.decode("utf-8"))
 
 
 def heartbeat():
