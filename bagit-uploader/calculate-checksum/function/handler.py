@@ -1,23 +1,30 @@
 import hashlib
-import os.path
-import zlib
 import json
-import xattr
-import requests
+import os.path
+from typing import IO
 import time
+import xattr
+import zlib
 
-SUPPORTED_CHECKSUM_ALGORITHMS = ['md5', 'sha1', 'sha256', 'sha512', 'adler32']
+import requests
 
-BLOCK_SIZE = 262144
+SUPPORTED_CHECKSUM_ALGORITHMS: tuple = ('md5', 'sha1', 'sha256', 'sha512', 'adler32')
+BLOCK_SIZE: int = 262144
 
-HEARTBEAT_URL = ""
-LAST_HEARTBEAT_TIME = 0
+HEARTBEAT_INTERVAL_SEC: int = 150
+LAST_HEARTBEAT_TIME: int = 0
+HEARTBEAT_URL: str = ""
 
 
-def handle(req: bytes):
-    """handle a request to the function
-    Args:
-        req (str): request body
+def handle(req: bytes) -> str:
+    """Calculates checksums for file, and compares them with checksums from manifests, which were set as custom metadata
+        under 'checksum.<algorithm>.expected' key previously.
+    Args Structure:
+        filePath (str): file path to proceed
+
+    Returns:
+        checksums (object): information about checksums correctness
+            using format: {"filePath": (str), <algorithm>: "ok"/{"calculated": (str), "expected": (str)}}
     """
     global HEARTBEAT_URL
 
@@ -44,10 +51,10 @@ def handle(req: bytes):
                     file_info[algorithm] = {"expected": exp_checksum, "calculated": calculated_checksum}
                 else:
                     file_info[algorithm] = "ok"
-    return json.dumps({"brokenFile": file_info})
+    return json.dumps({"checksums": file_info})
 
 
-def calculate_checksum(fd, algorithm):
+def calculate_checksum(fd: IO[bytes], algorithm: str) -> str:
     if algorithm == "adler32":
         checksum = 1
         while True:
@@ -71,7 +78,7 @@ def calculate_checksum(fd, algorithm):
 def heartbeat():
     global LAST_HEARTBEAT_TIME
     current_time = int(time.time())
-    if current_time - LAST_HEARTBEAT_TIME > 150:
+    if current_time - LAST_HEARTBEAT_TIME > HEARTBEAT_INTERVAL_SEC:
         r = requests.post(url=HEARTBEAT_URL, data={})
-        assert r.ok
-        LAST_HEARTBEAT_TIME = current_time
+        if r.ok:
+            LAST_HEARTBEAT_TIME = current_time
