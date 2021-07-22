@@ -119,7 +119,7 @@ def calculate_checksum(fd, algorithm: str):
         return checksum.hexdigest()
 
 
-def assert_proper_bagit_txt_content(fd):
+def assert_proper_bagit_txt_content(fd: IO[bytes]):
     content = fd.readlines()
 
     assert len(content) == 2
