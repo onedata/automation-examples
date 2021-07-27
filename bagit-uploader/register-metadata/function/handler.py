@@ -103,6 +103,7 @@ def register_json_metadata_from_archive(
             json_metadata_file = open_archive_file(file_path)
             json_metadata = json.loads(json_metadata_file.read())
             if "metadata" in json_metadata:
+                # process file, there all metadata are stored under "metadata" key
                 metadata_list = json_metadata["metadata"]
                 for file_metadata in metadata_list:
                     try:
@@ -119,6 +120,17 @@ def register_json_metadata_from_archive(
                         x.set("onedata_json", str.encode(json.dumps(current_metadata)))
                     except:
                         pass
+            else:
+                # process file, there all metadata are stored under file path key
+                try:
+                    for file_path_metadata in json_metadata:
+                        file_name = file_path_metadata.replace("data/", "")
+                        file_path = f'{destination_dir_path}/{file_name}'
+                        metadata = json_metadata[file_path_metadata]
+                        x = xattr.xattr(file_path)
+                        x.set("onedata_json", str.encode(json.dumps(metadata)))
+                except:
+                    pass
 
 
 def append_xattr(file_path: str, checksum: str, algorithm: str, dst_dir_path: str):
