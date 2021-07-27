@@ -1,6 +1,7 @@
 import json
-import requests
 import urllib3
+
+import requests
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -41,6 +42,8 @@ def handle(req: bytes):
     data3 = {
         "datasetId": dataset_id,
         "config": {
+            "incremental": {"enabled": True},
+            "includeDip": True,
             "layout": "bagit"
         }
     }

@@ -23,7 +23,7 @@ def handle(req: bytes):
     if not os.path.exists(dst_path):
         os.mkdir(dst_path)
 
-    # get created parent directory content, to extract dst  file_id
+    # get created parent directory content, to extract dst file_id
     headers = {"X-Auth-Token": accessToken}
     url1 = f'https://{host}/api/v3/oneprovider/data/{parent_id}/children'
     resp1 = requests.get(url1, headers=headers, verify=False)
