@@ -24,7 +24,18 @@ def handle(req: bytes) -> str:
     if os.path.isfile(file_path):
         filename, file_extension = os.path.splitext(file_path)
 
-        if file_extension in ['.doc', '.docx']:
+        if file_extension == '.docx':
+            # os.system(f"lowriter --convert-to pdf {file_path} {IGNORE_OUTPUT}")
+            os.system(f"unoconv -f pdf  {file_path} {IGNORE_OUTPUT}")
+            files_to_delete.append(file_path)
+
+            os.system(f"pdf2archive {filename}.pdf {IGNORE_OUTPUT}")
+            files_to_delete.append(f"{filename}.pdf")
+            convert_log = f"{file_extension} -> .pdf -> .pdf/A"
+
+        if file_extension == '.doc':
+            time.sleep(20)
+            # os.system(f"lowriter --convert-to pdf {file_path} {IGNORE_OUTPUT}")
             os.system(f"unoconv -f pdf  {file_path} {IGNORE_OUTPUT}")
             files_to_delete.append(file_path)
 

@@ -7,6 +7,9 @@ RUN apt install unoconv -y
 RUN apt-get update && apt-get install -y \
     python3-pip \
     wget \
+    wv \
+    texlive-base \
+    texlive-latex-base \
     ghostscript \
     imagemagick \
     ffmpeg
