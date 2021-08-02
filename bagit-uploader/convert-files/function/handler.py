@@ -1,6 +1,7 @@
 import json
 import os.path
-import time
+
+from ilock import ILock
 
 IGNORE_OUTPUT: str = "> /dev/null 2>&1"
 
@@ -19,24 +20,16 @@ def handle(req: bytes) -> str:
 
     file_path = args["filePath"]
     files_to_delete = []
-    convert_log = " - "
+    convert_log = " not a file "
 
     if os.path.isfile(file_path):
         filename, file_extension = os.path.splitext(file_path)
 
-        if file_extension == '.docx':
-            # os.system(f"lowriter --convert-to pdf {file_path} {IGNORE_OUTPUT}")
-            os.system(f"unoconv -f pdf  {file_path} {IGNORE_OUTPUT}")
-            files_to_delete.append(file_path)
-
-            os.system(f"pdf2archive {filename}.pdf {IGNORE_OUTPUT}")
-            files_to_delete.append(f"{filename}.pdf")
-            convert_log = f"{file_extension} -> .pdf -> .pdf/A"
-
-        if file_extension == '.doc':
-            time.sleep(20)
-            # os.system(f"lowriter --convert-to pdf {file_path} {IGNORE_OUTPUT}")
-            os.system(f"unoconv -f pdf  {file_path} {IGNORE_OUTPUT}")
+        if file_extension in ['.doc', '.docx']:
+            # unoconv is based  on libreoffice, therefore it is
+            # not capable of parallel executing.
+            with ILock('unoconv-lock'):
+                os.system(f"unoconv -f pdf  {file_path} {IGNORE_OUTPUT}")
             files_to_delete.append(file_path)
 
             os.system(f"pdf2archive {filename}.pdf {IGNORE_OUTPUT}")
@@ -59,7 +52,7 @@ def handle(req: bytes) -> str:
             convert_log = f"{file_extension} -> .mp4"
 
         else:
-            convert_log = " - "
+            convert_log = " conversion not needed "
 
         # Delete source and intermediate files
         for file in files_to_delete:
@@ -67,7 +60,8 @@ def handle(req: bytes) -> str:
 
     return json.dumps({
         "convertedFiles": {
-            "info": convert_log,
+            "convertStatus": convert_log,
             "file": file_path,
-            "deletedFiles": files_to_delete}
+            "deletedFiles": files_to_delete
+        }
     })

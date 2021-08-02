@@ -12,8 +12,10 @@ RUN apt-get update && apt-get install -y \
     texlive-latex-base \
     ghostscript \
     imagemagick \
-    ffmpeg
+    ffmpeg \
+    curl
 
+RUN curl https://storage.googleapis.com/sem-cli-releases/get.sh | bash
 
 
 # Allows you to add additional packages via build-arg
