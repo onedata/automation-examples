@@ -31,10 +31,7 @@ def handle(req: bytes) -> str:
             with ILock('unoconv-lock'):
                 os.system(f"unoconv -f pdf  {file_path} {IGNORE_OUTPUT}")
             files_to_delete.append(file_path)
-
-            os.system(f"pdf2archive {filename}.pdf {IGNORE_OUTPUT}")
-            files_to_delete.append(f"{filename}.pdf")
-            convert_log = f"{file_extension} -> .pdf -> .pdf/A"
+            convert_log = f"{file_extension} -> .pdf/A"
 
         elif file_extension in ['.png', '.tif']:
             os.system(f"convert {file_path} {filename}.jpg {IGNORE_OUTPUT}")
@@ -42,8 +39,7 @@ def handle(req: bytes) -> str:
             convert_log = f"{file_extension} -> .jpg"
 
         elif file_extension == '.pdf':
-            os.system(f"pdf2archive {file_path} {IGNORE_OUTPUT}")
-            files_to_delete.append(file_path)
+            os.system(f"pdf2archive {file_path} {file_path} {IGNORE_OUTPUT}")
             convert_log = f"{file_extension} -> .pdf/A"
 
         elif file_extension in ['.mov', '.mkv']:
