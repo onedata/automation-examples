@@ -2,3 +2,4 @@ cffi==1.14.5
 xattr==0.9.7
 python-magic==0.4.24
 guesslang==2.0.3
+pandas==1.2.4
