@@ -6,7 +6,7 @@ from pathlib import Path
 
 import requests
 
-BLOCK_SIZE: int = 262144
+BLOCK_SIZE_BYTES: int = 30000000
 
 HEARTBEAT_INTERVAL_SEC: int = 150
 LAST_HEARTBEAT_TIME: int = 0
@@ -87,6 +87,6 @@ def download_file(file_url: str, file_size: int, file_path: str):
     else:
         r = requests.get(file_url, stream=True, allow_redirects=True)
         with open(file_path, 'wb') as f:
-            for chunk in r.iter_content(32 * 1024):
+            for chunk in r.iter_content(BLOCK_SIZE_BYTES):
                 f.write(chunk)
     return
