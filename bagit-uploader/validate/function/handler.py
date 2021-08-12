@@ -78,7 +78,7 @@ def assert_valid_archive(
 
     data_dir = f'{bagit_dir}/data'
     fetch_file = f'{bagit_dir}/fetch.txt'
-    assert (data_dir in archive_files) or (fetch_file in archive_files)
+    assert (data_dir in archive_files) or (fetch_file in archive_files) or (f'{bagit_dir}/data/' in archive_files)
 
     for algorithm in SUPPORTED_CHECKSUM_ALGORITHMS:
         tagmanifest_file = f'{bagit_dir}/tagmanifest-{algorithm}.txt'
