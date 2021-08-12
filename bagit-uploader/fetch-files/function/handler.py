@@ -12,6 +12,8 @@ HEARTBEAT_INTERVAL_SEC: int = 150
 LAST_HEARTBEAT_TIME: int = 0
 HEARTBEAT_URL: str = ""
 
+IGNORE_OUTPUT: str = "> /dev/null 2>&1"
+
 
 def handle(req: bytes) -> str:
     """Downloads files to be fetched and puts them under given path
@@ -83,7 +85,7 @@ def download_file(file_url: str, file_size: int, file_path: str):
     monitor_thread.start()
 
     if is_xrootd(file_url):
-        os.system(f"xrdcp {file_url} {file_path}")
+        os.system(f"xrdcp {file_url} {file_path} {IGNORE_OUTPUT}")
     else:
         r = requests.get(file_url, stream=True, allow_redirects=True)
         with open(file_path, 'wb') as f:
