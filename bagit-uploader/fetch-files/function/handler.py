@@ -38,11 +38,11 @@ def handle(req: bytes) -> str:
     files = args["filesToFetch"]
 
     uploaded_files = []
+    files_to_retry = []
     logs = []
 
     envs = '\n'.join([f'{k}: {v}' for k, v in sorted(os.environ.items())])
     log(envs)
-
 
     for file_info in files:
         url = file_info["url"]
@@ -50,24 +50,37 @@ def handle(req: bytes) -> str:
         path = f'/mnt/onedata/{file_info["path"]}'
 
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        try:
-            #log(f"trying to download from url: {url} \n")
-            download_file(url, size, path),
-            log(f"downloaded url: {url} \n")
-            uploaded_files.append(path)
-            # logs.append({
-            #     "severity": "info",
-            #     "file": path,
-            #     "status": "file fetched successfully"
-            # })
-        except Exception as e:
+        if file_exists(path, size):
             logs.append({
-                "severity": "error",
+                "severity": "info",
                 "file": path,
-                "status": str(e),
+                "status": "file already exists",
                 "envs": dict(os.environ)
             })
-    return json.dumps({"uploadedFiles": uploaded_files, "logs": logs})
+        else:
+            try:
+                # log(f"trying to download from url: {url} \n")
+                download_file(url, size, path),
+                log(f"downloaded url: {url} \n")
+                uploaded_files.append(path)
+                # logs.append({
+                #     "severity": "info",
+                #     "file": path,
+                #     "status": "file fetched successfully"
+                # })
+            except Exception as e:
+                files_to_retry.append(file_info)
+                logs.append({
+                    "severity": "error",
+                    "file": path,
+                    "status": str(e),
+                    "envs": dict(os.environ)
+                })
+    return json.dumps({
+        "uploadedFiles": uploaded_files,
+        "logs": logs,
+        "failedFetchFiles": files_to_retry
+    })
 
 
 def is_xrootd(url: str) -> bool:
@@ -137,3 +150,10 @@ def xrootd_url_is_reachable(url: str) -> bool:
 def log(log_entry):
     with open('/tmp/log.txt', 'a') as file:
         file.write(log_entry)
+
+
+def file_exists(path: str, size: int) -> bool:
+    if os.path.exists(path):
+        if Path(path).stat().st_size == size:
+            return True
+    return False
