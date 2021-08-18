@@ -18,9 +18,17 @@ validation_mapping: dict = {
         'content': 'C',
         'validator': "verify_language"
     },
+    '.cc': {
+        'content': 'C++',
+        'validator': "verify_language"
+    },
     '.csv': {
-        'content': 'csv',
-        'validator': "validate_csv"
+        'content': 'CSV',
+        'validator': "verify_language"
+    },
+    '.json': {
+        'content': 'JSON',
+        'validator': "verify_language"
     }
 }
 
@@ -39,7 +47,7 @@ def handle(req: bytes) -> str:
 
     if args["item"]["type"] == "REG":
         file_type = get_mime_filename_type(args["item"]["name"]),
-        file_type_str = str(file_type)
+        file_type_str = str(file_type[0])
         file_name, file_extension = os.path.splitext(args["item"]["name"])
 
         if metadata_key != "":
@@ -59,7 +67,7 @@ def handle(req: bytes) -> str:
             return json.dumps({
                 "format": {
                     "file": args["item"]["name"],
-                    "format-extension": file_type,
+                    "format-extension": file_type[0],
                     "is-extension-matching-content": content_match,
                     "inferredContent": inferred_content
                 }})
@@ -68,7 +76,7 @@ def handle(req: bytes) -> str:
             return json.dumps({
                 "format": {
                     "file": args["item"]["name"],
-                    "format-extension": file_type,
+                    "format-extension": file_type[0],
                     "is-extension-matching-content": "unsupported file extension for content inferring"
                 }})
     return json.dumps({
@@ -90,9 +98,7 @@ def infer_content(file_path: str) -> str:
         extension_content = validation_mapping[extension]["content"]
         if globals()[validator_name](extension_content, file_path):
             possible_content_types.append(validation_mapping[extension]["content"])
-    if len(possible_content_types) >= 2:
-        return " or ".join(possible_content_types)
-    elif possible_content_types:
+    if len(possible_content_types) >= 1:
         return possible_content_types[0]
     else:
         return "unable to infer content type"
