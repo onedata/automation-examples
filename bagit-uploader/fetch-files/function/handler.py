@@ -7,7 +7,7 @@ from subprocess import Popen, PIPE
 
 import requests
 
-BLOCK_SIZE_BYTES: int = 30000000
+BLOCK_SIZE_BYTES: int = 31457280
 
 HEARTBEAT_INTERVAL_SEC: int = 150
 LAST_HEARTBEAT_TIME: int = 0
@@ -40,6 +40,10 @@ def handle(req: bytes) -> str:
     uploaded_files = []
     logs = []
 
+    envs = '\n'.join([f'{k}: {v}' for k, v in sorted(os.environ.items())])
+    log(envs)
+
+
     for file_info in files:
         url = file_info["url"]
         size = file_info["size"]
@@ -47,19 +51,21 @@ def handle(req: bytes) -> str:
 
         os.makedirs(os.path.dirname(path), exist_ok=True)
         try:
+            #log(f"trying to download from url: {url} \n")
             download_file(url, size, path),
+            log(f"downloaded url: {url} \n")
             uploaded_files.append(path)
-            logs.append({
-                "severity": "info",
-                "file": path,
-                "status": "file fetched successfully"
-            })
+            # logs.append({
+            #     "severity": "info",
+            #     "file": path,
+            #     "status": "file fetched successfully"
+            # })
         except Exception as e:
             logs.append({
                 "severity": "error",
                 "file": path,
-                "status": str(e)
-
+                "status": str(e),
+                "envs": dict(os.environ)
             })
     return json.dumps({"uploadedFiles": uploaded_files, "logs": logs})
 
@@ -93,18 +99,21 @@ def download_file(file_url: str, file_size: int, file_path: str):
 
     if is_xrootd(file_url):
         if not xrootd_url_is_reachable(file_url):
+            log(f"xrootd url unreachable: {file_url} \n")
             raise Exception(f"XrootD file address: {file_url} is unreachable")
         os.system(f"xrdcp {file_url} {file_path} {IGNORE_OUTPUT}")
     else:
         r = requests.get(file_url, stream=True, allow_redirects=True)
         if not r.ok:
-            raise Exception(f"HTTP/S file address: {file_url} is unreachable")
+            log(f"HTTP/S file address: {file_url} is unreachable. Code: {str(r.status_code)}")
+            raise Exception(f"HTTP/S file address: {file_url} is unreachable. Code: {str(r.status_code)}")
         try:
             with open(file_path, 'wb') as f:
                 for chunk in r.iter_content(BLOCK_SIZE_BYTES):
                     f.write(chunk)
-        except:
-            raise Exception(f"Failed to write data to file")
+        except Exception as e:
+            log(f"Failed to write data to file due to: {str(e)}")
+            raise Exception(f"Failed to write data to file due to: {str(e)}")
 
     return
 
@@ -123,3 +132,8 @@ def xrootd_url_is_reachable(url: str) -> bool:
             return True
     p.kill()
     return False
+
+
+def log(log_entry):
+    with open('/tmp/log.txt', 'a') as file:
+        file.write(log_entry)
