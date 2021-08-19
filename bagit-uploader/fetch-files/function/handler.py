@@ -60,7 +60,15 @@ def handle(req: bytes) -> str:
         else:
             try:
                 # log(f"trying to download from url: {url} \n")
-                download_file(url, size, path),
+                for backoff_sec in [0, 2, 5]:
+                    try:
+                        download_file(url, size, path),
+                        break
+                    except Exception as ex:
+                        time.sleep(backoff_sec)
+                        if backoff_sec == 5:
+                            raise ex
+
                 log(f"downloaded url: {url} \n")
                 uploaded_files.append(path)
                 # logs.append({
@@ -114,7 +122,7 @@ def download_file(file_url: str, file_size: int, file_path: str):
         if not xrootd_url_is_reachable(file_url):
             log(f"xrootd url unreachable: {file_url} \n")
             raise Exception(f"XrootD file address: {file_url} is unreachable")
-        os.system(f"xrdcp {file_url} {file_path} {IGNORE_OUTPUT}")
+        os.system(f"xrdcp -f {file_url} {file_path} {IGNORE_OUTPUT}")
     else:
         r = requests.get(file_url, stream=True, allow_redirects=True)
         if not r.ok:
@@ -134,7 +142,7 @@ def download_file(file_url: str, file_size: int, file_path: str):
 # Some incorrect xrootd url cause xrdcp/xrdfs  methods to hang and last forever, until timeout is reached.
 # Therefore dedicated timeout-based check is needed.
 def xrootd_url_is_reachable(url: str) -> bool:
-    timeout = 10
+    timeout = 5
     parts = url.split("//")
     command = ["xrdfs", f"{parts[0]}//{parts[1]}/", "stat", f"/{parts[2]}"]
 
