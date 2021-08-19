@@ -122,7 +122,7 @@ def download_file(file_url: str, file_size: int, file_path: str):
         if not xrootd_url_is_reachable(file_url):
             log(f"xrootd url unreachable: {file_url} \n")
             raise Exception(f"XrootD file address: {file_url} is unreachable")
-        os.system(f"xrdcp -f {file_url} {file_path} {IGNORE_OUTPUT}")
+        os.system(f"xrdcp {file_url} {file_path} {IGNORE_OUTPUT}")
     else:
         r = requests.get(file_url, stream=True, allow_redirects=True)
         if not r.ok:
