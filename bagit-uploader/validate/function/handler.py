@@ -37,18 +37,27 @@ def handle(req: bytes) -> str:
     heartbeat()
 
     valid_bagit_archives = []
+    logs = []
 
     for archive in args["archives"]:
         try:
-            assert archive["type"] == "REG"
             archive_filename = archive["name"]
+            if not archive["type"] == "REG":
+                raise Exception(f"File {archive_filename} is not a regular file")
             assert_valid_bagit_archive(f'/mnt/onedata/.__onedata__file_id__{archive["file_id"]}', archive_filename)
-        except:
-            continue
+        except Exception as ex:
+            logs.append({
+                "severity": "warning",
+                "file": archive["name"],
+                "status": str(ex)
+            })
         else:
             valid_bagit_archives.append(archive)
 
-    return json.dumps({"validBagitArchives": valid_bagit_archives})
+    return json.dumps({
+        "validBagitArchives": valid_bagit_archives,
+        "logs": logs
+    })
 
 
 def assert_valid_bagit_archive(archive_path: str, archive_filename: str):
@@ -63,6 +72,8 @@ def assert_valid_bagit_archive(archive_path: str, archive_filename: str):
     elif archive_type == '.tgz' or archive_type == ".gz":
         with tarfile.open(archive_path, "r:gz") as archive:
             assert_valid_archive(archive.getnames, archive.extractfile)
+    else:
+        raise Exception(f"Unsupported archive type: {archive_type}")
 
 
 def assert_valid_archive(
@@ -71,25 +82,28 @@ def assert_valid_archive(
 ):
     archive_files = list_archive_files()
     bagit_dir = find_bagit_dir(archive_files)
-    assert bagit_dir is not None
+    if bagit_dir is None:
+        raise Exception("Could not find bagit dir")
 
     with open_archive_file(f'{bagit_dir}/bagit.txt') as f:
         assert_proper_bagit_txt_content(f)
 
     data_dir = f'{bagit_dir}/data'
     fetch_file = f'{bagit_dir}/fetch.txt'
-    assert (data_dir in archive_files) or (fetch_file in archive_files) or (f'{bagit_dir}/data/' in archive_files)
+    if not ((data_dir in archive_files) or (fetch_file in archive_files) or (f'{bagit_dir}/data/' in archive_files)):
+        raise Exception(f"Could not find fetch.txt file or /data directory inside bagit dir: {bagit_dir}. Found files: {str(archive_files)}")
 
     for algorithm in SUPPORTED_CHECKSUM_ALGORITHMS:
         tagmanifest_file = f'{bagit_dir}/tagmanifest-{algorithm}.txt'
 
-        if tagmanifest_file not in archive_files:
-            continue
-
-        for line in open_archive_file(tagmanifest_file):
-            exp_checksum, file_rel_path = line.decode('utf-8').strip().split()
-            fd = open_archive_file(f'{bagit_dir}/{file_rel_path}')
-            assert exp_checksum == calculate_checksum(fd, algorithm)
+        if tagmanifest_file in archive_files:
+            for line in open_archive_file(tagmanifest_file):
+                exp_checksum, file_rel_path = line.decode('utf-8').strip().split()
+                fd = open_archive_file(f'{bagit_dir}/{file_rel_path}')
+                calculated_checksum = calculate_checksum(fd, algorithm)
+                if not exp_checksum == calculated_checksum:
+                    raise Exception(f"{algorithm} checksum verification failed for file {file_rel_path}. \n"
+                                    f"Expected: {exp_checksum}, Calculated: {calculated_checksum}")
 
 
 def find_bagit_dir(archive_files: list) -> str:
@@ -122,8 +136,10 @@ def calculate_checksum(fd, algorithm: str) -> str:
 
 def assert_proper_bagit_txt_content(fd: IO[bytes]):
     line1, line2 = fd.readlines()
-    assert re.match(r"^\s*BagIt-Version: [0-9]+.[0-9]+\s*$", line1.decode("utf-8"))
-    assert re.match(r"^\s*Tag-File-Character-Encoding: \w+", line2.decode("utf-8"))
+    if not re.match(r"^\s*BagIt-Version: [0-9]+.[0-9]+\s*$", line1.decode("utf-8")):
+        raise Exception(f"File bagit.txt has incorrect 1st line: {line1}")
+    if not re.match(r"^\s*Tag-File-Character-Encoding: \w+", line2.decode("utf-8")):
+        raise Exception(f"File bagit.txt has incorrect 2nd line: {line2}")
 
 
 def heartbeat():
