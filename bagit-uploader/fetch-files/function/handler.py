@@ -49,41 +49,34 @@ def handle(req: bytes) -> str:
         size = file_info["size"]
         path = f'/mnt/onedata/{file_info["path"]}'
 
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        if file_exists(path, size):
+        try:
+            for backoff_sec in [0, 2, 5]:
+                try:
+                    if file_exists(path, size):
+                        logs.append({
+                            "severity": "info",
+                            "file": path,
+                            "status": f"File with expected size {size} Bytes already exists.",
+                            "envs": dict(os.environ)
+                        }),
+                        break
+                    download_file(url, size, path),
+                    uploaded_files.append(path)
+                    break
+                except Exception as ex:
+                    time.sleep(backoff_sec)
+                    if backoff_sec == 5:
+                        raise ex
+            log(f"downloaded url: {url} \n")
+
+        except Exception as e:
+            files_to_retry.append(file_info)
             logs.append({
-                "severity": "info",
+                "severity": "error",
                 "file": path,
-                "status": "file already exists",
+                "status": str(e),
                 "envs": dict(os.environ)
             })
-        else:
-            try:
-                # log(f"trying to download from url: {url} \n")
-                for backoff_sec in [0, 2, 5]:
-                    try:
-                        download_file(url, size, path),
-                        break
-                    except Exception as ex:
-                        time.sleep(backoff_sec)
-                        if backoff_sec == 5:
-                            raise ex
-
-                log(f"downloaded url: {url} \n")
-                uploaded_files.append(path)
-                # logs.append({
-                #     "severity": "info",
-                #     "file": path,
-                #     "status": "file fetched successfully"
-                # })
-            except Exception as e:
-                files_to_retry.append(file_info)
-                logs.append({
-                    "severity": "error",
-                    "file": path,
-                    "status": str(e),
-                    "envs": dict(os.environ)
-                })
     return json.dumps({
         "uploadedFiles": uploaded_files,
         "logs": logs,
@@ -117,6 +110,11 @@ def monitor_download(file_path: str, file_size: int):
 def download_file(file_url: str, file_size: int, file_path: str):
     monitor_thread = threading.Thread(target=monitor_download, args=(file_path, file_size,), daemon=True)
     monitor_thread.start()
+
+    try:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    except Exception as ex:
+        raise Exception(f"Failed to create dirs on path due to: {str(ex)}")
 
     if is_xrootd(file_url):
         if not xrootd_url_is_reachable(file_url):
@@ -164,4 +162,10 @@ def file_exists(path: str, size: int) -> bool:
     if os.path.exists(path):
         if Path(path).stat().st_size == size:
             return True
+        else:
+            try:
+                os.remove(path)
+            except Exception as ex:
+                raise Exception(f"Failed to delete existing file with unexpected size due to: {str(ex)}")
+
     return False
