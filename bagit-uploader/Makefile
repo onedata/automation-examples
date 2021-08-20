@@ -1,5 +1,5 @@
 REPO=docker.onedata.org
-TAG=v1
+TAG=v5
 
 .PHONY: infer-destination all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data archive-destination
 
