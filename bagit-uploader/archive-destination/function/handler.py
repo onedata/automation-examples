@@ -67,6 +67,9 @@ def handle(req: bytes):
             }
         }
         resp3 = requests.post(url3, headers=headers, data=json.dumps(data3), verify=False)
+        if not resp3.ok:
+            raise Exception(
+                f"Failed to create archive via REST. Code: {resp3.status_code}, RequestBody: {json.dumps(data3)}")
         archive_id = json.loads(resp3.text)["archiveId"]
 
         wait_until_archive_is_ready(host, headers, archive_id)
@@ -121,7 +124,7 @@ def wait_until_archive_is_ready(host, headers, archive_id):
             time_diff = current_time - latest_check_time
             if time_diff >= increment_timeout_sec and bytes_progress == 0:
                 raise Exception(
-                    f"Could not create archive. No progress has been made withing latest 60 sec. Reason: {str(ex)}")
+                    f"Could not create archive. No progress has been made within latest 60 sec. Reason: {str(ex)}")
             elif bytes_progress >= 0:
                 latest_check_time = current_time
 

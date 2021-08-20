@@ -9,7 +9,7 @@ import zlib
 import requests
 
 SUPPORTED_CHECKSUM_ALGORITHMS: tuple = ('md5', 'sha1', 'sha256', 'sha512', 'adler32')
-BLOCK_SIZE: int = 262144
+BLOCK_SIZE: int = 31457280
 
 HEARTBEAT_INTERVAL_SEC: int = 150
 LAST_HEARTBEAT_TIME: int = 0
