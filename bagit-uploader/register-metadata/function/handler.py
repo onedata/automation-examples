@@ -139,7 +139,7 @@ def append_xattr(file_path: str, checksum: str, algorithm: str, dst_dir_path: st
     file_new_path = f'{dst_dir_path}/{p}'
     x = xattr.xattr(file_new_path)
     try:
-        x.set(xattr_key, str.encode(checksum))
+        x.set(xattr_key, str.encode(f"\"{checksum}\""))
     except:
         pass
 

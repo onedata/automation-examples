@@ -1,9 +1,9 @@
 REPO=docker.onedata.org
-TAG=v18
+TAG=v3
 
-.PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data
+.PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data raise-exception
 
-all: validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data
+all: validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data raise-exception
 
 validate:
 	docker build ./validate -t ${REPO}/bagit-uploader-validate:${TAG}
@@ -38,3 +38,8 @@ register-metadata-from-data:
 calculate-checksum:
 	docker build ./calculate-checksum -t ${REPO}/bagit-uploader-calculate-checksum:${TAG}
 	docker push ${REPO}/bagit-uploader-calculate-checksum:${TAG}
+
+
+raise-exception:
+	docker build ./raise-exception -t ${REPO}/bagit-uploader-raise-exception:${TAG}
+	docker push ${REPO}/bagit-uploader-raise-exception:${TAG}

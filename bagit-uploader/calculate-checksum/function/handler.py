@@ -35,22 +35,35 @@ def handle(req: bytes) -> str:
 
     file_path = args["filePath"]
     file_info = {}
+    try:
+        if os.path.isfile(file_path):
+            for algorithm in SUPPORTED_CHECKSUM_ALGORITHMS:
+                xf = xattr.xattr(file_path)
+                expected_checksum_key = f'checksum.{algorithm}.expected'
+                calculated_checksum_key = f'checksum.{algorithm}.calculated'
+                if expected_checksum_key in xf.list():
+                    try:
+                        with open(file_path, 'rb') as fd:
+                            calculated_checksum = calculate_checksum(fd, algorithm)
+                    except Exception as ex:
+                        raise Exception(f"Failed to open file and calculate checksum due to: {str(ex)}")
 
-    if os.path.isfile(file_path):
-        for algorithm in SUPPORTED_CHECKSUM_ALGORITHMS:
-            xf = xattr.xattr(file_path)
-            expected_checksum_key = f'checksum.{algorithm}.expected'
-            calculated_checksum_key = f'checksum.{algorithm}.calculated'
-            if expected_checksum_key in xf.list():
-                with open(file_path, 'rb') as fd:
-                    calculated_checksum = calculate_checksum(fd, algorithm)
-                exp_checksum = xf.get(expected_checksum_key).decode("utf8")
-                xf.set(calculated_checksum_key, str.encode(calculated_checksum))
-                file_info["file"] = file_path
-                if exp_checksum != calculated_checksum:
-                    file_info[algorithm] = {"expected": exp_checksum, "calculated": calculated_checksum}
-                else:
-                    file_info[algorithm] = "ok"
+                    try:
+                        exp_checksum = xf.get(expected_checksum_key).decode("utf8")
+                        xf.set(calculated_checksum_key, str.encode(f"\"{calculated_checksum}\""))
+                    except Exception as ex:
+                        raise Exception(f"Failed set calculated checksum metadata due to: {str(ex)}")
+
+                    file_info["file"] = file_path
+                    if exp_checksum != calculated_checksum:
+                        raise Exception(
+                            f"Expected file checksum: {exp_checksum}, when calculated checksum is: {calculated_checksum}")
+
+                    file_info[algorithm] = {"expected": exp_checksum, "calculated": calculated_checksum, "status": "ok"}
+    except Exception as ex:
+        return json.dumps({"exception": {
+            "reason": f"Checksum verification failed due to: {str(ex)}"
+        }})
     return json.dumps({"checksums": file_info})
 
 
