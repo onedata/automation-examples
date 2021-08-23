@@ -1,11 +1,18 @@
 REPO=docker.onedata.org
+
 VALIDATE_TAG=v9
+
 UNPACK_DATA_TAG=v3
 UNPACK_FETCH_TAG=v10
 
+FETCH_FILES_TAG=20
+
 REGISTER_METADATA_TAG=v4
 REGISTER_METADATA_FROM_DATA_TAG=v4
-TAG=v16
+
+CALCULATE_CHECKSUM_TAG=v4
+
+ARCHIVE_DESTINATION_TAG=v5
 
 all: infer-destination validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data archive-destination
 .PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data raise-exception
@@ -32,8 +39,8 @@ unpack-fetch:
 
 
 fetch-files:
-	docker build ./fetch-files -t ${REPO}/bagit-uploader-fetch-files:${TAG}
-	docker push ${REPO}/bagit-uploader-fetch-files:${TAG}
+	docker build ./fetch-files -t ${REPO}/bagit-uploader-fetch-files:${FETCH_FILES_TAG}
+	docker push ${REPO}/bagit-uploader-fetch-files:${FETCH_FILES_TAG}
 
 
 register-metadata:
@@ -47,14 +54,10 @@ register-metadata-from-data:
 
 
 calculate-checksum:
-	docker build ./calculate-checksum -t ${REPO}/bagit-uploader-calculate-checksum:${TAG}
-	docker push ${REPO}/bagit-uploader-calculate-checksum:${TAG}
+	docker build ./calculate-checksum -t ${REPO}/bagit-uploader-calculate-checksum:${CALCULATE_CHECKSUM_TAG}
+	docker push ${REPO}/bagit-uploader-calculate-checksum:${CALCULATE_CHECKSUM_TAG}
 
 
 archive-destination:
-	docker build ./archive-destination -t ${REPO}/bagit-uploader-archive-destination:${TAG}
-	docker push ${REPO}/bagit-uploader-archive-destination:${TAG}
-
-raise-exception:
-	docker build ./raise-exception -t ${REPO}/bagit-uploader-raise-exception:${TAG}
-	docker push ${REPO}/bagit-uploader-raise-exception:${TAG}
+	docker build ./archive-destination -t ${REPO}/bagit-uploader-archive-destination:${ARCHIVE_DESTINATION_TAG}
+	docker push ${REPO}/bagit-uploader-archive-destination:${ARCHIVE_DESTINATION_TAG}
