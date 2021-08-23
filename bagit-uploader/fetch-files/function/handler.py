@@ -38,7 +38,6 @@ def handle(req: bytes) -> str:
     files = args["filesToFetch"]
 
     uploaded_files = []
-    files_to_retry = []
     logs = []
 
     envs = '\n'.join([f'{k}: {v}' for k, v in sorted(os.environ.items())])
@@ -70,17 +69,25 @@ def handle(req: bytes) -> str:
             log(f"downloaded url: {url} \n")
 
         except Exception as e:
-            files_to_retry.append(file_info)
             logs.append({
                 "severity": "error",
                 "file": path,
                 "status": str(e),
                 "envs": dict(os.environ)
             })
+
+    error_logs = []
+    for log_object in logs:
+        if log_object["severity"] == "error":
+            error_logs.append(log_object)
+    if len(error_logs) >= 1:
+        return json.dumps({
+            "exception": error_logs
+        })
+
     return json.dumps({
         "uploadedFiles": uploaded_files,
-        "logs": logs,
-        "failedFetchFiles": files_to_retry
+        "logs": logs
     })
 
 
