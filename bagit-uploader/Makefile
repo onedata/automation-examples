@@ -1,6 +1,7 @@
 REPO=docker.onedata.org
 VALIDATE_TAG=v9
 UNPACK_DATA_TAG=v3
+UNPACK_FETCH_TAG=v10
 TAG=v16
 
 .PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data
@@ -18,8 +19,8 @@ unpack-data:
 
 
 unpack-fetch:
-	docker build ./unpack-fetch -t ${REPO}/bagit-uploader-unpack-fetch:${TAG}
-	docker push ${REPO}/bagit-uploader-unpack-fetch:${TAG}
+	docker build ./unpack-fetch -t ${REPO}/bagit-uploader-unpack-fetch:${UNPACK_FETCH_TAG}
+	docker push ${REPO}/bagit-uploader-unpack-fetch:${UNPACK_FETCH_TAG}
 
 
 fetch-files:
