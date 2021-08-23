@@ -1,27 +1,24 @@
 REPO=docker.onedata.org
 
+INFER_DESTINATION_TAG=v2
 VALIDATE_TAG=v9
-
 UNPACK_DATA_TAG=v3
 UNPACK_FETCH_TAG=v10
-
 FETCH_FILES_TAG=20
-
 REGISTER_METADATA_TAG=v4
 REGISTER_METADATA_FROM_DATA_TAG=v4
-
 CALCULATE_CHECKSUM_TAG=v4
-
+CONVERT_FILES_TAG=v3
 ARCHIVE_DESTINATION_TAG=v5
+ARCHIVE_DESTINATION_DM_CERN_TAG=v5
 
 all: infer-destination validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data archive-destination
-.PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data raise-exception
+.PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data
 
 
 infer-destination:
-	docker build ./infer-destination -t ${REPO}/bagit-uploader-infer-destination:${TAG}
-	docker push ${REPO}/bagit-uploader-infer-destination:${TAG}
-all: validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data raise-exception
+	docker build ./infer-destination -t ${REPO}/bagit-uploader-infer-destination:${INFER_DESTINATION_TAG}
+	docker push ${REPO}/bagit-uploader-infer-destination:${INFER_DESTINATION_TAG}
 
 validate:
 	docker build ./validate -t ${REPO}/bagit-uploader-validate:${VALIDATE_TAG}
@@ -58,6 +55,15 @@ calculate-checksum:
 	docker push ${REPO}/bagit-uploader-calculate-checksum:${CALCULATE_CHECKSUM_TAG}
 
 
+convert-files:
+	docker build ./convert-files -t ${REPO}/bagit-uploader-convert-files:${CONVERT_FILES_TAG}
+	docker push ${REPO}/convert-files:${CALCULATE_CHECKSUM_TAG}
+
+
 archive-destination:
 	docker build ./archive-destination -t ${REPO}/bagit-uploader-archive-destination:${ARCHIVE_DESTINATION_TAG}
 	docker push ${REPO}/bagit-uploader-archive-destination:${ARCHIVE_DESTINATION_TAG}
+
+archive-destination-dm-cern:
+	docker build ./archive-destination-dm-cern -t ${REPO}/bagit-uploader-archive-destination-dm-cern:${ARCHIVE_DESTINATION_TAG}
+	docker push ${REPO}/bagit-uploader-archive-destination-dm-cern:${ARCHIVE_DESTINATION_DM_CERN_TAG}

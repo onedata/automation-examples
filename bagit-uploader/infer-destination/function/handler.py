@@ -18,7 +18,7 @@ def handle(req: bytes):
     host = args["credentials"]["host"]
 
     # infer destination directory name, and create directory if does not exist
-    id, rec, ts = archive_name.split("-")
+    id, rec, ts = archive_name.split("+")
     dst_path = f"/mnt/onedata/.__onedata__file_id__{parent_id}/{rec}"
     if not os.path.exists(dst_path):
         os.mkdir(dst_path)
