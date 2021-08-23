@@ -17,7 +17,8 @@ HEARTBEAT_URL: str = ""
 
 
 def handle(req: bytes) -> str:
-    """Registers json metadata from *metadata.json files (only from data/ directory)
+    """Reads manifests from bagit archive and sets them as custom metadata for each file.
+        Registers json metadata from *metadata.json files (does not include files from data/ directory)
         as json metadata for each file.
 
     Args Structure:
@@ -33,7 +34,12 @@ def handle(req: bytes) -> str:
     HEARTBEAT_URL = args["heartbeatUrl"]
     heartbeat()
 
-    register_json_metadata(args)
+    try:
+        register_json_metadata(args)
+    except Exception as ex:
+        return json.dumps({
+            "exception": f"JSON metadata registration failed due to: {str(ex)}"
+        })
 
     return json.dumps({})
 
@@ -53,6 +59,8 @@ def register_json_metadata(args: dict):
     elif archive_type == '.tgz' or archive_type == ".gz":
         with tarfile.open(archive_path, "r:gz") as archive:
             return register_json_metadata_from_archive(dst_dir_path, archive.getnames, archive.extractfile)
+    else:
+        raise Exception(f"Archive format not supported: {archive_type}")
 
 
 def register_json_metadata_from_archive(
@@ -63,8 +71,13 @@ def register_json_metadata_from_archive(
     file_paths = list_archive_files()
     for file_path in file_paths:
         if is_json_metadata_file(file_path):
-            json_metadata_file = open_archive_file(file_path)
-            json_metadata = json.loads(json_metadata_file.read())
+
+            try:
+                json_metadata_file = open_archive_file(file_path)
+                json_metadata = json.loads(json_metadata_file.read())
+            except Exception as ex:
+                raise Exception(f"Failed to open and load json metadata from file {file_path} due to {str(ex)}")
+
             if "metadata" in json_metadata:
                 # process file, there all metadata are stored under "metadata" key
                 metadata_list = json_metadata["metadata"]
@@ -102,9 +115,9 @@ def append_xattr(file_path: str, checksum: str, algorithm: str, dst_dir_path: st
     file_new_path = f'{dst_dir_path}/{p}'
     x = xattr.xattr(file_new_path)
     try:
-        x.set(xattr_key, str.encode(checksum))
-    except:
-        pass
+        x.set(xattr_key, str.encode(f"\"{checksum}\""))
+    except Exception as ex:
+        raise Exception(f"Failed to set xattr {xattr_key}:{checksum} on file {file_path} due to: {str(ex)}")
 
 
 def find_root_dir(file_paths: list) -> str:
@@ -114,6 +127,12 @@ def find_root_dir(file_paths: list) -> str:
             return dir_path
 
 
+def is_json_metadata_file(file_path: str) -> bool:
+    in_data_dir = "/data/" in file_path
+    is_metadata_name = "metadata.json" in file_path
+    return is_metadata_name and in_data_dir
+
+
 def heartbeat():
     global LAST_HEARTBEAT_TIME
     current_time = int(time.time())
@@ -121,9 +140,3 @@ def heartbeat():
         r = requests.post(url=HEARTBEAT_URL, data={})
         if r.ok:
             LAST_HEARTBEAT_TIME = current_time
-
-
-def is_json_metadata_file(file_path: str) -> bool:
-    is_in_data_dir = "/data/" in file_path
-    is_metadata_name = "metadata.json" in file_path
-    return is_metadata_name and is_in_data_dir

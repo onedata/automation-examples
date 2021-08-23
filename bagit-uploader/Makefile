@@ -1,7 +1,11 @@
 REPO=docker.onedata.org
-TAG=v20
+VALIDATE_TAG=v9
+UNPACK_DATA_TAG=v3
+UNPACK_FETCH_TAG=v10
 
-.PHONY: infer-destination all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data archive-destination
+REGISTER_METADATA_TAG=v4
+REGISTER_METADATA_FROM_DATA_TAG=v4
+TAG=v16
 
 all: infer-destination validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data archive-destination
 .PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data raise-exception
@@ -13,18 +17,18 @@ infer-destination:
 all: validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data raise-exception
 
 validate:
-	docker build ./validate -t ${REPO}/bagit-uploader-validate:${TAG}
-	docker push ${REPO}/bagit-uploader-validate:${TAG}
+	docker build ./validate -t ${REPO}/bagit-uploader-validate:${VALIDATE_TAG}
+	docker push ${REPO}/bagit-uploader-validate:${VALIDATE_TAG}
 
 
 unpack-data:
-	docker build ./unpack-data -t ${REPO}/bagit-uploader-unpack-data:${TAG}
-	docker push ${REPO}/bagit-uploader-unpack-data:${TAG}
+	docker build ./unpack-data -t ${REPO}/bagit-uploader-unpack-data:${UNPACK_DATA_TAG}
+	docker push ${REPO}/bagit-uploader-unpack-data:${UNPACK_DATA_TAG}
 
 
 unpack-fetch:
-	docker build ./unpack-fetch -t ${REPO}/bagit-uploader-unpack-fetch:${TAG}
-	docker push ${REPO}/bagit-uploader-unpack-fetch:${TAG}
+	docker build ./unpack-fetch -t ${REPO}/bagit-uploader-unpack-fetch:${UNPACK_FETCH_TAG}
+	docker push ${REPO}/bagit-uploader-unpack-fetch:${UNPACK_FETCH_TAG}
 
 
 fetch-files:
@@ -33,13 +37,13 @@ fetch-files:
 
 
 register-metadata:
-	docker build ./register-metadata -t ${REPO}/bagit-uploader-register-metadata:${TAG}
-	docker push ${REPO}/bagit-uploader-register-metadata:${TAG}
+	docker build ./register-metadata -t ${REPO}/bagit-uploader-register-metadata:${REGISTER_METADATA_TAG}
+	docker push ${REPO}/bagit-uploader-register-metadata:${REGISTER_METADATA_TAG}
 
 
 register-metadata-from-data:
-	docker build ./register-metadata-from-data -t ${REPO}/bagit-uploader-register-metadata-from-data:${TAG}
-	docker push ${REPO}/bagit-uploader-register-metadata-from-data:${TAG}
+	docker build ./register-metadata-from-data -t ${REPO}/bagit-uploader-register-metadata-from-data:${REGISTER_METADATA_FROM_DATA_TAG}
+	docker push ${REPO}/bagit-uploader-register-metadata-from-data:${REGISTER_METADATA_FROM_DATA_TAG}
 
 
 calculate-checksum:

@@ -34,8 +34,18 @@ def handle(req: bytes) -> str:
     HEARTBEAT_URL = args["heartbeatUrl"]
     heartbeat()
 
-    register_checksum_metadata(args)
-    register_json_metadata(args)
+    try:
+        register_checksum_metadata(args)
+    except Exception as ex:
+        return json.dumps({
+            "exception": f"Checksum metadata registration failed due to: {str(ex)}"
+        })
+    try:
+        register_json_metadata(args)
+    except Exception as ex:
+        return json.dumps({
+            "exception": f"JSON metadata registration failed due to: {str(ex)}"
+        })
 
     return json.dumps({})
 
@@ -55,6 +65,8 @@ def register_checksum_metadata(args: dict):
     elif archive_type == '.tgz' or archive_type == ".gz":
         with tarfile.open(archive_path, "r:gz") as archive:
             return register_checksum_metadata_from_archive(dst_dir_path, archive.getnames, archive.extractfile)
+    else:
+        raise Exception(f"Archive format not supported: {archive_type}")
 
 
 def register_checksum_metadata_from_archive(
@@ -71,8 +83,14 @@ def register_checksum_metadata_from_archive(
             manifest = open_archive_file(manifest_file)
             for line in manifest:
                 heartbeat()
-                checksum, file_path = line.decode('utf-8').strip().split()
-                append_xattr(file_path, checksum, algorithm, destination_dir_path)
+                try:
+                    checksum, file_path = line.decode('utf-8').strip().split()
+                except Exception as ex:
+                    raise Exception(f"Failed to parse manifest line: {line.decode('utf-8')}")
+                try:
+                    append_xattr(file_path, checksum, algorithm, destination_dir_path)
+                except Exception as ex:
+                    raise Exception(f"Failed to set xattr metadata due to: {str(ex)}")
 
 
 def register_json_metadata(args: dict):
@@ -90,6 +108,8 @@ def register_json_metadata(args: dict):
     elif archive_type == '.tgz' or archive_type == ".gz":
         with tarfile.open(archive_path, "r:gz") as archive:
             return register_json_metadata_from_archive(dst_dir_path, archive.getnames, archive.extractfile)
+    else:
+        raise Exception(f"Archive format not supported: {archive_type}")
 
 
 def register_json_metadata_from_archive(
@@ -100,8 +120,13 @@ def register_json_metadata_from_archive(
     file_paths = list_archive_files()
     for file_path in file_paths:
         if is_json_metadata_file(file_path):
-            json_metadata_file = open_archive_file(file_path)
-            json_metadata = json.loads(json_metadata_file.read())
+
+            try:
+                json_metadata_file = open_archive_file(file_path)
+                json_metadata = json.loads(json_metadata_file.read())
+            except Exception as ex:
+                raise Exception(f"Failed to open and load json metadata from file {file_path} due to {str(ex)}")
+
             if "metadata" in json_metadata:
                 # process file, there all metadata are stored under "metadata" key
                 metadata_list = json_metadata["metadata"]
@@ -140,8 +165,8 @@ def append_xattr(file_path: str, checksum: str, algorithm: str, dst_dir_path: st
     x = xattr.xattr(file_new_path)
     try:
         x.set(xattr_key, str.encode(f"\"{checksum}\""))
-    except:
-        pass
+    except Exception as ex:
+        raise Exception(f"Failed to set xattr {xattr_key}:{checksum} on file {file_path} due to: {str(ex)}")
 
 
 def find_root_dir(file_paths: list) -> str:
