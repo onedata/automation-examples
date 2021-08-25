@@ -3,9 +3,10 @@ import os.path
 import time
 import threading
 from pathlib import Path
-from subprocess import Popen, PIPE
+import multiprocessing
 
 import requests
+from xrootdpyfs import XRootDPyFS
 
 BLOCK_SIZE_BYTES: int = 31457280
 
@@ -28,67 +29,78 @@ def handle(req: bytes) -> str:
         uploadedFiles (batch/list of strings): list of file paths, which were successfully fetched and
             placed under given path.
     """
-    global HEARTBEAT_URL
+    try:
+        global HEARTBEAT_URL
 
-    args = json.loads(req)
+        args = json.loads(req)
 
-    HEARTBEAT_URL = args["heartbeatUrl"]
-    heartbeat()
+        HEARTBEAT_URL = args["heartbeatUrl"]
+        heartbeat()
 
-    files = args["filesToFetch"]
+        files = args["filesToFetch"]
 
-    uploaded_files = []
-    logs = []
+        uploaded_files = []
+        logs = []
 
-    envs = '\n'.join([f'{k}: {v}' for k, v in sorted(os.environ.items())])
-    log(envs)
+        envs = '\n'.join([f'{k}: {v}' for k, v in sorted(os.environ.items())])
+        log(envs)
 
-    for file_info in files:
-        url = file_info["url"]
-        size = file_info["size"]
-        path = f'/mnt/onedata/{file_info["path"]}'
+        for file_info in files:
+            url = file_info["url"]
+            size = file_info["size"]
+            path = f'/mnt/onedata/{file_info["path"]}'
 
-        try:
-            for backoff_sec in [0, 2, 5]:
-                try:
-                    if file_exists(path, size):
-                        logs.append({
-                            "severity": "info",
-                            "file": path,
-                            "status": f"File with expected size {size} Bytes already exists.",
-                            "envs": dict(os.environ)
-                        }),
+            try:
+                for backoff_sec in [0, 2, 5, 7]:
+                    try:
+                        # clear logs from previous retries
+                        logs = []
+                        if file_exists(path, size):
+                            logs.append({
+                                "severity": "info",
+                                "file": path,
+                                "status": f"File with expected size {size} Bytes already exists.",
+                                "envs": dict(os.environ)
+                            }),
+                            break
+                        download_file(url, size, path),
+                        uploaded_files.append(path)
                         break
-                    download_file(url, size, path),
-                    uploaded_files.append(path)
-                    break
-                except Exception as ex:
-                    time.sleep(backoff_sec)
-                    if backoff_sec == 5:
-                        raise ex
-            log(f"downloaded url: {url} \n")
+                    except Exception as ex:
+                        time.sleep(backoff_sec)
+                        if backoff_sec == 7:
+                            raise ex
+                log(f"downloaded url: {url} \n")
 
-        except Exception as e:
-            logs.append({
-                "severity": "error",
-                "file": path,
-                "status": str(e),
-                "envs": dict(os.environ)
+            except Exception as e:
+                logs.append({
+                    "severity": "error",
+                    "file": path,
+                    "status": str(e),
+                    "envs": dict(os.environ)
+                })
+
+        error_logs = []
+        for log_object in logs:
+            if log_object["severity"] == "error":
+                error_logs.append(log_object)
+        if len(error_logs) >= 1:
+            return json.dumps({
+                "exception": {
+                    "reason": error_logs
+                }
             })
 
-    error_logs = []
-    for log_object in logs:
-        if log_object["severity"] == "error":
-            error_logs.append(log_object)
-    if len(error_logs) >= 1:
         return json.dumps({
-            "exception": error_logs
+            "uploadedFiles": uploaded_files,
+            "logs": logs
         })
-
-    return json.dumps({
-        "uploadedFiles": uploaded_files,
-        "logs": logs
-    })
+    except Exception as ex:
+        return json.dumps({
+            "exception": {
+                "reason": [str(ex)]
+            }
+        })
 
 
 def is_xrootd(url: str) -> bool:
@@ -124,10 +136,18 @@ def download_file(file_url: str, file_size: int, file_path: str):
         raise Exception(f"Failed to create dirs on path due to: {str(ex)}")
 
     if is_xrootd(file_url):
+
         if not xrootd_url_is_reachable(file_url):
             log(f"xrootd url unreachable: {file_url} \n")
             raise Exception(f"XrootD file address: {file_url} is unreachable")
-        os.system(f"xrdcp {file_url} {file_path} {IGNORE_OUTPUT}")
+        dir, source_file = os.path.split(file_url)
+        fs = XRootDPyFS(dir)
+        with fs.open(source_file) as source, open(file_path, 'wb') as destination:
+            while True:
+                data = source.read(BLOCK_SIZE_BYTES)
+                if not data:
+                    break
+                destination.write(data)
     else:
         r = requests.get(file_url, stream=True, allow_redirects=True)
         if not r.ok:
@@ -141,23 +161,45 @@ def download_file(file_url: str, file_size: int, file_path: str):
             log(f"Failed to write data to file due to: {str(e)}")
             raise Exception(f"Failed to write data to file due to: {str(e)}")
 
+    time.sleep(3)
+    downloaded_file_size = Path(file_path).stat().st_size
+
+    if downloaded_file_size != file_size:
+        raise Exception(f"Downloaded file has wrong size (expected size has been taken from fetch.txt file). "
+                        f"Expected: {file_size} B, Downloaded: {downloaded_file_size} B")
+
     return
 
 
 # Some incorrect xrootd url cause xrdcp/xrdfs  methods to hang and last forever, until timeout is reached.
 # Therefore dedicated timeout-based check is needed.
 def xrootd_url_is_reachable(url: str) -> bool:
-    timeout = 5
-    parts = url.split("//")
-    command = ["xrdfs", f"{parts[0]}//{parts[1]}/", "stat", f"/{parts[2]}"]
+    p = multiprocessing.Process(target=stat_xrootd_file, args=(url,))
+    p.start()
+    p.join(5)
+    if p.is_alive():
+        p.terminate()
+        return False
+    return True
 
-    p = Popen(command, stdout=PIPE, stderr=PIPE)
-    for t in range(timeout):
-        time.sleep(1)
-        if p.poll() is not None:
-            return True
-    p.kill()
-    return False
+
+def stat_xrootd_file(file_url):
+    dir, source_file = os.path.split(file_url)
+    fs = XRootDPyFS(dir)
+    with fs.open(source_file):
+        pass
+
+    # timeout = 5
+    # parts = url.split("//")
+    # command = ["xrdfs", f"{parts[0]}//{parts[1]}/", "stat", f"/{parts[2]}"]
+    #
+    # p = Popen(command, stdout=PIPE, stderr=PIPE)
+    # for t in range(timeout):
+    #     time.sleep(1)
+    #     if p.poll() is not None:
+    #         return True
+    # p.kill()
+    # return False
 
 
 def log(log_entry):

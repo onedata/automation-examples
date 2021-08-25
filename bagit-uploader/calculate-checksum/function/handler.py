@@ -76,7 +76,9 @@ def calculate_checksum(fd: IO[bytes], algorithm: str) -> str:
             if not data:
                 break
             checksum = zlib.adler32(data, checksum)
-        return format(checksum, 'x')
+        checksum_str = format(checksum, 'x')
+        return checksum_str.zfill(8)
+
     else:
         checksum = getattr(hashlib, algorithm)()
         while True:

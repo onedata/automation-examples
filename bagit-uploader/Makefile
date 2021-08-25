@@ -1,19 +1,19 @@
 REPO=docker.onedata.org
 
-INFER_DESTINATION_TAG=v2
+INFER_DESTINATION_TAG=v3
 VALIDATE_TAG=v9
 UNPACK_DATA_TAG=v3
 UNPACK_FETCH_TAG=v10
-FETCH_FILES_TAG=20
+FETCH_FILES_TAG=22
 REGISTER_METADATA_TAG=v4
 REGISTER_METADATA_FROM_DATA_TAG=v4
-CALCULATE_CHECKSUM_TAG=v4
+CALCULATE_CHECKSUM_TAG=v5
 CONVERT_FILES_TAG=v3
 ARCHIVE_DESTINATION_TAG=v5
 ARCHIVE_DESTINATION_DM_CERN_TAG=v5
 
-all: infer-destination validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data archive-destination
-.PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data
+
+.PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data infer-destination
 
 
 infer-destination:
