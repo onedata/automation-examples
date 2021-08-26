@@ -1,5 +1,6 @@
 import json
 import time
+import os
 
 import urllib3
 
@@ -54,7 +55,6 @@ def handle(req: bytes):
                 "severity": "info",
                 "status": f"Dataset on directory {destination_name} already established with datasetId: {dataset_id} "
             })
-
         # having dataset id, create archive from this dataset
         url3 = f'https://{host}/api/v3/oneprovider/archives'
         data3 = {

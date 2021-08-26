@@ -8,12 +8,12 @@ FETCH_FILES_TAG=22
 REGISTER_METADATA_TAG=v4
 REGISTER_METADATA_FROM_DATA_TAG=v4
 CALCULATE_CHECKSUM_TAG=v5
-CONVERT_FILES_TAG=v3
-ARCHIVE_DESTINATION_TAG=v5
-ARCHIVE_DESTINATION_DM_CERN_TAG=v5
+CONVERT_FILES_TAG=v8
+ARCHIVE_DESTINATION_TAG=v6
+ARCHIVE_DESTINATION_DM_CERN_TAG=v6
 
 
-.PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data infer-destination
+.PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data infer-destination archive-destination convert-files archive-destination-dm-cern
 
 
 infer-destination:
@@ -57,7 +57,7 @@ calculate-checksum:
 
 convert-files:
 	docker build ./convert-files -t ${REPO}/bagit-uploader-convert-files:${CONVERT_FILES_TAG}
-	docker push ${REPO}/convert-files:${CALCULATE_CHECKSUM_TAG}
+	docker push ${REPO}/bagit-uploader-convert-files:${CONVERT_FILES_TAG}
 
 
 archive-destination:
