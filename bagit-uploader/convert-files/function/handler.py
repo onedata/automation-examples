@@ -31,21 +31,21 @@ def handle(req: bytes) -> str:
                 # unoconv is based  on libreoffice, therefore it is
                 # not capable of parallel executing.
                 with ILock('unoconv-lock'):
-                    os.system(f"unoconv -f pdf  {file_path} {IGNORE_OUTPUT}")
+                    os.system(f"unoconv -f pdf  \'{file_path}\' {IGNORE_OUTPUT}")
                 files_to_delete.append(file_path)
                 convert_log = f"{file_extension} -> .pdf/A"
 
-            elif file_extension in ['.png', '.tif']:
-                os.system(f"convert {file_path} {filename}.jpg {IGNORE_OUTPUT}")
+            elif file_extension in ['.png', '.tif', '.tiff']:
+                os.system(f"convert {file_path} \'{filename}.jpg\' {IGNORE_OUTPUT}")
                 files_to_delete.append(file_path)
                 convert_log = f"{file_extension} -> .jpg"
 
             elif file_extension == '.pdf':
-                os.system(f"pdf2archive {file_path} {file_path} {IGNORE_OUTPUT}")
+                os.system(f"pdf2archive {file_path} \'{file_path}\' {IGNORE_OUTPUT}")
                 convert_log = f"{file_extension} -> .pdf/A"
 
             elif file_extension in ['.mov', '.mkv']:
-                os.system(f"ffmpeg -i {file_path} {filename}.mp4 {IGNORE_OUTPUT}")
+                os.system(f"ffmpeg -i {file_path} \'{filename}.mp4\' {IGNORE_OUTPUT}")
                 files_to_delete.append(file_path)
                 convert_log = f"{file_extension} -> .mp4"
 
