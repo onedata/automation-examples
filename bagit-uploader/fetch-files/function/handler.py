@@ -6,13 +6,16 @@ from pathlib import Path
 import multiprocessing
 
 import requests
-from xrootdpyfs import XRootDPyFS
+from XRootD import client
 
 BLOCK_SIZE_BYTES: int = 31457280
 
 HEARTBEAT_INTERVAL_SEC: int = 150
 LAST_HEARTBEAT_TIME: int = 0
 HEARTBEAT_URL: str = ""
+XROOTD_OPEN_TIMEOUT_SEC: int = 10
+XROOTD_READ_TIMEOUT_SEC: int = 120
+HTTP_GET_TIMEOUT_SEC: int = 120
 
 IGNORE_OUTPUT: str = "> /dev/null 2>&1"
 
@@ -31,19 +34,12 @@ def handle(req: bytes) -> str:
     """
     try:
         global HEARTBEAT_URL
-
         args = json.loads(req)
-
         HEARTBEAT_URL = args["heartbeatUrl"]
         heartbeat()
-
         files = args["filesToFetch"]
-
         uploaded_files = []
         logs = []
-
-        envs = '\n'.join([f'{k}: {v}' for k, v in sorted(os.environ.items())])
-        log(envs)
 
         for file_info in files:
             url = file_info["url"]
@@ -70,7 +66,7 @@ def handle(req: bytes) -> str:
                         time.sleep(backoff_sec)
                         if backoff_sec == 7:
                             raise ex
-                log(f"downloaded url: {url} \n")
+
 
             except Exception as e:
                 logs.append({
@@ -103,10 +99,6 @@ def handle(req: bytes) -> str:
         })
 
 
-def is_xrootd(url: str) -> bool:
-    return url.startswith("root:/")
-
-
 def heartbeat():
     global LAST_HEARTBEAT_TIME
     current_time = int(time.time())
@@ -116,95 +108,72 @@ def heartbeat():
             LAST_HEARTBEAT_TIME = current_time
 
 
-def monitor_download(file_path: str, file_size: int):
-    size = 0
-    while size < file_size:
-        time.sleep(HEARTBEAT_INTERVAL_SEC // 2)
-        current_size = Path(file_path).stat().st_size
-        if current_size > size:
-            heartbeat()
-            size = current_size
-
-
 def download_file(file_url: str, file_size: int, file_path: str):
-    monitor_thread = threading.Thread(target=monitor_download, args=(file_path, file_size,), daemon=True)
-    monitor_thread.start()
-
     try:
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
     except Exception as ex:
         raise Exception(f"Failed to create dirs on path due to: {str(ex)}")
 
     if is_xrootd(file_url):
-
-        if not xrootd_url_is_reachable(file_url):
-            log(f"xrootd url unreachable: {file_url} \n")
-            raise Exception(f"XrootD file address: {file_url} is unreachable")
-        dir, source_file = os.path.split(file_url)
-        fs = XRootDPyFS(dir)
-        with fs.open(source_file) as source, open(file_path, 'wb') as destination:
-            while True:
-                data = source.read(BLOCK_SIZE_BYTES)
-                if not data:
-                    break
-                destination.write(data)
+        download_xrootd_file(file_url, file_size, file_path)
     else:
-        r = requests.get(file_url, stream=True, allow_redirects=True)
-        if not r.ok:
-            log(f"HTTP/S file address: {file_url} is unreachable. Code: {str(r.status_code)}")
-            raise Exception(f"HTTP/S file address: {file_url} is unreachable. Code: {str(r.status_code)}")
-        try:
-            with open(file_path, 'wb') as f:
-                for chunk in r.iter_content(BLOCK_SIZE_BYTES):
-                    f.write(chunk)
-        except Exception as e:
-            log(f"Failed to write data to file due to: {str(e)}")
-            raise Exception(f"Failed to write data to file due to: {str(e)}")
-
-    time.sleep(3)
-    downloaded_file_size = Path(file_path).stat().st_size
-
-    if downloaded_file_size != file_size:
-        raise Exception(f"Downloaded file has wrong size (expected size has been taken from fetch.txt file). "
-                        f"Expected: {file_size} B, Downloaded: {downloaded_file_size} B")
-
+        download_http_file(file_url, file_size, file_path)
     return
 
 
-# Some incorrect xrootd url cause xrdcp/xrdfs  methods to hang and last forever, until timeout is reached.
-# Therefore dedicated timeout-based check is needed.
-def xrootd_url_is_reachable(url: str) -> bool:
-    p = multiprocessing.Process(target=stat_xrootd_file, args=(url,))
-    p.start()
-    p.join(5)
-    if p.is_alive():
-        p.terminate()
-        return False
-    return True
+def is_xrootd(url: str) -> bool:
+    return url.startswith("root:/")
 
 
-def stat_xrootd_file(file_url):
-    dir, source_file = os.path.split(file_url)
-    fs = XRootDPyFS(dir)
-    with fs.open(source_file):
-        pass
+def download_xrootd_file(file_url, file_size, file_path):
+    heartbeat()
+    with client.File() as source, open(file_path, 'wb') as destination:
+        try:
+            source.open(file_url, timeout=XROOTD_OPEN_TIMEOUT_SEC)
+        except Exception as ex:
+            raise Exception(f"Failed to open file under url: {file_url}. Reason: {str(ex)}")
+        offset = 0
+        while True:
+            heartbeat()
+            try:
+                (_, data) = source.read(offset=offset, size=BLOCK_SIZE_BYTES, timeout=XROOTD_READ_TIMEOUT_SEC)
+            except Exception as ex:
+                raise Exception(f"Failed to read data from file under url: {file_url}. "
+                                f"Url may be incorrect. Reason: {str(ex)}")
+            if not data:
+                break
+            try:
+                destination.write(data)
+            except Exception as ex:
+                raise Exception(f"Failed to write data to destination file: {file_path}. Reason: {str(ex)}")
+            offset = offset + BLOCK_SIZE_BYTES
+    assert_proper_file_size(file_path, file_size)
 
-    # timeout = 5
-    # parts = url.split("//")
-    # command = ["xrdfs", f"{parts[0]}//{parts[1]}/", "stat", f"/{parts[2]}"]
-    #
-    # p = Popen(command, stdout=PIPE, stderr=PIPE)
-    # for t in range(timeout):
-    #     time.sleep(1)
-    #     if p.poll() is not None:
-    #         return True
-    # p.kill()
-    # return False
+
+def download_http_file(file_url, file_size, file_path):
+    heartbeat()
+    try:
+        r = requests.get(file_url, stream=True, allow_redirects=True, timeout=HTTP_GET_TIMEOUT_SEC)
+    except Exception as ex:
+        raise Exception(f"Failed to fetch file from url: {file_url}, due to: {str(ex)}")
+    if not r.ok:
+        raise Exception(f"HTTP/S file address: {file_url} is unreachable. Code: {str(r.status_code)}")
+    try:
+        with open(file_path, 'wb') as f:
+            for chunk in r.iter_content(BLOCK_SIZE_BYTES):
+                f.write(chunk)
+                heartbeat()
+    except Exception as e:
+        raise Exception(f"Failed to write data to file due to: {str(e)}")
+    assert_proper_file_size(file_path, file_size)
 
 
-def log(log_entry):
-    with open('/tmp/log.txt', 'a') as file:
-        file.write(log_entry)
+def assert_proper_file_size(file_path, file_size):
+    time.sleep(3)
+    downloaded_file_size = Path(file_path).stat().st_size
+    if downloaded_file_size != file_size:
+        raise Exception(f"Downloaded file has wrong size (expected size has been taken from fetch.txt file). "
+                        f"Expected: {file_size} B, Downloaded: {downloaded_file_size} B")
 
 
 def file_exists(path: str, size: int) -> bool:
