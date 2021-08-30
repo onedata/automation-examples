@@ -14,8 +14,6 @@ HEARTBEAT_INTERVAL_SEC: int = 150
 LAST_HEARTBEAT_TIME: int = 0
 HEARTBEAT_URL: str = ""
 
-UPLOADED_FILES = []
-
 
 def handle(req: bytes) -> str:
     """Unpack files from archive /data directory and puts them under destination directory.
@@ -30,7 +28,6 @@ def handle(req: bytes) -> str:
             into destination directory.
     """
     global HEARTBEAT_URL
-    global UPLOADED_FILES
 
     args = json.loads(req)
 
@@ -38,40 +35,39 @@ def handle(req: bytes) -> str:
     heartbeat()
 
     try:
-        unpack_data_dir(args)
+        uploaded_files = unpack_data_dir(args)
         return json.dumps({
-            "uploadedFiles": UPLOADED_FILES,
+            "uploadedFiles": uploaded_files,
             "logs": [{
                 "severity": "info",
                 "file": args["archive"]["name"],
-                "status": f"Successfully uploaded {str(len(UPLOADED_FILES))} files."
+                "status": f"Successfully uploaded {len(uploaded_files)} files."
             }]
         })
     except Exception as ex:
         return json.dumps({
-            "uploadedFiles": UPLOADED_FILES,
-            "logs": [{
+            "exception": [{
                 "severity": "error",
                 "file": args["archive"]["name"],
-                "status": str(ex)
+                "status": f"Failed to unpack files due to: {str(ex)}"
             }]
         })
 
 
-def unpack_data_dir(args: dict):
+def unpack_data_dir(args: dict) -> list:
     archive_filename = args["archive"]["name"]
     archive_path = f'/mnt/onedata/.__onedata__file_id__{args["archive"]["file_id"]}'
     archive_name, archive_type = os.path.splitext(archive_filename)
 
     if archive_type == '.tar':
         with tarfile.TarFile(archive_path) as archive:
-            unpack_bagit_archive(args, archive.getnames, archive.getmember, archive.extract)
+            return unpack_bagit_archive(args, archive.getnames, archive.getmember, archive.extract)
     elif archive_type == '.zip':
         with zipfile.ZipFile(archive_path) as archive:
-            unpack_bagit_archive(args, archive.namelist, archive.getinfo, archive.extract)
+            return unpack_bagit_archive(args, archive.namelist, archive.getinfo, archive.extract)
     elif archive_type == '.tgz' or archive_type == ".gz":
         with tarfile.open(archive_path, "r:gz") as archive:
-            unpack_bagit_archive(args, archive.getnames, archive.getmember, archive.extract)
+            return unpack_bagit_archive(args, archive.getnames, archive.getmember, archive.extract)
     else:
         raise Exception(f"Unsupported archive type: {archive_type}")
 
@@ -81,8 +77,7 @@ def unpack_bagit_archive(
         list_archive_files: Callable[[], list],
         get_archive_member: Callable[[str], Union[tarfile.TarInfo, zipfile.ZipInfo]],
         extract_archive_file: Callable[[Union[tarfile.TarInfo, zipfile.ZipInfo]]]
-):
-    global UPLOADED_FILES
+) -> list:
     dst_id = args["destination"]["file_id"]
     dst_dir = f'/mnt/onedata/.__onedata__file_id__{dst_id}'
 
@@ -90,6 +85,8 @@ def unpack_bagit_archive(
 
     bagit_dir = find_bagit_dir(archive_files)
     data_dir = f'{bagit_dir}/data/'
+
+    uploaded_files = []
 
     for file_path in archive_files:
         is_directory = file_path.endswith("/")
@@ -113,9 +110,10 @@ def unpack_bagit_archive(
                 monitor_thread.start()
 
                 extract_archive_file(file_archive_info, dst_dir)
-                UPLOADED_FILES.append(dst_path)
+                uploaded_files.append(dst_path)
             except Exception as ex:
                 raise Exception(f"Unpacking file {file_path} failed due to: {str(ex)}")
+    return uploaded_files
 
 
 def find_bagit_dir(archive_files: list) -> str:
