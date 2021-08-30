@@ -1,9 +1,8 @@
+import concurrent.futures
 import json
 import os.path
 import time
-import threading
 from pathlib import Path
-import multiprocessing
 
 import requests
 from XRootD import client
@@ -13,15 +12,19 @@ BLOCK_SIZE_BYTES: int = 31457280
 HEARTBEAT_INTERVAL_SEC: int = 150
 LAST_HEARTBEAT_TIME: int = 0
 HEARTBEAT_URL: str = ""
+
 XROOTD_OPEN_TIMEOUT_SEC: int = 10
 XROOTD_READ_TIMEOUT_SEC: int = 120
 HTTP_GET_TIMEOUT_SEC: int = 120
 
-IGNORE_OUTPUT: str = "> /dev/null 2>&1"
+FETCH_MAX_WORKERS: int = 4
+
+LOGS = []
 
 
 def handle(req: bytes) -> str:
-    """Downloads files to be fetched and puts them under given path
+    """
+    Downloads files to be fetched and puts them under given path
 
     Args Structure:
         heartbeatUrl (str): url where heartbeats are posted to, automatically added to lambda
@@ -31,53 +34,33 @@ def handle(req: bytes) -> str:
     Return:
         uploadedFiles (batch/list of strings): list of file paths, which were successfully fetched and
             placed under given path.
+        logs (batch/list of strings): list of objects describing log from lambda
     """
     try:
+        global LOGS
         global HEARTBEAT_URL
         args = json.loads(req)
         HEARTBEAT_URL = args["heartbeatUrl"]
         heartbeat()
         files = args["filesToFetch"]
-        uploaded_files = []
-        logs = []
-
+        files_info = []
         for file_info in files:
             url = file_info["url"]
             size = file_info["size"]
             path = f'/mnt/onedata/{file_info["path"]}'
+            files_info.append((url, size, path))
 
-            try:
-                for backoff_sec in [0, 2, 5, 7]:
-                    try:
-                        # clear logs from previous retries
-                        logs = []
-                        if file_exists(path, size):
-                            logs.append({
-                                "severity": "info",
-                                "file": path,
-                                "status": f"File with expected size {size} Bytes already exists.",
-                                "envs": dict(os.environ)
-                            }),
-                            break
-                        download_file(url, size, path),
-                        uploaded_files.append(path)
-                        break
-                    except Exception as ex:
-                        time.sleep(backoff_sec)
-                        if backoff_sec == 7:
-                            raise ex
+        uploaded_files = []
 
-
-            except Exception as e:
-                logs.append({
-                    "severity": "error",
-                    "file": path,
-                    "status": str(e),
-                    "envs": dict(os.environ)
-                })
+        with concurrent.futures.ThreadPoolExecutor(max_workers=FETCH_MAX_WORKERS) as executor:
+            future_to_path = {executor.submit(retry_download_file, url, size, path): path for (url, size, path) in
+                              files_info}
+            for future in concurrent.futures.as_completed(future_to_path):
+                path = future_to_path[future]
+                uploaded_files.append(path)
 
         error_logs = []
-        for log_object in logs:
+        for log_object in LOGS:
             if log_object["severity"] == "error":
                 error_logs.append(log_object)
         if len(error_logs) >= 1:
@@ -89,7 +72,7 @@ def handle(req: bytes) -> str:
 
         return json.dumps({
             "uploadedFiles": uploaded_files,
-            "logs": logs
+            "logs": LOGS
         })
     except Exception as ex:
         return json.dumps({
@@ -99,13 +82,38 @@ def handle(req: bytes) -> str:
         })
 
 
-def heartbeat():
-    global LAST_HEARTBEAT_TIME
-    current_time = int(time.time())
-    if current_time - LAST_HEARTBEAT_TIME > HEARTBEAT_INTERVAL_SEC:
-        r = requests.post(url=HEARTBEAT_URL, data={})
-        if r.ok:
-            LAST_HEARTBEAT_TIME = current_time
+def retry_download_file(file_url: str, file_size: int, file_path: str):
+    global LOGS
+    download_logs = []
+    try:
+        for backoff_sec in [0, 2, 5, 7]:
+            try:
+                # clear logs from previous retries
+                download_logs = []
+                if file_exists(file_path, file_size):
+                    download_logs.append({
+                        "severity": "info",
+                        "file": file_path,
+                        "status": f"File with expected size {file_size} Bytes already exists.",
+                        "envs": dict(os.environ)
+                    }),
+                    break
+                download_file(file_url, file_size, file_path),
+                break
+            except Exception as ex:
+                time.sleep(backoff_sec)
+                if backoff_sec == 7:
+                    raise ex
+        LOGS.extend(download_logs)
+
+    except Exception as e:
+        LOGS.extend(download_logs)
+        LOGS.append({
+            "severity": "error",
+            "file": file_path,
+            "status": str(e),
+            "envs": dict(os.environ)
+        })
 
 
 def download_file(file_url: str, file_size: int, file_path: str):
@@ -125,7 +133,7 @@ def is_xrootd(url: str) -> bool:
     return url.startswith("root:/")
 
 
-def download_xrootd_file(file_url, file_size, file_path):
+def download_xrootd_file(file_url: str, file_size: int, file_path: str):
     heartbeat()
     with client.File() as source, open(file_path, 'wb') as destination:
         try:
@@ -150,7 +158,7 @@ def download_xrootd_file(file_url, file_size, file_path):
     assert_proper_file_size(file_path, file_size)
 
 
-def download_http_file(file_url, file_size, file_path):
+def download_http_file(file_url: str, file_size: int, file_path: str):
     heartbeat()
     try:
         r = requests.get(file_url, stream=True, allow_redirects=True, timeout=HTTP_GET_TIMEOUT_SEC)
@@ -168,7 +176,7 @@ def download_http_file(file_url, file_size, file_path):
     assert_proper_file_size(file_path, file_size)
 
 
-def assert_proper_file_size(file_path, file_size):
+def assert_proper_file_size(file_path: str, file_size: int):
     time.sleep(3)
     downloaded_file_size = Path(file_path).stat().st_size
     if downloaded_file_size != file_size:
@@ -187,3 +195,12 @@ def file_exists(path: str, size: int) -> bool:
                 raise Exception(f"Failed to delete existing file with unexpected size due to: {str(ex)}")
 
     return False
+
+
+def heartbeat():
+    global LAST_HEARTBEAT_TIME
+    current_time = int(time.time())
+    if current_time - LAST_HEARTBEAT_TIME > HEARTBEAT_INTERVAL_SEC:
+        r = requests.post(url=HEARTBEAT_URL, data={})
+        if r.ok:
+            LAST_HEARTBEAT_TIME = current_time
