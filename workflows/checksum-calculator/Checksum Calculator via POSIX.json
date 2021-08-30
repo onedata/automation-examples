@@ -1,0 +1,247 @@
+{
+  "supplementaryAtmLambdas": {
+    "5a2de455417b708c612a1a5034eceacfchb4b4": {
+      "summary": "",
+      "schemaFormatVersion": 1,
+      "resultSpecs": [
+        {
+          "name": "result",
+          "isBatch": false,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "object"
+          }
+        }
+      ],
+      "operationSpec": {
+        "engine": "openfaas",
+        "dockerImage": "docker.onedata.org/checksum-counting-oneclient:v1",
+        "dockerExecutionOptions": {
+          "readonly": false,
+          "oneclientOptions": "-i",
+          "oneclientMountPoint": "/mnt/onedata",
+          "mountOneclient": true
+        }
+      },
+      "name": "calc-checksum",
+      "description": "",
+      "checksum": "db747d0935d6d8f3e2f2921a0dc60cd8",
+      "argumentSpecs": [
+        {
+          "name": "item",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "ANY"
+            },
+            "type": "file"
+          }
+        },
+        {
+          "name": "algorithm",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "string"
+          }
+        },
+        {
+          "name": "metadata_key",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "stores": [
+    {
+      "type": "list",
+      "requiresInitialValue": false,
+      "name": "md5-results",
+      "id": "81c8c2cfb066703b44d36c16128ef133b2dd9c",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {},
+        "type": "object"
+      }
+    },
+    {
+      "type": "list",
+      "requiresInitialValue": false,
+      "name": "sha256-results",
+      "id": "2e9c28a2b676ee3fc17dbcd82481db8a8646c3",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {},
+        "type": "object"
+      }
+    },
+    {
+      "type": "list",
+      "requiresInitialValue": false,
+      "name": "adler32-results",
+      "id": "bf0ff85663c9282544e2fb2bf5697cf955f1a1",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {},
+        "type": "object"
+      }
+    },
+    {
+      "type": "treeForest",
+      "requiresInitialValue": true,
+      "name": "input-files",
+      "id": "8ecd19f1ece61b2814ddaadf3207c3b79b653a",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {
+          "fileType": "ANY"
+        },
+        "type": "file"
+      }
+    }
+  ],
+  "state": "ready",
+  "schemaFormatVersion": 1,
+  "name": "Checksum Calculator via POSIX",
+  "lanes": [
+    {
+      "storeIteratorSpec": {
+        "strategy": {
+          "type": "serial"
+        },
+        "storeSchemaId": "8ecd19f1ece61b2814ddaadf3207c3b79b653a"
+      },
+      "parallelBoxes": [
+        {
+          "tasks": [
+            {
+              "resultMappings": [
+                {
+                  "storeSchemaId": "81c8c2cfb066703b44d36c16128ef133b2dd9c",
+                  "resultName": "result",
+                  "dispatchFunction": "append"
+                }
+              ],
+              "name": "md5",
+              "lambdaId": "5a2de455417b708c612a1a5034eceacfchb4b4",
+              "id": "b1a78755d89f8177726393a7b9f1be2f421693",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "item"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "const",
+                    "valueBuilderRecipe": "md5"
+                  },
+                  "argumentName": "algorithm"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "const",
+                    "valueBuilderRecipe": "checksum.md5.oneclient"
+                  },
+                  "argumentName": "metadata_key"
+                }
+              ]
+            },
+            {
+              "resultMappings": [
+                {
+                  "storeSchemaId": "2e9c28a2b676ee3fc17dbcd82481db8a8646c3",
+                  "resultName": "result",
+                  "dispatchFunction": "append"
+                }
+              ],
+              "name": "sha256",
+              "lambdaId": "5a2de455417b708c612a1a5034eceacfchb4b4",
+              "id": "db70e0602e334a22625202bab85c76ced42702",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "item"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "const",
+                    "valueBuilderRecipe": "sha256"
+                  },
+                  "argumentName": "algorithm"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "const",
+                    "valueBuilderRecipe": "checksum.sha256.oneclient"
+                  },
+                  "argumentName": "metadata_key"
+                }
+              ]
+            },
+            {
+              "resultMappings": [
+                {
+                  "storeSchemaId": "bf0ff85663c9282544e2fb2bf5697cf955f1a1",
+                  "resultName": "result",
+                  "dispatchFunction": "append"
+                }
+              ],
+              "name": "calc-checksum",
+              "lambdaId": "5a2de455417b708c612a1a5034eceacfchb4b4",
+              "id": "cfd2e4eb286d07f797631414434ee5aec17ec7",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "item"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "const",
+                    "valueBuilderRecipe": "adler32"
+                  },
+                  "argumentName": "algorithm"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "const",
+                    "valueBuilderRecipe": "checksum.adler32.oneclient"
+                  },
+                  "argumentName": "metadata_key"
+                }
+              ]
+            }
+          ],
+          "name": "Parallel box",
+          "id": "15c0ae5f48e73414babbbffd21a45d7aaaf4dd"
+        }
+      ],
+      "name": "line1",
+      "id": "9e6d7f6ac1c4669ee2ed27c22a0e8edf5bbb5e"
+    }
+  ],
+  "description": "Caclulate checksums of files using MD5, SHA256 and Adler32",
+  "atmWorkflowSchemaId": "16579a522dc796979a3fa5bcdc3de878ch2c92"
+}

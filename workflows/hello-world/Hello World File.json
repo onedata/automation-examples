@@ -1,0 +1,119 @@
+{
+  "supplementaryAtmLambdas": {
+    "5e33a040e48de402b6d55275fe89af76ch2645": {
+      "summary": "",
+      "schemaFormatVersion": 1,
+      "resultSpecs": [
+        {
+          "name": "response",
+          "isBatch": false,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "string"
+          }
+        }
+      ],
+      "operationSpec": {
+        "engine": "openfaas",
+        "dockerImage": "docker.onedata.org/hello-world-file:v1",
+        "dockerExecutionOptions": {
+          "readonly": true,
+          "oneclientOptions": "",
+          "oneclientMountPoint": "/mnt/onedata",
+          "mountOneclient": false
+        }
+      },
+      "name": "hello-world-file",
+      "description": "",
+      "checksum": "726b0fd59ea2a3f3e6c5ca7a4fdc5e11",
+      "argumentSpecs": [
+        {
+          "name": "item",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "ANY"
+            },
+            "type": "file"
+          }
+        }
+      ]
+    }
+  },
+  "stores": [
+    {
+      "type": "list",
+      "requiresInitialValue": false,
+      "name": "results",
+      "id": "9de6042b9bc95d88b8865d2de9f6d86f713d70",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {},
+        "type": "string"
+      }
+    },
+    {
+      "type": "treeForest",
+      "requiresInitialValue": true,
+      "name": "files",
+      "id": "c32010286363c8e37f17715df2c2dcdc533b54",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {
+          "fileType": "ANY"
+        },
+        "type": "file"
+      }
+    }
+  ],
+  "state": "ready",
+  "schemaFormatVersion": 1,
+  "name": "Hello World File",
+  "lanes": [
+    {
+      "storeIteratorSpec": {
+        "strategy": {
+          "type": "serial"
+        },
+        "storeSchemaId": "c32010286363c8e37f17715df2c2dcdc533b54"
+      },
+      "parallelBoxes": [
+        {
+          "tasks": [
+            {
+              "resultMappings": [
+                {
+                  "storeSchemaId": "9de6042b9bc95d88b8865d2de9f6d86f713d70",
+                  "resultName": "response",
+                  "dispatchFunction": "append"
+                }
+              ],
+              "name": "hello-world-file",
+              "lambdaId": "5e33a040e48de402b6d55275fe89af76ch2645",
+              "id": "d2b7c8819d675a701bf80fe439262baca7e8dd",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "item"
+                }
+              ]
+            }
+          ],
+          "name": "Parallel box",
+          "id": "3e1150bbf52fa2d8b6c6918917a05f3f63fd73"
+        }
+      ],
+      "name": "Say Hello To Each File",
+      "id": "7c373d53dc6b5ed6a85b04ca8317c12414d086"
+    }
+  ],
+  "description": "The simplest possible function which takes as input file and returns it's name. ",
+  "atmWorkflowSchemaId": "ec835138e0f4dbeb0cdd0d688012b1d4chd76f"
+}
