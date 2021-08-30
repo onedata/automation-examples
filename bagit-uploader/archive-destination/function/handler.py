@@ -1,9 +1,7 @@
 import json
 import time
-import os
 
 import urllib3
-
 import requests
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -29,50 +27,18 @@ def handle(req: bytes):
     try:
         destination = args["destination"]
         destination_id = destination["file_id"]
+        destination_name = destination["name"]
 
         accessToken = args["credentials"]["accessToken"]
         host = args["credentials"]["host"]
         headers = {"X-Auth-Token": accessToken, "Content-Type": "application/json"}
 
-        # try to establish dataset, may fail if dataset has been establish previously
-        try:
-            url1 = f'https://{host}/api/v3/oneprovider/datasets'
-            data1 = {
-                "rootFileId": destination_id,
-                "protectionFlags": []
-            }
-            resp1 = requests.post(url1, headers=headers, data=json.dumps(data1), verify=False)
-            assert resp1.ok
-            dataset_id = json.loads(resp1.text)["datasetId"]
-        except:
-            # dataset has been establish previously, try to get dataset_id established on destination directory
-            url2 = f'https://{host}/api/v3/oneprovider/data/{destination_id}/dataset/summary'
-            resp2 = requests.get(url2, headers=headers, verify=False)
-            assert resp2.ok
-            dataset_id = json.loads(resp2.text)["directDataset"]
-            destination_name = destination["name"]
-            logs.append({
-                "severity": "info",
-                "status": f"Dataset on directory {destination_name} already established with datasetId: {dataset_id} "
-            })
-        # having dataset id, create archive from this dataset
-        url3 = f'https://{host}/api/v3/oneprovider/archives'
-        data3 = {
-            "datasetId": dataset_id,
-            "config": {
-                "incremental": {
-                    "enabled": True},
-                "includeDip": True,
-                "layout": "bagit"
-            }
-        }
-        resp3 = requests.post(url3, headers=headers, data=json.dumps(data3), verify=False)
-        if not resp3.ok:
-            raise Exception(
-                f"Failed to create archive via REST. Code: {resp3.status_code}, RequestBody: {json.dumps(data3)}")
-        archive_id = json.loads(resp3.text)["archiveId"]
+        function_logs, dataset_id = ensure_dataset_established(host, destination_id, headers, destination_name)
+        logs.append(function_logs)
 
+        archive_id = create_archive(headers, host, dataset_id)
         wait_until_archive_is_ready(host, headers, archive_id)
+
         logs.append({
             "severity": "info",
             "DatasetId": dataset_id,
@@ -86,7 +52,6 @@ def handle(req: bytes):
             }
         })
 
-    # format object-like response
     return json.dumps({
         "response": {
             "datasetId": dataset_id,
@@ -96,7 +61,52 @@ def handle(req: bytes):
     })
 
 
-def wait_until_archive_is_ready(host, headers, archive_id):
+def ensure_dataset_established(host: str, destination_id: str, headers: dict, destination_name: str) -> (list, str):
+    logs = []
+    try:
+        url1 = f'https://{host}/api/v3/oneprovider/datasets'
+        data1 = {
+            "rootFileId": destination_id,
+            "protectionFlags": []
+        }
+        resp1 = requests.post(url1, headers=headers, data=json.dumps(data1), verify=False)
+        assert resp1.ok
+        dataset_id = json.loads(resp1.text)["datasetId"]
+        return logs, dataset_id
+    except:
+        # dataset has been establish previously, try to get dataset_id established on destination directory
+        url2 = f'https://{host}/api/v3/oneprovider/data/{destination_id}/dataset/summary'
+        resp2 = requests.get(url2, headers=headers, verify=False)
+        assert resp2.ok
+        dataset_id = json.loads(resp2.text)["directDataset"]
+
+        logs.append({
+            "severity": "info",
+            "status": f"Dataset on directory {destination_name} already established with datasetId: {dataset_id} "
+        })
+        return logs, dataset_id
+
+
+def create_archive(headers: dict, host: str, dataset_id: str) -> str:
+    url3 = f'https://{host}/api/v3/oneprovider/archives'
+    data3 = {
+        "datasetId": dataset_id,
+        "config": {
+            "incremental": {
+                "enabled": True},
+            "includeDip": True,
+            "layout": "bagit"
+        }
+    }
+    resp3 = requests.post(url3, headers=headers, data=json.dumps(data3), verify=False)
+    if not resp3.ok:
+        raise Exception(
+            f"Failed to create archive via REST. Code: {resp3.status_code}, RequestBody: {json.dumps(data3)}")
+    archive_id = json.loads(resp3.text)["archiveId"]
+    return archive_id
+
+
+def wait_until_archive_is_ready(host: str, headers: dict, archive_id: str):
     latest_bytes_preserved = 0
     current_bytes_preserved = 0
     latest_check_time = 0
