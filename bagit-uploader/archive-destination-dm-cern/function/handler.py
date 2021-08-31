@@ -35,7 +35,7 @@ def handle(req: bytes):
         host = args["credentials"]["host"]
         headers = {"X-Auth-Token": accessToken, "Content-Type": "application/json"}
 
-        logs, dataset_id = ensure_dataset_established(host, destination_id, headers, destination_name, logs)
+        dataset_id = ensure_dataset_established(host, destination_id, headers, destination_name, logs)
 
         archive_id = create_archive(headers, host, dataset_id, archive_name)
         wait_until_archive_is_ready(host, headers, archive_id)
@@ -62,7 +62,7 @@ def handle(req: bytes):
     })
 
 
-def ensure_dataset_established(host: str, destination_id: str, headers: dict, destination_name: str, logs: list) -> (list, str):
+def ensure_dataset_established(host: str, destination_id: str, headers: dict, destination_name: str, logs: list) -> str:
     try:
         url = f'https://{host}/api/v3/oneprovider/datasets'
         data = {
@@ -72,7 +72,7 @@ def ensure_dataset_established(host: str, destination_id: str, headers: dict, de
         resp = requests.post(url, headers=headers, data=json.dumps(data), verify=False)
         assert resp.ok
         dataset_id = resp.json()["datasetId"]
-        return logs, dataset_id
+        return dataset_id
     except:
         # dataset has been establish previously, try to get dataset_id established on destination directory
         url = f'https://{host}/api/v3/oneprovider/data/{destination_id}/dataset/summary'
@@ -84,7 +84,7 @@ def ensure_dataset_established(host: str, destination_id: str, headers: dict, de
             "severity": "info",
             "status": f"Dataset on directory {destination_name} already established with datasetId: {dataset_id} "
         })
-        return logs, dataset_id
+        return dataset_id
 
 
 def create_archive(headers: dict, host: str, dataset_id: str, archive_name: str) -> str:
