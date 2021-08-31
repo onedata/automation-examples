@@ -53,7 +53,7 @@ def handle(req: bytes) -> str:
         uploaded_files = []
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=FETCH_MAX_WORKERS) as executor:
-            future_to_path = {executor.submit(retry_download_file, url, size, path): path for (url, size, path) in
+            future_to_path = {executor.submit(try_download_file, url, size, path): path for (url, size, path) in
                               files_info}
             for future in concurrent.futures.as_completed(future_to_path):
                 path = future_to_path[future]
@@ -82,7 +82,7 @@ def handle(req: bytes) -> str:
         })
 
 
-def retry_download_file(file_url: str, file_size: int, file_path: str):
+def try_download_file(file_url: str, file_size: int, file_path: str):
     global LOGS
     download_logs = []
     try:

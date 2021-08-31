@@ -33,8 +33,7 @@ def handle(req: bytes):
         host = args["credentials"]["host"]
         headers = {"X-Auth-Token": accessToken, "Content-Type": "application/json"}
 
-        function_logs, dataset_id = ensure_dataset_established(host, destination_id, headers, destination_name)
-        logs.append(function_logs)
+        logs, dataset_id = ensure_dataset_established(host, destination_id, headers, destination_name, logs)
 
         archive_id = create_archive(headers, host, dataset_id)
         wait_until_archive_is_ready(host, headers, archive_id)
@@ -61,24 +60,24 @@ def handle(req: bytes):
     })
 
 
-def ensure_dataset_established(host: str, destination_id: str, headers: dict, destination_name: str) -> (list, str):
-    logs = []
+def ensure_dataset_established(host: str, destination_id: str, headers: dict, destination_name: str, logs: list) -> (
+list, str):
     try:
-        url1 = f'https://{host}/api/v3/oneprovider/datasets'
-        data1 = {
+        url = f'https://{host}/api/v3/oneprovider/datasets'
+        data = {
             "rootFileId": destination_id,
             "protectionFlags": []
         }
-        resp1 = requests.post(url1, headers=headers, data=json.dumps(data1), verify=False)
-        assert resp1.ok
-        dataset_id = json.loads(resp1.text)["datasetId"]
+        resp = requests.post(url, headers=headers, data=json.dumps(data), verify=False)
+        assert resp.ok
+        dataset_id = resp.json()["datasetId"]
         return logs, dataset_id
     except:
         # dataset has been establish previously, try to get dataset_id established on destination directory
-        url2 = f'https://{host}/api/v3/oneprovider/data/{destination_id}/dataset/summary'
-        resp2 = requests.get(url2, headers=headers, verify=False)
-        assert resp2.ok
-        dataset_id = json.loads(resp2.text)["directDataset"]
+        url = f'https://{host}/api/v3/oneprovider/data/{destination_id}/dataset/summary'
+        resp = requests.get(url, headers=headers, verify=False)
+        assert resp.ok
+        dataset_id = resp.json()["directDataset"]
 
         logs.append({
             "severity": "info",
@@ -88,8 +87,8 @@ def ensure_dataset_established(host: str, destination_id: str, headers: dict, de
 
 
 def create_archive(headers: dict, host: str, dataset_id: str) -> str:
-    url3 = f'https://{host}/api/v3/oneprovider/archives'
-    data3 = {
+    url = f'https://{host}/api/v3/oneprovider/archives'
+    data = {
         "datasetId": dataset_id,
         "config": {
             "incremental": {
@@ -98,11 +97,11 @@ def create_archive(headers: dict, host: str, dataset_id: str) -> str:
             "layout": "bagit"
         }
     }
-    resp3 = requests.post(url3, headers=headers, data=json.dumps(data3), verify=False)
-    if not resp3.ok:
+    resp = requests.post(url, headers=headers, data=json.dumps(data), verify=False)
+    if not resp.ok:
         raise Exception(
-            f"Failed to create archive via REST. Code: {resp3.status_code}, RequestBody: {json.dumps(data3)}")
-    archive_id = json.loads(resp3.text)["archiveId"]
+            f"Failed to create archive via REST. Code: {resp.status_code}, RequestBody: {json.dumps(data)}")
+    archive_id = resp.json()["archiveId"]
     return archive_id
 
 
@@ -120,8 +119,8 @@ def wait_until_archive_is_ready(host: str, headers: dict, archive_id: str):
                 raise Exception(f"Failed to get archive details via REST. Code: {resp.status_code}")
             latest_check_time = int(time.time())
 
-            archive_state = json.loads(resp.text)["state"]
-            current_bytes_preserved = json.loads(resp.text)["stats"]["bytesArchived"]
+            archive_state = resp.json()["state"]
+            current_bytes_preserved = resp.json()["stats"]["bytesArchived"]
             if archive_state == "preserved":
                 return
             else:
@@ -133,14 +132,27 @@ def wait_until_archive_is_ready(host: str, headers: dict, archive_id: str):
             bytes_progress = int(current_bytes_preserved) - int(latest_bytes_preserved)
             time_diff = current_time - latest_check_time
             if time_diff >= increment_timeout_sec and bytes_progress == 0:
+                purge_status = purge_archive(host, headers, archive_id)
                 raise Exception(
-                    f"Could not create archive. No progress has been made within latest 60 sec. Reason: {str(ex)}")
+                    f"Could not create archive. No progress has been made within latest 60 sec. Reason: {str(ex)}. "
+                    f"Purged archive with result: {purge_status}")
             elif bytes_progress >= 0:
                 latest_check_time = current_time
 
             latest_bytes_preserved = current_bytes_preserved
             heartbeat()
             time.sleep(10)
+
+
+def purge_archive(host: str, headers: dict, archive_id: str) -> str:
+    try:
+        url = f'https://{host}/api/v3/oneprovider/archives/{archive_id}/init_purge'
+        resp = requests.post(url, headers=headers, verify=False, data=json.dumps({}), allow_redirects=True, timeout=10)
+        if not resp.ok:
+            raise Exception(f"Failed to purge archive via REST. Code: {resp.status_code}")
+        return f"Successfully purged archive."
+    except Exception as ex:
+        return f"Failed to purge archive due to: {str(ex)}"
 
 
 def heartbeat():

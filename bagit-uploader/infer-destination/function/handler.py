@@ -24,15 +24,15 @@ def handle(req: bytes):
         host = args["credentials"]["host"]
         logs = []
 
-        destination_name = infer_destination_name(archive_name)
-        dst_path = f"/mnt/onedata/.__onedata__file_id__{parent_id}/{destination_name}"
+        dst_name = infer_destination_name(archive_name)
+        dst_path = f"/mnt/onedata/.__onedata__file_id__{parent_id}/{dst_name}"
 
         ensure_directory_exists(dst_path)
-        destination_file_id = fetch_dir_file_id(access_token, host, parent_id, destination_name)
-        destination_attrs = fetch_directory_attrs(access_token, host, destination_file_id)
+        dst_file_id = fetch_dir_file_id(access_token, host, parent_id, dst_name)
+        dst_attrs = fetch_directory_attrs(access_token, host, dst_file_id)
 
         return json.dumps({
-            "destination": destination_attrs,
+            "destination": dst_attrs,
             "logs": logs
         })
     except Exception as ex:
@@ -61,19 +61,19 @@ def ensure_directory_exists(dir_path: str):
         raise Exception(f"Failed to ensure destination exists and create if necessary. Error: {str(ex)}")
 
 
-def fetch_dir_file_id(access_token: str, host: str, parent_id: str, destination_name: str):
+def fetch_dir_file_id(access_token: str, host: str, parent_id: str, dst_name: str):
     try:
         headers = {"X-Auth-Token": access_token}
-        url1 = f'https://{host}/api/v3/oneprovider/data/{parent_id}/children'
-        resp1 = requests.get(url1, headers=headers, verify=False)
-        if not resp1.ok:
+        url = f'https://{host}/api/v3/oneprovider/data/{parent_id}/children'
+        resp = requests.get(url, headers=headers, verify=False)
+        if not resp.ok:
             raise Exception(
-                f"Failed to fetch info about destination parent directory via REST. Code: {str(resp1.status_code)}")
-        root_content = json.loads(resp1.text)
+                f"Failed to fetch info about destination parent directory via REST. Code: {str(resp.status_code)}")
+        root_content = resp.json()
 
         dst_dir_id = ""
         for item_info in root_content["children"]:
-            if item_info["name"] == destination_name:
+            if item_info["name"] == dst_name:
                 dst_dir_id = item_info["id"]
         if dst_dir_id == "":
             raise Exception(f"Destination is not listed among root children. Unable to obtain destination file id.")
@@ -84,10 +84,10 @@ def fetch_dir_file_id(access_token: str, host: str, parent_id: str, destination_
 def fetch_directory_attrs(access_token: str, host: str, directory_file_id: str) -> dict:
     try:
         headers = {"X-Auth-Token": access_token}
-        url2 = f'https://{host}/api/v3/oneprovider/data/{directory_file_id}'
-        resp2 = requests.get(url2, headers=headers, verify=False)
-        if not resp2.ok:
-            raise Exception(f"Failed to get info about destination attrs via REST. Code: {str(resp2.status_code)}")
-        return json.loads(resp2.text)
+        url = f'https://{host}/api/v3/oneprovider/data/{directory_file_id}'
+        resp = requests.get(url, headers=headers, verify=False)
+        if not resp.ok:
+            raise Exception(f"Failed to get info about destination attrs via REST. Code: {str(resp.status_code)}")
+        return resp.json()
     except Exception as ex:
         raise Exception(f"Failed to obtain destination file attrs, due to: {str(ex)}")
