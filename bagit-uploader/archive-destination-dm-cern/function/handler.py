@@ -1,5 +1,6 @@
 import json
 import time
+import os
 
 import urllib3
 import requests
@@ -28,6 +29,7 @@ def handle(req: bytes):
         destination = args["destination"]
         destination_id = destination["file_id"]
         destination_name = destination["name"]
+        archive_name, _ = os.path.splitext(args["archive"]["name"])
 
         accessToken = args["credentials"]["accessToken"]
         host = args["credentials"]["host"]
@@ -35,7 +37,7 @@ def handle(req: bytes):
 
         dataset_id = ensure_dataset_established(host, destination_id, headers, destination_name, logs)
 
-        archive_id = create_archive(headers, host, dataset_id)
+        archive_id = create_archive(headers, host, dataset_id, archive_name)
         wait_until_archive_is_ready(host, headers, archive_id)
 
         logs.append({
@@ -85,7 +87,7 @@ def ensure_dataset_established(host: str, destination_id: str, headers: dict, de
         return dataset_id
 
 
-def create_archive(headers: dict, host: str, dataset_id: str) -> str:
+def create_archive(headers: dict, host: str, dataset_id: str, archive_name: str) -> str:
     url = f'https://{host}/api/v3/oneprovider/archives'
     data = {
         "datasetId": dataset_id,
@@ -94,7 +96,8 @@ def create_archive(headers: dict, host: str, dataset_id: str) -> str:
                 "enabled": True},
             "includeDip": True,
             "layout": "bagit"
-        }
+        },
+        "description": f'_USE_FILENAME:{archive_name}'
     }
     resp = requests.post(url, headers=headers, data=json.dumps(data), verify=False)
     if not resp.ok:

@@ -1,0 +1,894 @@
+{
+  "supplementaryAtmLambdas": {
+    "f3fb6e0fd6171a065f3edae242956058chae81": {
+      "summary": "",
+      "schemaFormatVersion": 1,
+      "resultSpecs": [
+        {
+          "name": "brokenFile",
+          "isBatch": false,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "object"
+          }
+        }
+      ],
+      "operationSpec": {
+        "engine": "openfaas",
+        "dockerImage": "docker.onedata.org/bagit-uploader-calculate-checksum:v1",
+        "dockerExecutionOptions": {
+          "readonly": false,
+          "oneclientOptions": "-i",
+          "oneclientMountPoint": "/mnt/onedata",
+          "mountOneclient": true
+        }
+      },
+      "name": "bagit-uploader-calculate-checksum",
+      "description": "",
+      "checksum": "9c2798ef0362592eadf8705d8a86a108",
+      "argumentSpecs": [
+        {
+          "name": "filePath",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "dc58c96e506850d31a814e5aaa3fe867chfcee": {
+      "summary": "",
+      "schemaFormatVersion": 1,
+      "resultSpecs": [
+        {
+          "name": "validBagitArchives",
+          "isBatch": true,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "REG"
+            },
+            "type": "file"
+          }
+        }
+      ],
+      "operationSpec": {
+        "engine": "openfaas",
+        "dockerImage": "docker.onedata.org/bagit-uploader-validate:v1",
+        "dockerExecutionOptions": {
+          "readonly": false,
+          "oneclientOptions": "-i",
+          "oneclientMountPoint": "/mnt/onedata",
+          "mountOneclient": true
+        }
+      },
+      "name": "bagit-uploader-validate",
+      "description": "",
+      "checksum": "1bcd61e47844fa0bc6ec0cadb4623534",
+      "argumentSpecs": [
+        {
+          "name": "archives",
+          "isOptional": false,
+          "isBatch": true,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "ANY"
+            },
+            "type": "file"
+          }
+        }
+      ]
+    },
+    "d1b60a1eab7303f72dfc9b82df9e915cch4614": {
+      "summary": "",
+      "schemaFormatVersion": 1,
+      "resultSpecs": [
+        {
+          "name": "filesToFetch",
+          "isBatch": true,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "object"
+          }
+        }
+      ],
+      "operationSpec": {
+        "engine": "openfaas",
+        "dockerImage": "docker.onedata.org/bagit-uploader-unpack-fetch:v1",
+        "dockerExecutionOptions": {
+          "readonly": false,
+          "oneclientOptions": "-i",
+          "oneclientMountPoint": "/mnt/onedata",
+          "mountOneclient": true
+        }
+      },
+      "name": "bagit-uploader-unpack-fetch",
+      "description": "",
+      "checksum": "3f03ae3c129c087f54099961c1b11e84",
+      "argumentSpecs": [
+        {
+          "name": "archive",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "REG"
+            },
+            "type": "file"
+          }
+        },
+        {
+          "name": "destination",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "DIR"
+            },
+            "type": "file"
+          }
+        }
+      ]
+    },
+    "a7cdf3943311418093047a68ad50fbe1checab": {
+      "summary": "",
+      "schemaFormatVersion": 1,
+      "resultSpecs": [
+        {
+          "name": "destination",
+          "isBatch": false,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "DIR"
+            },
+            "type": "file"
+          }
+        }
+      ],
+      "operationSpec": {
+        "engine": "openfaas",
+        "dockerImage": "docker.onedata.org/bagit-uploader-infer-destination:v2",
+        "dockerExecutionOptions": {
+          "readonly": false,
+          "oneclientOptions": "-i",
+          "oneclientMountPoint": "/mnt/onedata",
+          "mountOneclient": true
+        }
+      },
+      "name": "bagit-uploader-infer-destination",
+      "description": "",
+      "checksum": "e0d75b897f02cbaca184def1cde96951",
+      "argumentSpecs": [
+        {
+          "name": "archive",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "REG"
+            },
+            "type": "file"
+          }
+        },
+        {
+          "name": "credentials",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "onedatafsCredentials"
+          }
+        }
+      ]
+    },
+    "9236d717d7276b6de9f49408ad960b93chad5d": {
+      "summary": "",
+      "schemaFormatVersion": 1,
+      "resultSpecs": [],
+      "operationSpec": {
+        "engine": "openfaas",
+        "dockerImage": "docker.onedata.org/bagit-uploader-register-metadata:v1",
+        "dockerExecutionOptions": {
+          "readonly": false,
+          "oneclientOptions": "-i",
+          "oneclientMountPoint": "/mnt/onedata",
+          "mountOneclient": true
+        }
+      },
+      "name": "bagit-uploader-register-metadata",
+      "description": "",
+      "checksum": "bbdbf8d3fb5ea6fee68429c36aede8ca",
+      "argumentSpecs": [
+        {
+          "name": "archive",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "REG"
+            },
+            "type": "file"
+          }
+        },
+        {
+          "name": "destination",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "DIR"
+            },
+            "type": "file"
+          }
+        }
+      ]
+    },
+    "761aab132235cae3484f585c8463c70bchbf4d": {
+      "summary": "",
+      "schemaFormatVersion": 1,
+      "resultSpecs": [],
+      "operationSpec": {
+        "engine": "openfaas",
+        "dockerImage": "docker.onedata.org/bagit-uploader-register-metadata-from-data:v1",
+        "dockerExecutionOptions": {
+          "readonly": false,
+          "oneclientOptions": "-i",
+          "oneclientMountPoint": "/mnt/onedata",
+          "mountOneclient": true
+        }
+      },
+      "name": "bagit-uploader-register-metadata-from-data",
+      "description": "",
+      "checksum": "4ab25be075660fb9aece4692751a54c2",
+      "argumentSpecs": [
+        {
+          "name": "archive",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "REG"
+            },
+            "type": "file"
+          }
+        },
+        {
+          "name": "destination",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "DIR"
+            },
+            "type": "file"
+          }
+        }
+      ]
+    },
+    "20f16351f28cb160dcf8433a5e360e15ch687b": {
+      "summary": "",
+      "schemaFormatVersion": 1,
+      "resultSpecs": [
+        {
+          "name": "response",
+          "isBatch": false,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "object"
+          }
+        }
+      ],
+      "operationSpec": {
+        "engine": "openfaas",
+        "dockerImage": "docker.onedata.org/bagit-uploader-archive-destination-dm-cern:v3",
+        "dockerExecutionOptions": {
+          "readonly": false,
+          "oneclientOptions": "-i",
+          "oneclientMountPoint": "/mnt/onedata",
+          "mountOneclient": true
+        }
+      },
+      "name": "bagit-uploader-archive-destination-dm-cern",
+      "description": "",
+      "checksum": "a43eaccaaddb9c2f517b637d509b19bd",
+      "argumentSpecs": [
+        {
+          "name": "credentials",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "onedatafsCredentials"
+          }
+        },
+        {
+          "name": "destination",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "DIR"
+            },
+            "type": "file"
+          }
+        },
+        {
+          "name": "description",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "REG"
+            },
+            "type": "file"
+          }
+        }
+      ]
+    },
+    "042a69dc2cb442b9eb80ec34c6c3cfa6chc40b": {
+      "summary": "",
+      "schemaFormatVersion": 1,
+      "resultSpecs": [
+        {
+          "name": "uploadedFiles",
+          "isBatch": true,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "string"
+          }
+        }
+      ],
+      "operationSpec": {
+        "engine": "openfaas",
+        "dockerImage": "docker.onedata.org/bagit-uploader-fetch-files:v1",
+        "dockerExecutionOptions": {
+          "readonly": false,
+          "oneclientOptions": "-i",
+          "oneclientMountPoint": "/mnt/onedata",
+          "mountOneclient": true
+        }
+      },
+      "name": "bagit-uploader-fetch-files",
+      "description": "",
+      "checksum": "7489845b30cbcbdd9050a477813ade1e",
+      "argumentSpecs": [
+        {
+          "name": "filesToFetch",
+          "isOptional": false,
+          "isBatch": true,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "object"
+          }
+        }
+      ]
+    },
+    "02a92a06a510c579128ae7a72556557dch9002": {
+      "summary": "",
+      "schemaFormatVersion": 1,
+      "resultSpecs": [
+        {
+          "name": "uploadedFiles",
+          "isBatch": true,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "string"
+          }
+        }
+      ],
+      "operationSpec": {
+        "engine": "openfaas",
+        "dockerImage": "docker.onedata.org/bagit-uploader-unpack-data:v1",
+        "dockerExecutionOptions": {
+          "readonly": false,
+          "oneclientOptions": "-i",
+          "oneclientMountPoint": "/mnt/onedata",
+          "mountOneclient": true
+        }
+      },
+      "name": "bagit-uploader-unpack-data",
+      "description": "",
+      "checksum": "6a534bd0d14287acef2e0764cf8f7129",
+      "argumentSpecs": [
+        {
+          "name": "archive",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "REG"
+            },
+            "type": "file"
+          }
+        },
+        {
+          "name": "destination",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "DIR"
+            },
+            "type": "file"
+          }
+        }
+      ]
+    }
+  },
+  "stores": [
+    {
+      "type": "list",
+      "requiresInitialValue": false,
+      "name": "valid-bagit-archives",
+      "id": "70e2bacd2140d98ab47f4d410916e5c046fd84",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {
+          "fileType": "REG"
+        },
+        "type": "file"
+      }
+    },
+    {
+      "type": "singleValue",
+      "requiresInitialValue": false,
+      "name": "destination",
+      "id": "c4cd78e53e595960c7294873de51c6a003b8dc",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {
+          "fileType": "DIR"
+        },
+        "type": "file"
+      }
+    },
+    {
+      "type": "list",
+      "requiresInitialValue": false,
+      "name": "uploaded-files",
+      "id": "efe47b7a2edcc94b070e249b06f3c94f9ab7dc",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {},
+        "type": "string"
+      }
+    },
+    {
+      "type": "list",
+      "requiresInitialValue": false,
+      "name": "files-to-fetch",
+      "id": "49c0cda6fe0d7fa75faf6bffeb5f81fbe96337",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {},
+        "type": "object"
+      }
+    },
+    {
+      "type": "list",
+      "requiresInitialValue": false,
+      "name": "broken-files",
+      "id": "4a5e0ad67bed57ee646c29cd786d40675ef2e3",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {},
+        "type": "object"
+      }
+    },
+    {
+      "type": "singleValue",
+      "requiresInitialValue": true,
+      "name": "input-bagit-archives",
+      "id": "0b4510e4f358b7abe9d3d6a364b8dade118eee",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {
+          "fileType": "REG"
+        },
+        "type": "file"
+      }
+    },
+    {
+      "type": "list",
+      "requiresInitialValue": false,
+      "name": "archive_info",
+      "id": "a6fbad4a0a39d151015c04165bcc6f519bf3b8",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {},
+        "type": "object"
+      }
+    }
+  ],
+  "state": "ready",
+  "schemaFormatVersion": 1,
+  "name": "Bagit Extractor (CERN DM)",
+  "lanes": [
+    {
+      "storeIteratorSpec": {
+        "strategy": {
+          "type": "serial"
+        },
+        "storeSchemaId": "0b4510e4f358b7abe9d3d6a364b8dade118eee"
+      },
+      "parallelBoxes": [
+        {
+          "tasks": [
+            {
+              "resultMappings": [
+                {
+                  "storeSchemaId": "c4cd78e53e595960c7294873de51c6a003b8dc",
+                  "resultName": "destination",
+                  "dispatchFunction": "set"
+                }
+              ],
+              "name": "bagit-uploader-infer-destination",
+              "lambdaId": "a7cdf3943311418093047a68ad50fbe1checab",
+              "id": "a4897eb6bb760d347c1ea831820cc53943440e",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "archive"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "onedatafsCredentials",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "credentials"
+                }
+              ]
+            }
+          ],
+          "name": "Parallel box",
+          "id": "8f85da24f62fa29a046b5fa7bba90d9847f362"
+        }
+      ],
+      "name": "infer-destination",
+      "id": "bc2364ed2ea6e2b3d0022cbeb1bd9d8c2b3618"
+    },
+    {
+      "storeIteratorSpec": {
+        "strategy": {
+          "type": "batch",
+          "batchSize": 2
+        },
+        "storeSchemaId": "0b4510e4f358b7abe9d3d6a364b8dade118eee"
+      },
+      "parallelBoxes": [
+        {
+          "tasks": [
+            {
+              "resultMappings": [
+                {
+                  "storeSchemaId": "70e2bacd2140d98ab47f4d410916e5c046fd84",
+                  "resultName": "validBagitArchives",
+                  "dispatchFunction": "append"
+                }
+              ],
+              "name": "validate",
+              "lambdaId": "dc58c96e506850d31a814e5aaa3fe867chfcee",
+              "id": "2f0a993cdd581c4ffb36142c9864b871aeca19",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "archives"
+                }
+              ]
+            }
+          ],
+          "name": "Parallel box",
+          "id": "27031d6751a3033a16fcc20cbf516f8579e435"
+        }
+      ],
+      "name": "validate",
+      "id": "bc148a50dd1eb498c048fd5baceb974bc4069e"
+    },
+    {
+      "storeIteratorSpec": {
+        "strategy": {
+          "type": "serial"
+        },
+        "storeSchemaId": "70e2bacd2140d98ab47f4d410916e5c046fd84"
+      },
+      "parallelBoxes": [
+        {
+          "tasks": [
+            {
+              "resultMappings": [
+                {
+                  "storeSchemaId": "efe47b7a2edcc94b070e249b06f3c94f9ab7dc",
+                  "resultName": "uploadedFiles",
+                  "dispatchFunction": "append"
+                }
+              ],
+              "name": "unpack-data",
+              "lambdaId": "02a92a06a510c579128ae7a72556557dch9002",
+              "id": "0d56ad97a6606bf403cd114d3c5937d1b86522",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "archive"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "singleValueStoreContent",
+                    "valueBuilderRecipe": "c4cd78e53e595960c7294873de51c6a003b8dc"
+                  },
+                  "argumentName": "destination"
+                }
+              ]
+            },
+            {
+              "resultMappings": [
+                {
+                  "storeSchemaId": "49c0cda6fe0d7fa75faf6bffeb5f81fbe96337",
+                  "resultName": "filesToFetch",
+                  "dispatchFunction": "append"
+                }
+              ],
+              "name": "unpack-fetch",
+              "lambdaId": "d1b60a1eab7303f72dfc9b82df9e915cch4614",
+              "id": "091d4c2f3ed275bac6ada54ab530bff3165213",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "archive"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "singleValueStoreContent",
+                    "valueBuilderRecipe": "c4cd78e53e595960c7294873de51c6a003b8dc"
+                  },
+                  "argumentName": "destination"
+                }
+              ]
+            }
+          ],
+          "name": "Parallel box",
+          "id": "16a5f0d2cd2c71675f5e7906d8c251ecb464d3"
+        }
+      ],
+      "name": "unpack",
+      "id": "4b5da73192bcf36f4da6890df203a6d20ded53"
+    },
+    {
+      "storeIteratorSpec": {
+        "strategy": {
+          "type": "batch",
+          "batchSize": 10
+        },
+        "storeSchemaId": "49c0cda6fe0d7fa75faf6bffeb5f81fbe96337"
+      },
+      "parallelBoxes": [
+        {
+          "tasks": [
+            {
+              "resultMappings": [
+                {
+                  "storeSchemaId": "efe47b7a2edcc94b070e249b06f3c94f9ab7dc",
+                  "resultName": "uploadedFiles",
+                  "dispatchFunction": "append"
+                }
+              ],
+              "name": "fetch-files",
+              "lambdaId": "042a69dc2cb442b9eb80ec34c6c3cfa6chc40b",
+              "id": "d687649438e2a74fc0fe63adf6ca2b5acf4287",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "filesToFetch"
+                }
+              ]
+            }
+          ],
+          "name": "Parallel box",
+          "id": "2c3f2457e1d8be7aff27f7db9af679db1da80e"
+        }
+      ],
+      "name": "fetch",
+      "id": "3c75a2527a64ebe67cd2adc7aae0d4ed984989"
+    },
+    {
+      "storeIteratorSpec": {
+        "strategy": {
+          "type": "serial"
+        },
+        "storeSchemaId": "70e2bacd2140d98ab47f4d410916e5c046fd84"
+      },
+      "parallelBoxes": [
+        {
+          "tasks": [
+            {
+              "resultMappings": [],
+              "name": "register-metadata",
+              "lambdaId": "9236d717d7276b6de9f49408ad960b93chad5d",
+              "id": "b2acf043d4d808198561bcf95af92dc87bf965",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "archive"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "singleValueStoreContent",
+                    "valueBuilderRecipe": "c4cd78e53e595960c7294873de51c6a003b8dc"
+                  },
+                  "argumentName": "destination"
+                }
+              ]
+            }
+          ],
+          "name": "Parallel box",
+          "id": "67908a19df1f29e0a88abaa34609740f12e99b"
+        },
+        {
+          "tasks": [
+            {
+              "resultMappings": [],
+              "name": "bagit-uploader-register-metadata-from-data",
+              "lambdaId": "761aab132235cae3484f585c8463c70bchbf4d",
+              "id": "99b2e566f3a1b7b229720176e8be5553fa0f6b",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "archive"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "singleValueStoreContent",
+                    "valueBuilderRecipe": "c4cd78e53e595960c7294873de51c6a003b8dc"
+                  },
+                  "argumentName": "destination"
+                }
+              ]
+            }
+          ],
+          "name": "Parallel box",
+          "id": "de1fb5cf27a171a154be0b15d058dcf24f26df"
+        }
+      ],
+      "name": "register-metadata",
+      "id": "70bb239bbe06dee9d03c71664ebd9fc47d69a2"
+    },
+    {
+      "storeIteratorSpec": {
+        "strategy": {
+          "type": "serial"
+        },
+        "storeSchemaId": "efe47b7a2edcc94b070e249b06f3c94f9ab7dc"
+      },
+      "parallelBoxes": [
+        {
+          "tasks": [
+            {
+              "resultMappings": [
+                {
+                  "storeSchemaId": "4a5e0ad67bed57ee646c29cd786d40675ef2e3",
+                  "resultName": "brokenFile",
+                  "dispatchFunction": "append"
+                }
+              ],
+              "name": "calculate-checksum",
+              "lambdaId": "f3fb6e0fd6171a065f3edae242956058chae81",
+              "id": "0c59e7f1550634e8894cfa7bee97985580f969",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "filePath"
+                }
+              ]
+            }
+          ],
+          "name": "Parallel box",
+          "id": "9142f8739e6b1a00aa7b269a4c0a703dcedc58"
+        }
+      ],
+      "name": "calculate-checksum",
+      "id": "43077bf69835800b70565bd92c98c94b2f4f9d"
+    },
+    {
+      "storeIteratorSpec": {
+        "strategy": {
+          "type": "serial"
+        },
+        "storeSchemaId": "c4cd78e53e595960c7294873de51c6a003b8dc"
+      },
+      "parallelBoxes": [
+        {
+          "tasks": [
+            {
+              "resultMappings": [
+                {
+                  "storeSchemaId": "a6fbad4a0a39d151015c04165bcc6f519bf3b8",
+                  "resultName": "response",
+                  "dispatchFunction": "append"
+                }
+              ],
+              "name": "bagit-uploader-archive-destination-dm-cern",
+              "lambdaId": "20f16351f28cb160dcf8433a5e360e15ch687b",
+              "id": "c3a4670d330846102a7986957aaf31f6d8c8e3",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "onedatafsCredentials",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "credentials"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "destination"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "singleValueStoreContent",
+                    "valueBuilderRecipe": "0b4510e4f358b7abe9d3d6a364b8dade118eee"
+                  },
+                  "argumentName": "description"
+                }
+              ]
+            }
+          ],
+          "name": "Parallel box",
+          "id": "7ac7773bd10e522fd24b7d34785c3e24b4c669"
+        }
+      ],
+      "name": "establish dataset & archive",
+      "id": "0d59f4252aa1ef6c5d9dd97239d529ae1ead39"
+    }
+  ],
+  "description": "Automation workflow extracting and archiving files from uploaded CERN Digital Memory bagits.  ",
+  "atmWorkflowSchemaId": "fc322dc4d76988abf9b863cd7d356151chfd54"
+}

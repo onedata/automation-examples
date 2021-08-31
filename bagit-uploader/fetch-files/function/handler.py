@@ -1,23 +1,30 @@
+import concurrent.futures
 import json
 import os.path
 import time
-import threading
 from pathlib import Path
-from subprocess import Popen, PIPE
 
 import requests
+from XRootD import client
 
-BLOCK_SIZE_BYTES: int = 30000000
+BLOCK_SIZE_BYTES: int = 31457280
 
 HEARTBEAT_INTERVAL_SEC: int = 150
 LAST_HEARTBEAT_TIME: int = 0
 HEARTBEAT_URL: str = ""
 
-IGNORE_OUTPUT: str = "> /dev/null 2>&1"
+XROOTD_OPEN_TIMEOUT_SEC: int = 10
+XROOTD_READ_TIMEOUT_SEC: int = 120
+HTTP_GET_TIMEOUT_SEC: int = 120
+
+FETCH_MAX_WORKERS: int = 4
+
+LOGS = []
 
 
 def handle(req: bytes) -> str:
-    """Downloads files to be fetched and puts them under given path
+    """
+    Downloads files to be fetched and puts them under given path
 
     Args Structure:
         heartbeatUrl (str): url where heartbeats are posted to, automatically added to lambda
@@ -27,45 +34,167 @@ def handle(req: bytes) -> str:
     Return:
         uploadedFiles (batch/list of strings): list of file paths, which were successfully fetched and
             placed under given path.
+        logs (batch/list of strings): list of objects describing log from lambda
     """
-    global HEARTBEAT_URL
+    try:
+        global LOGS
+        global HEARTBEAT_URL
+        args = json.loads(req)
+        HEARTBEAT_URL = args["heartbeatUrl"]
+        heartbeat()
+        files = args["filesToFetch"]
+        files_info = []
+        for file_info in files:
+            url = file_info["url"]
+            size = file_info["size"]
+            path = f'/mnt/onedata/{file_info["path"]}'
+            files_info.append((url, size, path))
 
-    args = json.loads(req)
+        uploaded_files = []
 
-    HEARTBEAT_URL = args["heartbeatUrl"]
-    heartbeat()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=FETCH_MAX_WORKERS) as executor:
+            future_to_path = {executor.submit(try_download_file, url, size, path): path for (url, size, path) in
+                              files_info}
+            for future in concurrent.futures.as_completed(future_to_path):
+                path = future_to_path[future]
+                uploaded_files.append(path)
 
-    files = args["filesToFetch"]
-
-    uploaded_files = []
-    logs = []
-
-    for file_info in files:
-        url = file_info["url"]
-        size = file_info["size"]
-        path = f'/mnt/onedata/{file_info["path"]}'
-
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        try:
-            download_file(url, size, path),
-            uploaded_files.append(path)
-            logs.append({
-                "severity": "info",
-                "file": path,
-                "status": "file fetched successfully"
+        error_logs = []
+        for log_object in LOGS:
+            if log_object["severity"] == "error":
+                error_logs.append(log_object)
+        if len(error_logs) >= 1:
+            return json.dumps({
+                "exception": {
+                    "reason": error_logs
+                }
             })
-        except Exception as e:
-            logs.append({
-                "severity": "error",
-                "file": path,
-                "status": str(e)
 
-            })
-    return json.dumps({"uploadedFiles": uploaded_files, "logs": logs})
+        return json.dumps({
+            "uploadedFiles": uploaded_files,
+            "logs": LOGS
+        })
+    except Exception as ex:
+        return json.dumps({
+            "exception": {
+                "reason": [str(ex)]
+            }
+        })
+
+
+def try_download_file(file_url: str, file_size: int, file_path: str):
+    global LOGS
+    download_logs = []
+    try:
+        for backoff_sec in [0, 2, 5, 7]:
+            try:
+                # clear logs from previous retries
+                download_logs = []
+                if file_exists(file_path, file_size):
+                    download_logs.append({
+                        "severity": "info",
+                        "file": file_path,
+                        "status": f"File with expected size {file_size} Bytes already exists.",
+                        "envs": dict(os.environ)
+                    }),
+                    break
+                download_file(file_url, file_size, file_path),
+                break
+            except Exception as ex:
+                time.sleep(backoff_sec)
+                if backoff_sec == 7:
+                    raise ex
+        LOGS.extend(download_logs)
+
+    except Exception as e:
+        LOGS.extend(download_logs)
+        LOGS.append({
+            "severity": "error",
+            "file": file_path,
+            "status": str(e),
+            "envs": dict(os.environ)
+        })
+
+
+def download_file(file_url: str, file_size: int, file_path: str):
+    try:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    except Exception as ex:
+        raise Exception(f"Failed to create dirs on path due to: {str(ex)}")
+
+    if is_xrootd(file_url):
+        download_xrootd_file(file_url, file_size, file_path)
+    else:
+        download_http_file(file_url, file_size, file_path)
+    return
 
 
 def is_xrootd(url: str) -> bool:
     return url.startswith("root:/")
+
+
+def download_xrootd_file(file_url: str, file_size: int, file_path: str):
+    heartbeat()
+    with client.File() as source, open(file_path, 'wb') as destination:
+        try:
+            source.open(file_url, timeout=XROOTD_OPEN_TIMEOUT_SEC)
+        except Exception as ex:
+            raise Exception(f"Failed to open file under url: {file_url}. Reason: {str(ex)}")
+        offset = 0
+        while True:
+            heartbeat()
+            try:
+                (_, data) = source.read(offset=offset, size=BLOCK_SIZE_BYTES, timeout=XROOTD_READ_TIMEOUT_SEC)
+            except Exception as ex:
+                raise Exception(f"Failed to read data from file under url: {file_url}. "
+                                f"Url may be incorrect. Reason: {str(ex)}")
+            if not data:
+                break
+            try:
+                destination.write(data)
+            except Exception as ex:
+                raise Exception(f"Failed to write data to destination file: {file_path}. Reason: {str(ex)}")
+            offset = offset + BLOCK_SIZE_BYTES
+    assert_proper_file_size(file_path, file_size)
+
+
+def download_http_file(file_url: str, file_size: int, file_path: str):
+    heartbeat()
+    try:
+        r = requests.get(file_url, stream=True, allow_redirects=True, timeout=HTTP_GET_TIMEOUT_SEC)
+    except Exception as ex:
+        raise Exception(f"Failed to fetch file from url: {file_url}, due to: {str(ex)}")
+    if not r.ok:
+        raise Exception(f"HTTP/S file address: {file_url} is unreachable. Code: {str(r.status_code)}")
+    try:
+        with open(file_path, 'wb') as f:
+            for chunk in r.iter_content(BLOCK_SIZE_BYTES):
+                f.write(chunk)
+                heartbeat()
+    except Exception as e:
+        raise Exception(f"Failed to write data to file due to: {str(e)}")
+    assert_proper_file_size(file_path, file_size)
+
+
+def assert_proper_file_size(file_path: str, file_size: int):
+    time.sleep(3)
+    downloaded_file_size = Path(file_path).stat().st_size
+    if downloaded_file_size != file_size:
+        raise Exception(f"Downloaded file has wrong size (expected size has been taken from fetch.txt file). "
+                        f"Expected: {file_size} B, Downloaded: {downloaded_file_size} B")
+
+
+def file_exists(path: str, size: int) -> bool:
+    if os.path.exists(path):
+        if Path(path).stat().st_size == size:
+            return True
+        else:
+            try:
+                os.remove(path)
+            except Exception as ex:
+                raise Exception(f"Failed to delete existing file with unexpected size due to: {str(ex)}")
+
+    return False
 
 
 def heartbeat():
@@ -75,51 +204,3 @@ def heartbeat():
         r = requests.post(url=HEARTBEAT_URL, data={})
         if r.ok:
             LAST_HEARTBEAT_TIME = current_time
-
-
-def monitor_download(file_path: str, file_size: int):
-    size = 0
-    while size < file_size:
-        time.sleep(HEARTBEAT_INTERVAL_SEC // 2)
-        current_size = Path(file_path).stat().st_size
-        if current_size > size:
-            heartbeat()
-            size = current_size
-
-
-def download_file(file_url: str, file_size: int, file_path: str):
-    monitor_thread = threading.Thread(target=monitor_download, args=(file_path, file_size,), daemon=True)
-    monitor_thread.start()
-
-    if is_xrootd(file_url):
-        if not xrootd_url_is_reachable(file_url):
-            raise Exception(f"XrootD file address: {file_url} is unreachable")
-        os.system(f"xrdcp {file_url} {file_path} {IGNORE_OUTPUT}")
-    else:
-        r = requests.get(file_url, stream=True, allow_redirects=True)
-        if not r.ok:
-            raise Exception(f"HTTP/S file address: {file_url} is unreachable")
-        try:
-            with open(file_path, 'wb') as f:
-                for chunk in r.iter_content(BLOCK_SIZE_BYTES):
-                    f.write(chunk)
-        except:
-            raise Exception(f"Failed to write data to file")
-
-    return
-
-
-# Some incorrect xrootd url cause xrdcp/xrdfs  methods to hang and last forever, until timeout is reached.
-# Therefore dedicated timeout-based check is needed.
-def xrootd_url_is_reachable(url: str) -> bool:
-    timeout = 10
-    parts = url.split("//")
-    command = ["xrdfs", f"{parts[0]}//{parts[1]}/", "stat", f"/{parts[2]}"]
-
-    p = Popen(command, stdout=PIPE, stderr=PIPE)
-    for t in range(timeout):
-        time.sleep(1)
-        if p.poll() is not None:
-            return True
-    p.kill()
-    return False

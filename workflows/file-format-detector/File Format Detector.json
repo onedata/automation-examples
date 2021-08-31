@@ -1,0 +1,136 @@
+{
+  "supplementaryAtmLambdas": {
+    "e475e3f6e1347540a16ef7da4ba45fedch9c26": {
+      "summary": "",
+      "schemaFormatVersion": 1,
+      "resultSpecs": [
+        {
+          "name": "format",
+          "isBatch": false,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "object"
+          }
+        }
+      ],
+      "operationSpec": {
+        "engine": "openfaas",
+        "dockerImage": "docker.onedata.org/file-format-detection:v8",
+        "dockerExecutionOptions": {
+          "readonly": false,
+          "oneclientOptions": "-i",
+          "oneclientMountPoint": "/mnt/onedata",
+          "mountOneclient": true
+        }
+      },
+      "name": "file-format-detector-v8",
+      "description": "",
+      "checksum": "4152d909147d919f9cd11ba6f802c68e",
+      "argumentSpecs": [
+        {
+          "name": "item",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "ANY"
+            },
+            "type": "file"
+          }
+        },
+        {
+          "name": "metadata_key",
+          "isOptional": false,
+          "isBatch": false,
+          "defaultValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "stores": [
+    {
+      "type": "treeForest",
+      "requiresInitialValue": true,
+      "name": "files",
+      "id": "ce142e72782bbd7a033cc2acd5fa40ed47f649",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {
+          "fileType": "REG"
+        },
+        "type": "file"
+      }
+    },
+    {
+      "type": "list",
+      "requiresInitialValue": false,
+      "name": "formats",
+      "id": "294935ab1f2a8cb2164ba8c2c65c0b3863258d",
+      "description": "",
+      "defaultInitialValue": null,
+      "dataSpec": {
+        "valueConstraints": {},
+        "type": "object"
+      }
+    }
+  ],
+  "state": "ready",
+  "schemaFormatVersion": 1,
+  "name": "File Format Detector",
+  "lanes": [
+    {
+      "storeIteratorSpec": {
+        "strategy": {
+          "type": "serial"
+        },
+        "storeSchemaId": "ce142e72782bbd7a033cc2acd5fa40ed47f649"
+      },
+      "parallelBoxes": [
+        {
+          "tasks": [
+            {
+              "resultMappings": [
+                {
+                  "storeSchemaId": "294935ab1f2a8cb2164ba8c2c65c0b3863258d",
+                  "resultName": "format",
+                  "dispatchFunction": "append"
+                }
+              ],
+              "name": "file-format-detector-v8",
+              "lambdaId": "e475e3f6e1347540a16ef7da4ba45fedch9c26",
+              "id": "c8a3f95a75490735824873c356854fe3e6c8ce",
+              "argumentMappings": [
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "iteratedItem",
+                    "valueBuilderRecipe": null
+                  },
+                  "argumentName": "item"
+                },
+                {
+                  "valueBuilder": {
+                    "valueBuilderType": "const",
+                    "valueBuilderRecipe": "file-format-detector"
+                  },
+                  "argumentName": "metadata_key"
+                }
+              ]
+            }
+          ],
+          "name": "Parallel box",
+          "id": "9b52d7d0d3e8f3a1339b2ba7ea39ba232ec494"
+        }
+      ],
+      "name": "detect format",
+      "id": "d67ff436a52922103fd2f11b59bb57694c6dad"
+    }
+  ],
+  "description": "Automation workflow for detecting file types based on content. The metadata key is-extension-matching-content is set.",
+  "atmWorkflowSchemaId": "a77f02a9e93ec27d818a31bad81cd998chf699"
+}
