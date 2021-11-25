@@ -7,7 +7,12 @@ def handle(req):
     Args:
         req (str): request body
     """
+    args = json.loads(req)
+    return json.dumps({'resultsBatch': [random_inout(arg) for arg in args['argsBatch']]})
+
+
+def random_inout(arg):
     if random.randint(1, 3) == 1:
-        return json.dumps({'exception': 'heh'})
+        return {'exception': 'heh'}
     else:
-        return req
+        return arg

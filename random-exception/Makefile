@@ -1,5 +1,5 @@
 REPO=docker.onedata.org/random-exception
-TAG=v8
+TAG=v1
 
 .PHONY: random-exception
 
