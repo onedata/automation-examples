@@ -15,6 +15,11 @@ def handle(req: bytes):
     """
     args = json.loads(req)
 
+    results = [process_item(item) for item in args["argsBatch"]]
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
     if args["item"]["type"] == "REG":
         file_id = args["item"]["file_id"]
         file_path = f'/mnt/onedata/.__onedata__file_id__{file_id}'
@@ -33,7 +38,7 @@ def handle(req: bytes):
                 "algorithm": algorithm
             }})
 
-    return json.dumps({"result": {}})
+    return {"result": {}}
 
 
 def calculate_checksum(fd, algorithm):

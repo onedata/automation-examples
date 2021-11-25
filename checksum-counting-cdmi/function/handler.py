@@ -17,6 +17,11 @@ def handle(req: bytes):
     """
     args = json.loads(req)
 
+    results = [process_item(item) for item in args["argsBatch"]]
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
     file_id = args["item"]["file_id"]
     host = args["credentials"]["host"]
     access_token = args["credentials"]["accessToken"]
@@ -29,11 +34,11 @@ def handle(req: bytes):
     if metadata_key != "":
         set_metadata(file_id, metadata_key, checksum, access_token, host)
 
-    return json.dumps({"result": {
+    return {"result": {
         "file_id": file_id,
         "checksum": checksum,
         "algorithm": algorithm
-    }})
+    }}
 
 
 def get_file_request_response(access_token, host, file_id):
