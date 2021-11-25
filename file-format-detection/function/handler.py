@@ -70,26 +70,26 @@ def process_item(args):
                 xd.set(f"{metadata_key}.is-extension-matching-content", str.encode(str(content_match)))
                 xd.set(f"{metadata_key}.format-content", str.encode(inferred_content))
 
-            return json.dumps({
+            return {
                 "format": {
                     "file": args["item"]["name"],
                     "format-extension": file_type[0],
                     "is-extension-matching-content": content_match,
                     "inferredContent": inferred_content
-                }})
+                }}
 
         else:
-            return json.dumps({
+            return {
                 "format": {
                     "file": args["item"]["name"],
                     "format-extension": file_type[0],
                     "is-extension-matching-content": "unsupported file extension for content inferring"
-                }})
-    return json.dumps({
+                }}
+    return {
         "format": {
             "file": args["item"]["name"],
             "format-extension": "not a regular file",
-        }})
+        }}
 
 
 def extension_match_content(file_path: str, file_extension: str) -> str:
