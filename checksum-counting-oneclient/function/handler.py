@@ -32,11 +32,11 @@ def process_item(args):
             if metadata_key != "":
                 xd = xattr.xattr(file_path)
                 xd.set(metadata_key, str.encode(checksum))
-            return json.dumps({"result": {
+            return {"result": {
                 "file_id": file_id,
                 "checksum": checksum,
                 "algorithm": algorithm
-            }})
+            }}
 
     return {"result": {}}
 
