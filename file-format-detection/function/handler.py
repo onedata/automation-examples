@@ -41,6 +41,12 @@ def handle(req: bytes) -> str:
     """
     args = json.loads(req)
 
+    results = [process_item(item) for item in args['argsBatch']]
+
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
     file_id = args["item"]["file_id"]
     file_path = f'/mnt/onedata/.__onedata__file_id__{file_id}'
     metadata_key = args["metadata_key"]
