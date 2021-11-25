@@ -31,9 +31,14 @@ def handle(req: bytes) -> str:
 
     args = json.loads(req)
 
-    HEARTBEAT_URL = args["heartbeatUrl"]
+    HEARTBEAT_URL = args["ctx"]["heartbeatUrl"]
     heartbeat()
 
+    results = [process_item(item) for item in args["argsBatch"]]
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
     files = args["filesToFetch"]
 
     uploaded_files = []
@@ -56,7 +61,7 @@ def handle(req: bytes) -> str:
                     f.write(chunk)
         uploaded_files.append(file_path)
 
-    return json.dumps({"uploadedFiles": uploaded_files})
+    return {"uploadedFiles": uploaded_files}
 
 
 def is_xrootd(url: str) -> bool:

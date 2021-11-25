@@ -29,13 +29,19 @@ def handle(req: bytes) -> str:
 
     args = json.loads(req)
 
-    HEARTBEAT_URL = args["heartbeatUrl"]
+    HEARTBEAT_URL = args["ctx"]["heartbeatUrl"]
     heartbeat()
 
+    results = [process_item(item) for item in args["argsBatch"]]
+
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
     try:
-        return json.dumps(get_files_to_fetch(args))
-    except:
-        return json.dumps("FAILED")
+        return get_files_to_fetch(args)
+    except Exception as ex:
+        return {"exception": str(ex)}
 
 
 def get_files_to_fetch(args: dict) -> dict:
