@@ -27,12 +27,12 @@ def handle(req: bytes) -> str:
     """
     global HEARTBEAT_URL
 
-    args = json.loads(req)
+    data = json.loads(req)
 
-    HEARTBEAT_URL = args["ctx"]["heartbeatUrl"]
+    HEARTBEAT_URL = data["ctx"]["heartbeatUrl"]
     heartbeat()
 
-    results = [process_item(item) for item in args["argsBatch"]]
+    results = [process_item(item) for item in data["argsBatch"]]
 
     return json.dumps({"resultsBatch": results})
 

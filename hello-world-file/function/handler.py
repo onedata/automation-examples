@@ -6,8 +6,8 @@ def handle(req: bytes):
     Args:
         req (str): request body
     """
-    args = json.loads(req)
-    results = [process_item(file) for file in args["resultsBatch"]]
+    data = json.loads(req)
+    results = [process_item(file) for file in data["argsBatch"]]
     return json.dumps({"resultsBatch": results})
 
 

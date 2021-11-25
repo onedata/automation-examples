@@ -7,8 +7,8 @@ def handle(req):
     Args:
         req (str): request body
     """
-    args = json.loads(req)
-    return json.dumps({'resultsBatch': [random_inout(arg) for arg in args['argsBatch']]})
+    data = json.loads(req)
+    return json.dumps({'resultsBatch': [random_inout(arg) for arg in data['argsBatch']]})
 
 
 def random_inout(arg):

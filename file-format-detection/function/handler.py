@@ -39,9 +39,9 @@ def handle(req: bytes) -> str:
         item (Any-File): file to process
         metadata_key (String): namespace key of metadata entry
     """
-    args = json.loads(req)
+    data = json.loads(req)
 
-    results = [process_item(item) for item in args['argsBatch']]
+    results = [process_item(item) for item in data['argsBatch']]
 
     return json.dumps({"resultsBatch": results})
 

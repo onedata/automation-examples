@@ -6,5 +6,5 @@ def handle(req):
     Args:
         req (str): request body
     """
-    args = json.loads(req)
-    return json.dumps({'resultsBatch': args['argsBatch']})
+    data = json.loads(req)
+    return json.dumps({'resultsBatch': data['argsBatch']})
