@@ -29,29 +29,34 @@ def handle(req: bytes) -> str:
     """
     global HEARTBEAT_URL
 
-    args = json.loads(req)
+    data = json.loads(req)
 
-    HEARTBEAT_URL = args["heartbeatUrl"]
+    HEARTBEAT_URL = data["ctx"]["heartbeatUrl"]
     heartbeat()
 
+    results = [process_item(item) for item in data["argsBatch"]]
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
     try:
         uploaded_files = unpack_data_dir(args)
-        return json.dumps({
+        return {
             "uploadedFiles": uploaded_files,
             "logs": [{
                 "severity": "info",
                 "file": args["archive"]["name"],
                 "status": f"Successfully uploaded {len(uploaded_files)} files."
             }]
-        })
+        }
     except Exception as ex:
-        return json.dumps({
+        return {
             "exception": [{
                 "severity": "error",
                 "file": args["archive"]["name"],
                 "status": f"Failed to unpack files due to: {str(ex)}"
             }]
-        })
+        }
 
 
 def unpack_data_dir(args: dict) -> list:

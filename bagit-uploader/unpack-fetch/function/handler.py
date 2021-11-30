@@ -27,25 +27,31 @@ def handle(req: bytes) -> str:
     """
     global HEARTBEAT_URL
 
-    args = json.loads(req)
+    data = json.loads(req)
 
-    HEARTBEAT_URL = args["heartbeatUrl"]
+    HEARTBEAT_URL = data["ctx"]["heartbeatUrl"]
     heartbeat()
+
+    results = [process_item(item) for item in data["argsBatch"]]
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
 
     try:
         files_to_fetch = parse_files_to_fetch(args)
-        return json.dumps({
+        return {
             "filesToFetch": files_to_fetch,
             "logs": [{
                 "severity": "info",
                 "file": args["archive"]["name"],
                 "status": f"Found  {len(files_to_fetch)} files to be fetched."
             }]
-        })
+        }
     except Exception as ex:
-        return json.dumps({
+        return {
             "exception": {f"Failed to extract files to fetch data due to error: {str(ex)}"}
-        })
+        }
 
 
 def parse_files_to_fetch(args: dict) -> list:
