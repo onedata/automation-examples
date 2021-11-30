@@ -29,19 +29,24 @@ def handle(req: bytes) -> str:
     """
     global HEARTBEAT_URL
 
-    args = json.loads(req)
+    data = json.loads(req)
 
-    HEARTBEAT_URL = args["heartbeatUrl"]
+    HEARTBEAT_URL = data["ctx"]["heartbeatUrl"]
     heartbeat()
 
+    results = [process_item(item) for item in data["argsBatch"]]
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
     try:
         register_json_metadata(args)
     except Exception as ex:
-        return json.dumps({
+        return {
             "exception": f"JSON metadata registration failed due to: {str(ex)}"
-        })
+        }
 
-    return json.dumps({})
+    return {}
 
 
 def register_json_metadata(args: dict):
