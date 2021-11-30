@@ -33,31 +33,27 @@ def handle(req: bytes) -> str:
 
     args = json.loads(req)
 
-    HEARTBEAT_URL = args["heartbeatUrl"]
+    HEARTBEAT_URL = args["ctx"]["heartbeatUrl"]
     heartbeat()
 
-    valid_bagit_archives = []
+    results = [process_item(item) for item in args["argsBatch"]]
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
     logs = []
-
-    for archive in args["archives"]:
-        try:
-            archive_filename = archive["name"]
-            if not archive["type"] == "REG":
-                raise Exception(f"File {archive_filename} is not a regular file")
-            assert_valid_bagit_archive(f'/mnt/onedata/.__onedata__file_id__{archive["file_id"]}', archive_filename)
-        except Exception as ex:
-            logs.append({
-                "severity": "warning",
-                "file": archive["name"],
-                "status": str(ex)
-            })
-        else:
-            valid_bagit_archives.append(archive)
-
-    return json.dumps({
-        "validBagitArchives": valid_bagit_archives,
+    archive = args["archive"]
+    archive_filename = archive["name"]
+    try:
+        if not archive["type"] == "REG":
+            raise Exception(f"File {archive_filename} is not a regular file")
+        assert_valid_bagit_archive(f'/mnt/onedata/.__onedata__file_id__{archive["file_id"]}', archive_filename)
+    except Exception as ex:
+        return {"exception": {"file": archive_filename, "error": str(ex)}}
+    return {
+        "validBagitArchive": archive,
         "logs": logs
-    })
+    }
 
 
 def assert_valid_bagit_archive(archive_path: str, archive_filename: str):
@@ -91,7 +87,8 @@ def assert_valid_archive(
     data_dir = f'{bagit_dir}/data'
     fetch_file = f'{bagit_dir}/fetch.txt'
     if not ((data_dir in archive_files) or (fetch_file in archive_files) or (f'{bagit_dir}/data/' in archive_files)):
-        raise Exception(f"Could not find fetch.txt file or /data directory inside bagit dir: {bagit_dir}. Found files: {str(archive_files)}")
+        raise Exception(
+            f"Could not find fetch.txt file or /data directory inside bagit dir: {bagit_dir}. Found files: {str(archive_files)}")
 
     for algorithm in SUPPORTED_CHECKSUM_ALGORITHMS:
         tagmanifest_file = f'{bagit_dir}/tagmanifest-{algorithm}.txt'
