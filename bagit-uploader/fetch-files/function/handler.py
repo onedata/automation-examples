@@ -36,50 +36,49 @@ def handle(req: bytes) -> str:
             placed under given path.
         logs (batch/list of strings): list of objects describing log from lambda
     """
+
+    global LOGS
+    global HEARTBEAT_URL
+
+    data = json.loads(req)
+
+    HEARTBEAT_URL = data["ctx"]["heartbeatUrl"]
+    heartbeat()
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=FETCH_MAX_WORKERS) as executor:
+        results = list(executor.map(process_item, data["argsBatch"]))
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
     try:
-        global LOGS
-        global HEARTBEAT_URL
-        args = json.loads(req)
-        HEARTBEAT_URL = args["heartbeatUrl"]
-        heartbeat()
-        files = args["filesToFetch"]
-        files_info = []
-        for file_info in files:
-            url = file_info["url"]
-            size = file_info["size"]
-            path = f'/mnt/onedata/{file_info["path"]}'
-            files_info.append((url, size, path))
+        file_info = args["fileToFetch"]
+        url = file_info["url"]
+        size = file_info["size"]
+        path = f'/mnt/onedata/{file_info["path"]}'
 
-        uploaded_files = []
-
-        with concurrent.futures.ThreadPoolExecutor(max_workers=FETCH_MAX_WORKERS) as executor:
-            future_to_path = {executor.submit(try_download_file, url, size, path): path for (url, size, path) in
-                              files_info}
-            for future in concurrent.futures.as_completed(future_to_path):
-                path = future_to_path[future]
-                uploaded_files.append(path)
-
+        try_download_file(url, size, path)
         error_logs = []
         for log_object in LOGS:
             if log_object["severity"] == "error":
                 error_logs.append(log_object)
         if len(error_logs) >= 1:
-            return json.dumps({
+            return {
                 "exception": {
                     "reason": error_logs
                 }
-            })
+            }
 
-        return json.dumps({
-            "uploadedFiles": uploaded_files,
+        return {
+            "uploadedFile": path,
             "logs": LOGS
-        })
+        }
     except Exception as ex:
-        return json.dumps({
+        return {
             "exception": {
                 "reason": [str(ex)]
             }
-        })
+        }
 
 
 def try_download_file(file_url: str, file_size: int, file_path: str):
