@@ -14,7 +14,8 @@ HEARTBEAT_URL: str = ""
 
 
 def handle(req: bytes) -> str:
-    """Iterates over fetch.txt file (if exists) and collects data about files to be fetched later.
+    """Iterates over fetch.txt file (if exists) and collects data about files to be
+       fetched later (fetch-files lambda from bagit-uploader can be used).
 
     Args Structure:
         heartbeatUrl (str): url where heartbeats are posted to, automatically added to lambda

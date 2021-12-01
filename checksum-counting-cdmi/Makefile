@@ -1,5 +1,5 @@
 REPO=docker.onedata.org/checksum-counting-cdmi
-TAG=v7
+TAG=v8
 
 .PHONY: checksum-counting-cdmi
 
