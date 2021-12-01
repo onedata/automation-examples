@@ -9,8 +9,8 @@ REGISTER_METADATA_TAG=v5
 REGISTER_METADATA_FROM_DATA_TAG=v5
 CALCULATE_CHECKSUM_TAG=v6
 CONVERT_FILES_TAG=v9
-ARCHIVE_DESTINATION_TAG=v8
-ARCHIVE_DESTINATION_DM_CERN_TAG=v7
+ARCHIVE_DESTINATION_TAG=v9
+ARCHIVE_DESTINATION_DM_CERN_TAG=v8
 
 
 .PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data infer-destination archive-destination convert-files archive-destination-dm-cern
@@ -65,5 +65,5 @@ archive-destination:
 	docker push ${REPO}/bagit-uploader-archive-destination:${ARCHIVE_DESTINATION_TAG}
 
 archive-destination-dm-cern:
-	docker build ./archive-destination-dm-cern -t ${REPO}/bagit-uploader-archive-destination-dm-cern:${ARCHIVE_DESTINATION_TAG}
+	docker build ./archive-destination-dm-cern -t ${REPO}/bagit-uploader-archive-destination-dm-cern:${ARCHIVE_DESTINATION_DM_CERN_TAG}
 	docker push ${REPO}/bagit-uploader-archive-destination-dm-cern:${ARCHIVE_DESTINATION_DM_CERN_TAG}
