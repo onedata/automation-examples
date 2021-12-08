@@ -16,10 +16,15 @@ def handle(req: bytes) -> str:
     Returns:
         convertedFiles (object): information about file conversion
     """
+    data = json.loads(req)
+    results = [process_item(item) for item in data["argsBatch"]]
+
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
 
     try:
-        args = json.loads(req)
-
         file_path = args["filePath"]
         files_to_delete = []
         convert_log = " not a file "

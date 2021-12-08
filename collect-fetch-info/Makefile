@@ -8,7 +8,7 @@ all: collect-fetch-info
 
 
 collect-fetch-info:
-	docker build ./collect-fetch-info -t ${REPO}/collect-fetch-info:${COLLECT_FETCH_INFO_TAG}
+	docker build . -t ${REPO}/collect-fetch-info:${COLLECT_FETCH_INFO_TAG}
 	docker push ${REPO}/collect-fetch-info:${COLLECT_FETCH_INFO_TAG}
 
 

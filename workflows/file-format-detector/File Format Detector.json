@@ -1,136 +1,167 @@
 {
-  "supplementaryAtmLambdas": {
-    "e475e3f6e1347540a16ef7da4ba45fedch9c26": {
-      "summary": "",
-      "schemaFormatVersion": 1,
-      "resultSpecs": [
+  "summary": "",
+  "schemaFormatVersion": 2,
+  "revision": {
+    "supplementaryAtmLambdas": {
+      "26567ac4a6f7e32ed4aef97fd25b33dcch73f7": {
+        "3": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 3,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "name": "format",
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "object"
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 1,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/file-format-detection:v11",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "file-format-detection",
+              "description": "",
+              "checksum": "9622e163ee7482f25d2a3ec60dba0a93",
+              "argumentSpecs": [
+                {
+                  "name": "item",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "REG"
+                    },
+                    "type": "file"
+                  }
+                },
+                {
+                  "name": "metadata_key",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "26567ac4a6f7e32ed4aef97fd25b33dcch73f7"
+        }
+      }
+    },
+    "schemaFormatVersion": 2,
+    "originalRevisionNumber": 1,
+    "atmWorkflowSchemaRevision": {
+      "stores": [
         {
-          "name": "format",
-          "isBatch": false,
+          "type": "treeForest",
+          "requiresInitialValue": true,
+          "name": "input-files",
+          "id": "a10b3daf76091ff177abc4903e60503e1d9f71",
+          "description": "",
+          "defaultInitialValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "REG"
+            },
+            "type": "file"
+          }
+        },
+        {
+          "type": "list",
+          "requiresInitialValue": false,
+          "name": "formats",
+          "id": "45f8a90ddfd64a076c43a10e2b24eea904f738",
+          "description": "",
+          "defaultInitialValue": null,
           "dataSpec": {
             "valueConstraints": {},
             "type": "object"
           }
         }
       ],
-      "operationSpec": {
-        "engine": "openfaas",
-        "dockerImage": "docker.onedata.org/file-format-detection:v8",
-        "dockerExecutionOptions": {
-          "readonly": false,
-          "oneclientOptions": "-i",
-          "oneclientMountPoint": "/mnt/onedata",
-          "mountOneclient": true
-        }
-      },
-      "name": "file-format-detector-v8",
-      "description": "",
-      "checksum": "4152d909147d919f9cd11ba6f802c68e",
-      "argumentSpecs": [
+      "state": "draft",
+      "lanes": [
         {
-          "name": "item",
-          "isOptional": false,
-          "isBatch": false,
-          "defaultValue": null,
-          "dataSpec": {
-            "valueConstraints": {
-              "fileType": "ANY"
-            },
-            "type": "file"
-          }
-        },
-        {
-          "name": "metadata_key",
-          "isOptional": false,
-          "isBatch": false,
-          "defaultValue": null,
-          "dataSpec": {
-            "valueConstraints": {},
-            "type": "string"
-          }
-        }
-      ]
-    }
-  },
-  "stores": [
-    {
-      "type": "treeForest",
-      "requiresInitialValue": true,
-      "name": "files",
-      "id": "ce142e72782bbd7a033cc2acd5fa40ed47f649",
-      "description": "",
-      "defaultInitialValue": null,
-      "dataSpec": {
-        "valueConstraints": {
-          "fileType": "REG"
-        },
-        "type": "file"
-      }
-    },
-    {
-      "type": "list",
-      "requiresInitialValue": false,
-      "name": "formats",
-      "id": "294935ab1f2a8cb2164ba8c2c65c0b3863258d",
-      "description": "",
-      "defaultInitialValue": null,
-      "dataSpec": {
-        "valueConstraints": {},
-        "type": "object"
-      }
-    }
-  ],
-  "state": "ready",
-  "schemaFormatVersion": 1,
-  "name": "File Format Detector",
-  "lanes": [
-    {
-      "storeIteratorSpec": {
-        "strategy": {
-          "type": "serial"
-        },
-        "storeSchemaId": "ce142e72782bbd7a033cc2acd5fa40ed47f649"
-      },
-      "parallelBoxes": [
-        {
-          "tasks": [
+          "storeIteratorSpec": {
+            "storeSchemaId": "a10b3daf76091ff177abc4903e60503e1d9f71",
+            "maxBatchSize": 2
+          },
+          "parallelBoxes": [
             {
-              "resultMappings": [
+              "tasks": [
                 {
-                  "storeSchemaId": "294935ab1f2a8cb2164ba8c2c65c0b3863258d",
-                  "resultName": "format",
-                  "dispatchFunction": "append"
+                  "resultMappings": [
+                    {
+                      "storeSchemaId": "45f8a90ddfd64a076c43a10e2b24eea904f738",
+                      "resultName": "format",
+                      "dispatchFunction": "append"
+                    }
+                  ],
+                  "resourceSpecOverride": {
+                    "memoryRequested": 4294967296,
+                    "memoryLimit": null,
+                    "ephemeralStorageRequested": 4294967296,
+                    "ephemeralStorageLimit": null,
+                    "cpuRequested": 4,
+                    "cpuLimit": null
+                  },
+                  "name": "file-format-detection",
+                  "lambdaRevisionNumber": 3,
+                  "lambdaId": "26567ac4a6f7e32ed4aef97fd25b33dcch73f7",
+                  "id": "8b9a840f0cf87f9b81480796b5b7f972fb38c0",
+                  "argumentMappings": [
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "iteratedItem",
+                        "valueBuilderRecipe": null
+                      },
+                      "argumentName": "item"
+                    },
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "const",
+                        "valueBuilderRecipe": "detected"
+                      },
+                      "argumentName": "metadata_key"
+                    }
+                  ]
                 }
               ],
-              "name": "file-format-detector-v8",
-              "lambdaId": "e475e3f6e1347540a16ef7da4ba45fedch9c26",
-              "id": "c8a3f95a75490735824873c356854fe3e6c8ce",
-              "argumentMappings": [
-                {
-                  "valueBuilder": {
-                    "valueBuilderType": "iteratedItem",
-                    "valueBuilderRecipe": null
-                  },
-                  "argumentName": "item"
-                },
-                {
-                  "valueBuilder": {
-                    "valueBuilderType": "const",
-                    "valueBuilderRecipe": "file-format-detector"
-                  },
-                  "argumentName": "metadata_key"
-                }
-              ]
+              "name": "Parallel box",
+              "id": "4b1ea214f6bc255a96fd4a5c649cc054b4da11"
             }
           ],
-          "name": "Parallel box",
-          "id": "9b52d7d0d3e8f3a1339b2ba7ea39ba232ec494"
+          "name": "l1",
+          "maxRetries": 0,
+          "id": "c76bf9281ff51c0620cd51c9ca5f3698c81097"
         }
       ],
-      "name": "detect format",
-      "id": "d67ff436a52922103fd2f11b59bb57694c6dad"
+      "description": "This workflow takes files as input. For each file,  tries to  infer code language, or file type based only on its content (Guesslang library is used).  Also, checks mime type of file, and indicate if content match mime extension.\nCurrently supported file extensions are: .py .c .cc .csv .json. More extensions can be added in lambda implementation. "
     }
-  ],
-  "description": "Automation workflow for detecting file types based on content. The metadata key is-extension-matching-content is set.",
-  "atmWorkflowSchemaId": "a77f02a9e93ec27d818a31bad81cd998chf699"
+  },
+  "originalAtmWorkflowSchemaId": "277283137f67795f014a8f5994928ae2ch1a9e",
+  "name": "File Format Detector"
 }
