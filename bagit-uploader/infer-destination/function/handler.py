@@ -15,8 +15,14 @@ def handle(req: bytes):
     Return:
         destination (directory): destination directory
     """
+
+    data = json.loads(req)
+    results = [process_item(item) for item in data["argsBatch"]]
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
     try:
-        args = json.loads(req)
         archive = args["archive"]
         parent_id = archive["parent_id"]
         archive_name = archive["name"]

@@ -18,10 +18,16 @@ def handle(req: bytes):
     """
     global HEARTBEAT_URL
 
-    args = json.loads(req)
+    data = json.loads(req)
 
-    HEARTBEAT_URL = args["heartbeatUrl"]
+    HEARTBEAT_URL = data["ctx"]["heartbeatUrl"]
     heartbeat()
+
+    results = [process_item(item) for item in data["argsBatch"]]
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
     logs = []
 
     try:
@@ -45,19 +51,19 @@ def handle(req: bytes):
         })
 
     except Exception as ex:
-        return json.dumps({
+        return {
             "exception": {
                 "status": f" Creating archive failed due to: {str(ex)}"
             }
-        })
+        }
 
-    return json.dumps({
+    return {
         "response": {
             "datasetId": dataset_id,
             "archiveId": archive_id,
         },
         "logs": logs
-    })
+    }
 
 
 def ensure_dataset_established(host: str, destination_id: str, headers: dict, destination_name: str, logs: list) -> str:

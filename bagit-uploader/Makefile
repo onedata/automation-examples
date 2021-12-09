@@ -1,16 +1,16 @@
 REPO=docker.onedata.org
 
 INFER_DESTINATION_TAG=v4
-VALIDATE_TAG=v9
-UNPACK_DATA_TAG=v5
-UNPACK_FETCH_TAG=v11
-FETCH_FILES_TAG=v24
-REGISTER_METADATA_TAG=v4
-REGISTER_METADATA_FROM_DATA_TAG=v4
-CALCULATE_CHECKSUM_TAG=v5
+VALIDATE_TAG=v10
+UNPACK_DATA_TAG=v7
+UNPACK_FETCH_TAG=v12
+FETCH_FILES_TAG=v25
+REGISTER_METADATA_TAG=v5
+REGISTER_METADATA_FROM_DATA_TAG=v5
+CALCULATE_CHECKSUM_TAG=v6
 CONVERT_FILES_TAG=v9
-ARCHIVE_DESTINATION_TAG=v8
-ARCHIVE_DESTINATION_DM_CERN_TAG=v7
+ARCHIVE_DESTINATION_TAG=v9
+ARCHIVE_DESTINATION_DM_CERN_TAG=v8
 
 
 .PHONY: all validate unpack-data unpack-fetch fetch-files register-metadata calculate-checksum register-metadata-from-data infer-destination archive-destination convert-files archive-destination-dm-cern
@@ -65,5 +65,5 @@ archive-destination:
 	docker push ${REPO}/bagit-uploader-archive-destination:${ARCHIVE_DESTINATION_TAG}
 
 archive-destination-dm-cern:
-	docker build ./archive-destination-dm-cern -t ${REPO}/bagit-uploader-archive-destination-dm-cern:${ARCHIVE_DESTINATION_TAG}
+	docker build ./archive-destination-dm-cern -t ${REPO}/bagit-uploader-archive-destination-dm-cern:${ARCHIVE_DESTINATION_DM_CERN_TAG}
 	docker push ${REPO}/bagit-uploader-archive-destination-dm-cern:${ARCHIVE_DESTINATION_DM_CERN_TAG}

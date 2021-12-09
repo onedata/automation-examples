@@ -28,11 +28,16 @@ def handle(req: bytes) -> str:
     """
     global HEARTBEAT_URL
 
-    args = json.loads(req)
+    data = json.loads(req)
 
-    HEARTBEAT_URL = args["heartbeatUrl"]
+    HEARTBEAT_URL = data["ctx"]["heartbeatUrl"]
     heartbeat()
 
+    results = [process_item(item) for item in data["argsBatch"]]
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
     file_path = args["filePath"]
     file_info = {}
     try:
@@ -61,10 +66,10 @@ def handle(req: bytes) -> str:
 
                     file_info[algorithm] = {"expected": exp_checksum, "calculated": calculated_checksum, "status": "ok"}
     except Exception as ex:
-        return json.dumps({"exception": {
+        return {"exception": {
             "reason": f"Checksum verification failed due to: {str(ex)}"
-        }})
-    return json.dumps({"checksums": file_info})
+        }}
+    return {"checksums": file_info}
 
 
 def calculate_checksum(fd: IO[bytes], algorithm: str) -> str:

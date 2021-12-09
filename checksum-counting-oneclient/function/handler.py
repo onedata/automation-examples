@@ -13,8 +13,13 @@ def handle(req: bytes):
     Args:
         req (str): request body
     """
-    args = json.loads(req)
+    data = json.loads(req)
 
+    results = [process_item(item) for item in data["argsBatch"]]
+    return json.dumps({"resultsBatch": results})
+
+
+def process_item(args):
     if args["item"]["type"] == "REG":
         file_id = args["item"]["file_id"]
         file_path = f'/mnt/onedata/.__onedata__file_id__{file_id}'
@@ -27,13 +32,13 @@ def handle(req: bytes):
             if metadata_key != "":
                 xd = xattr.xattr(file_path)
                 xd.set(metadata_key, str.encode(checksum))
-            return json.dumps({"result": {
+            return {"result": {
                 "file_id": file_id,
                 "checksum": checksum,
                 "algorithm": algorithm
-            }})
+            }}
 
-    return json.dumps({"result": {}})
+    return {"result": {}}
 
 
 def calculate_checksum(fd, algorithm):

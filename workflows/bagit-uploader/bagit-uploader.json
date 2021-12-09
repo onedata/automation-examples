@@ -1,0 +1,1011 @@
+{
+  "summary": "",
+  "schemaFormatVersion": 2,
+  "revision": {
+    "supplementaryAtmLambdas": {
+      "f88115480ab1d104d8a19ebb33222baach154e": {
+        "2": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 2,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "name": "uploadedFile",
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "string"
+                  }
+                },
+                {
+                  "name": "logs",
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "itemDataSpec": {
+                        "valueConstraints": {},
+                        "type": "object"
+                      }
+                    },
+                    "type": "array"
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 10,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/bagit-uploader-fetch-files:v25",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "bagit-uploader-fetch-files",
+              "description": "",
+              "checksum": "28632e3a6abba940bebff2553186e413",
+              "argumentSpecs": [
+                {
+                  "name": "fileToFetch",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "object"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "f88115480ab1d104d8a19ebb33222baach154e"
+        }
+      },
+      "ed3993318e42a43416aecfd131804b11cha21b": {
+        "1": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "name": "validBagitArchive",
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "REG"
+                    },
+                    "type": "file"
+                  }
+                },
+                {
+                  "name": "logs",
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "itemDataSpec": {
+                        "valueConstraints": {},
+                        "type": "object"
+                      }
+                    },
+                    "type": "array"
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 5,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/bagit-uploader-validate:v10",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "bagit-uploader-validate",
+              "description": "",
+              "checksum": "8a7fd45611c1a7b910b97b7586a8d204",
+              "argumentSpecs": [
+                {
+                  "name": "archive",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "REG"
+                    },
+                    "type": "file"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "ed3993318e42a43416aecfd131804b11cha21b"
+        }
+      },
+      "e33a98313b647ccc9ace17e8f0af6f87chf730": {
+        "1": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "name": "uploadedFiles",
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "itemDataSpec": {
+                        "valueConstraints": {},
+                        "type": "string"
+                      }
+                    },
+                    "type": "array"
+                  }
+                },
+                {
+                  "name": "logs",
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "itemDataSpec": {
+                        "valueConstraints": {},
+                        "type": "object"
+                      }
+                    },
+                    "type": "array"
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 2,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/bagit-uploader-unpack-data:v7",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "bagit-uploader-unpack-data",
+              "description": "",
+              "checksum": "967399eb89cc89a64e5dd99d6163f268",
+              "argumentSpecs": [
+                {
+                  "name": "archive",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "REG"
+                    },
+                    "type": "file"
+                  }
+                },
+                {
+                  "name": "destination",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "DIR"
+                    },
+                    "type": "file"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "e33a98313b647ccc9ace17e8f0af6f87chf730"
+        }
+      },
+      "83bd42077440984335827c982e636118ch8e10": {
+        "1": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "name": "checksums",
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "object"
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 2,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/bagit-uploader-calculate-checksum:v6",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "bagit-uploader-calculate-checksum",
+              "description": "",
+              "checksum": "2aff0b6b8f40febee06b973b68f40704",
+              "argumentSpecs": [
+                {
+                  "name": "filePath",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "83bd42077440984335827c982e636118ch8e10"
+        }
+      },
+      "82c6127a2705a16845ff15fe4f08c7e4ch9edf": {
+        "1": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "name": "filesToFetch",
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "itemDataSpec": {
+                        "valueConstraints": {},
+                        "type": "object"
+                      }
+                    },
+                    "type": "array"
+                  }
+                },
+                {
+                  "name": "logs",
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "itemDataSpec": {
+                        "valueConstraints": {},
+                        "type": "object"
+                      }
+                    },
+                    "type": "array"
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 5,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/bagit-uploader-unpack-fetch:v12",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "bagit-uploader-unpack-fetch",
+              "description": "",
+              "checksum": "dc3fbbd51d0c835317309f047c6feb6b",
+              "argumentSpecs": [
+                {
+                  "name": "archive",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "REG"
+                    },
+                    "type": "file"
+                  }
+                },
+                {
+                  "name": "destination",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "DIR"
+                    },
+                    "type": "file"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "82c6127a2705a16845ff15fe4f08c7e4ch9edf"
+        }
+      },
+      "52b723629689bec21f1eab54e948ab75chbaf3": {
+        "1": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "name": "response",
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "object"
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 1,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/bagit-uploader-archive-destination:v9",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "bagit-uploader-archive-destination",
+              "description": "",
+              "checksum": "3fb117581fa6a8157cc2297b763b99ed",
+              "argumentSpecs": [
+                {
+                  "name": "destination",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "DIR"
+                    },
+                    "type": "file"
+                  }
+                },
+                {
+                  "name": "credentials",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "onedatafsCredentials"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "52b723629689bec21f1eab54e948ab75chbaf3"
+        }
+      },
+      "2f69f5de708846fa438f533d9edf0b1fch67b8": {
+        "1": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 2,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/bagit-uploader-register-metadata-from-data:v5",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "register-metadata-from-data",
+              "description": "",
+              "checksum": "bc7fcdace3b69a493c70ec4fa0293aec",
+              "argumentSpecs": [
+                {
+                  "name": "archive",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "REG"
+                    },
+                    "type": "file"
+                  }
+                },
+                {
+                  "name": "destination",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "DIR"
+                    },
+                    "type": "file"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "2f69f5de708846fa438f533d9edf0b1fch67b8"
+        }
+      },
+      "2ad3a4b3cadaed6185a3f690e26dcd67chb8a5": {
+        "1": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 5,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/bagit-uploader-register-metadata:v5",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "bagit-uploader-register-metadata",
+              "description": "",
+              "checksum": "bb01fe514bf570b7b557495a279cb9d1",
+              "argumentSpecs": [
+                {
+                  "name": "archive",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "REG"
+                    },
+                    "type": "file"
+                  }
+                },
+                {
+                  "name": "destination",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "DIR"
+                    },
+                    "type": "file"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "2ad3a4b3cadaed6185a3f690e26dcd67chb8a5"
+        }
+      }
+    },
+    "schemaFormatVersion": 2,
+    "originalRevisionNumber": 1,
+    "atmWorkflowSchemaRevision": {
+      "stores": [
+        {
+          "type": "treeForest",
+          "requiresInitialValue": true,
+          "name": "input-bagit-archives",
+          "id": "206830557d56800bd090b0d5f1742e65794dfe",
+          "description": "",
+          "defaultInitialValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "REG"
+            },
+            "type": "file"
+          }
+        },
+        {
+          "type": "singleValue",
+          "requiresInitialValue": true,
+          "name": "destination",
+          "id": "00364223067d2aa5cceabbb0ee6ab57a456f44",
+          "description": "",
+          "defaultInitialValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "DIR"
+            },
+            "type": "file"
+          }
+        },
+        {
+          "type": "list",
+          "requiresInitialValue": false,
+          "name": "uploaded-files",
+          "id": "d9a9a1593eefa40c7d79e3932c4eed99e6d753",
+          "description": "",
+          "defaultInitialValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "string"
+          }
+        },
+        {
+          "type": "list",
+          "requiresInitialValue": false,
+          "name": "files-to-fetch",
+          "id": "b0ef777cc2e2ab7ae4e3f8cc5b0d0ff08ae65a",
+          "description": "",
+          "defaultInitialValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "object"
+          }
+        },
+        {
+          "type": "list",
+          "requiresInitialValue": false,
+          "name": "validated-bagit-archives",
+          "id": "732fabb5024e1bddfaa595f76933c339e2e165",
+          "description": "",
+          "defaultInitialValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "object"
+          }
+        },
+        {
+          "type": "list",
+          "requiresInitialValue": false,
+          "name": "checksums",
+          "id": "546513e27a7783f8810fbdb2652d8176b7739b",
+          "description": "",
+          "defaultInitialValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "object"
+          }
+        },
+        {
+          "type": "list",
+          "requiresInitialValue": false,
+          "name": "archive-info",
+          "id": "7ad5bae8f961e5d3f4cc4b9a7c08d84ee18470",
+          "description": "",
+          "defaultInitialValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "object"
+          }
+        }
+      ],
+      "state": "draft",
+      "lanes": [
+        {
+          "storeIteratorSpec": {
+            "storeSchemaId": "206830557d56800bd090b0d5f1742e65794dfe",
+            "maxBatchSize": 2
+          },
+          "parallelBoxes": [
+            {
+              "tasks": [
+                {
+                  "resultMappings": [
+                    {
+                      "storeSchemaId": "732fabb5024e1bddfaa595f76933c339e2e165",
+                      "resultName": "validBagitArchive",
+                      "dispatchFunction": "append"
+                    },
+                    {
+                      "storeSchemaId": "CURRENT_TASK_SYSTEM_AUDIT_LOG",
+                      "resultName": "logs",
+                      "dispatchFunction": "extend"
+                    }
+                  ],
+                  "resourceSpecOverride": null,
+                  "name": "bagit-uploader-validate",
+                  "lambdaRevisionNumber": 1,
+                  "lambdaId": "ed3993318e42a43416aecfd131804b11cha21b",
+                  "id": "d2a279c3805a5c32f450a87a262794494b8db4",
+                  "argumentMappings": [
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "iteratedItem",
+                        "valueBuilderRecipe": null
+                      },
+                      "argumentName": "archive"
+                    }
+                  ]
+                }
+              ],
+              "name": "Parallel box",
+              "id": "6576df9a2fad0f8231c5296b9130580a555a0d"
+            }
+          ],
+          "name": "validate",
+          "maxRetries": 2,
+          "id": "7c17818d5908d8c002b8c48a66239a162b2355"
+        },
+        {
+          "storeIteratorSpec": {
+            "storeSchemaId": "732fabb5024e1bddfaa595f76933c339e2e165",
+            "maxBatchSize": 2
+          },
+          "parallelBoxes": [
+            {
+              "tasks": [
+                {
+                  "resultMappings": [
+                    {
+                      "storeSchemaId": "d9a9a1593eefa40c7d79e3932c4eed99e6d753",
+                      "resultName": "uploadedFiles",
+                      "dispatchFunction": "extend"
+                    },
+                    {
+                      "storeSchemaId": "CURRENT_TASK_SYSTEM_AUDIT_LOG",
+                      "resultName": "logs",
+                      "dispatchFunction": "extend"
+                    }
+                  ],
+                  "resourceSpecOverride": null,
+                  "name": "bagit-uploader-unpack-data",
+                  "lambdaRevisionNumber": 1,
+                  "lambdaId": "e33a98313b647ccc9ace17e8f0af6f87chf730",
+                  "id": "f505635695a34a8d2d33d89c5b266c4d36098a",
+                  "argumentMappings": [
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "iteratedItem",
+                        "valueBuilderRecipe": null
+                      },
+                      "argumentName": "archive"
+                    },
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "singleValueStoreContent",
+                        "valueBuilderRecipe": "00364223067d2aa5cceabbb0ee6ab57a456f44"
+                      },
+                      "argumentName": "destination"
+                    }
+                  ]
+                }
+              ],
+              "name": "Parallel box",
+              "id": "14ff7e5d84523e325450f98a719cec1b11a078"
+            }
+          ],
+          "name": "unpack",
+          "maxRetries": 2,
+          "id": "55d91c904d18ae13ec902c7cc2b122639f65ce"
+        },
+        {
+          "storeIteratorSpec": {
+            "storeSchemaId": "732fabb5024e1bddfaa595f76933c339e2e165",
+            "maxBatchSize": 2
+          },
+          "parallelBoxes": [
+            {
+              "tasks": [
+                {
+                  "resultMappings": [
+                    {
+                      "storeSchemaId": "b0ef777cc2e2ab7ae4e3f8cc5b0d0ff08ae65a",
+                      "resultName": "filesToFetch",
+                      "dispatchFunction": "extend"
+                    },
+                    {
+                      "storeSchemaId": "CURRENT_TASK_SYSTEM_AUDIT_LOG",
+                      "resultName": "logs",
+                      "dispatchFunction": "extend"
+                    }
+                  ],
+                  "resourceSpecOverride": null,
+                  "name": "bagit-uploader-unpack-fetch",
+                  "lambdaRevisionNumber": 1,
+                  "lambdaId": "82c6127a2705a16845ff15fe4f08c7e4ch9edf",
+                  "id": "23f75ec7b8ae77d4ed45f5a4561417f2c6826e",
+                  "argumentMappings": [
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "iteratedItem",
+                        "valueBuilderRecipe": null
+                      },
+                      "argumentName": "archive"
+                    },
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "singleValueStoreContent",
+                        "valueBuilderRecipe": "00364223067d2aa5cceabbb0ee6ab57a456f44"
+                      },
+                      "argumentName": "destination"
+                    }
+                  ]
+                }
+              ],
+              "name": "Parallel box",
+              "id": "c0897e9598326efd9f5873e1ed3c3a00c9cae9"
+            }
+          ],
+          "name": "collect fetch info",
+          "maxRetries": 1,
+          "id": "4a963306b4aad6bfa881b7f7f2732baae51b76"
+        },
+        {
+          "storeIteratorSpec": {
+            "storeSchemaId": "b0ef777cc2e2ab7ae4e3f8cc5b0d0ff08ae65a",
+            "maxBatchSize": 10
+          },
+          "parallelBoxes": [
+            {
+              "tasks": [
+                {
+                  "resultMappings": [
+                    {
+                      "storeSchemaId": "d9a9a1593eefa40c7d79e3932c4eed99e6d753",
+                      "resultName": "uploadedFile",
+                      "dispatchFunction": "append"
+                    },
+                    {
+                      "storeSchemaId": "CURRENT_TASK_SYSTEM_AUDIT_LOG",
+                      "resultName": "logs",
+                      "dispatchFunction": "extend"
+                    }
+                  ],
+                  "resourceSpecOverride": null,
+                  "name": "bagit-uploader-fetch-files",
+                  "lambdaRevisionNumber": 2,
+                  "lambdaId": "f88115480ab1d104d8a19ebb33222baach154e",
+                  "id": "bbaab9dee648d5faee1d7a4ce948cdcb7c90c0",
+                  "argumentMappings": [
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "iteratedItem",
+                        "valueBuilderRecipe": null
+                      },
+                      "argumentName": "fileToFetch"
+                    }
+                  ]
+                }
+              ],
+              "name": "Parallel box",
+              "id": "4d2e25b64a316ca6e888db47a2207222290aa8"
+            }
+          ],
+          "name": "fetch files",
+          "maxRetries": 4,
+          "id": "f05365901b74bfcaf6fa6c377438b9ec6e3f91"
+        },
+        {
+          "storeIteratorSpec": {
+            "storeSchemaId": "732fabb5024e1bddfaa595f76933c339e2e165",
+            "maxBatchSize": 5
+          },
+          "parallelBoxes": [
+            {
+              "tasks": [
+                {
+                  "resultMappings": [],
+                  "resourceSpecOverride": null,
+                  "name": "bagit-uploader-register-metadata",
+                  "lambdaRevisionNumber": 1,
+                  "lambdaId": "2ad3a4b3cadaed6185a3f690e26dcd67chb8a5",
+                  "id": "8b7dcf685c2d0b6c51a2e1d26d6cea3c70b8e9",
+                  "argumentMappings": [
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "iteratedItem",
+                        "valueBuilderRecipe": null
+                      },
+                      "argumentName": "archive"
+                    },
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "singleValueStoreContent",
+                        "valueBuilderRecipe": "00364223067d2aa5cceabbb0ee6ab57a456f44"
+                      },
+                      "argumentName": "destination"
+                    }
+                  ]
+                },
+                {
+                  "resultMappings": [],
+                  "resourceSpecOverride": null,
+                  "name": "register-metadata-from-data",
+                  "lambdaRevisionNumber": 1,
+                  "lambdaId": "2f69f5de708846fa438f533d9edf0b1fch67b8",
+                  "id": "7dca0b4e7babed7250761dd09b445df68e7d44",
+                  "argumentMappings": [
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "iteratedItem",
+                        "valueBuilderRecipe": null
+                      },
+                      "argumentName": "archive"
+                    },
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "singleValueStoreContent",
+                        "valueBuilderRecipe": "00364223067d2aa5cceabbb0ee6ab57a456f44"
+                      },
+                      "argumentName": "destination"
+                    }
+                  ]
+                }
+              ],
+              "name": "Parallel box",
+              "id": "72c11aba18b911c425ab4d9705252bbc79aff5"
+            }
+          ],
+          "name": "register metadata",
+          "maxRetries": 1,
+          "id": "ff5c0d3450fed561a44bf878a4d2b27c2d21e9"
+        },
+        {
+          "storeIteratorSpec": {
+            "storeSchemaId": "d9a9a1593eefa40c7d79e3932c4eed99e6d753",
+            "maxBatchSize": 2
+          },
+          "parallelBoxes": [
+            {
+              "tasks": [
+                {
+                  "resultMappings": [
+                    {
+                      "storeSchemaId": "546513e27a7783f8810fbdb2652d8176b7739b",
+                      "resultName": "checksums",
+                      "dispatchFunction": "append"
+                    }
+                  ],
+                  "resourceSpecOverride": null,
+                  "name": "bagit-uploader-calculate-checksum",
+                  "lambdaRevisionNumber": 1,
+                  "lambdaId": "83bd42077440984335827c982e636118ch8e10",
+                  "id": "aff067e187ba12af80ac231afffdb77de3479c",
+                  "argumentMappings": [
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "iteratedItem",
+                        "valueBuilderRecipe": null
+                      },
+                      "argumentName": "filePath"
+                    }
+                  ]
+                }
+              ],
+              "name": "Parallel box",
+              "id": "e2d66065e8ede5dc0cce8405c6c25f41a67d9c"
+            }
+          ],
+          "name": "calculate checksums",
+          "maxRetries": 1,
+          "id": "07eddd5aeffcc6275bcd257cc81a0e8236ed09"
+        },
+        {
+          "storeIteratorSpec": {
+            "storeSchemaId": "00364223067d2aa5cceabbb0ee6ab57a456f44",
+            "maxBatchSize": 1
+          },
+          "parallelBoxes": [
+            {
+              "tasks": [
+                {
+                  "resultMappings": [
+                    {
+                      "storeSchemaId": "7ad5bae8f961e5d3f4cc4b9a7c08d84ee18470",
+                      "resultName": "response",
+                      "dispatchFunction": "append"
+                    }
+                  ],
+                  "resourceSpecOverride": null,
+                  "name": "bagit-uploader-archive-destination",
+                  "lambdaRevisionNumber": 1,
+                  "lambdaId": "52b723629689bec21f1eab54e948ab75chbaf3",
+                  "id": "07db6a065f1fd2d31dc048590b93a778a2c4a5",
+                  "argumentMappings": [
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "iteratedItem",
+                        "valueBuilderRecipe": null
+                      },
+                      "argumentName": "destination"
+                    },
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "onedatafsCredentials",
+                        "valueBuilderRecipe": null
+                      },
+                      "argumentName": "credentials"
+                    }
+                  ]
+                }
+              ],
+              "name": "Parallel box",
+              "id": "070d6ba9648f48eefa30cf1fd34b919b636832"
+            }
+          ],
+          "name": "archive destination",
+          "maxRetries": 1,
+          "id": "e593db41c3ee6db46e250f4989f2e68506c876"
+        }
+      ],
+      "description": ""
+    }
+  },
+  "originalAtmWorkflowSchemaId": "834f7f4c96ab58640da9c82522b27c7acha1da",
+  "name": "bagit-uploader"
+}
