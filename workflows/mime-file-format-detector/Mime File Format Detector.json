@@ -1,0 +1,160 @@
+{
+  "summary": "",
+  "schemaFormatVersion": 2,
+  "revision": {
+    "supplementaryAtmLambdas": {
+      "d2e4b4f0fe1cb7d35f615715c6ec7915cha4d9": {
+        "2": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 2,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "name": "format",
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "object"
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 1,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/file-mime-format-detection:v1",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "mime-file-format-detection",
+              "description": "",
+              "checksum": "756a4c70b8ee10ec497dc48cce54f6f1",
+              "argumentSpecs": [
+                {
+                  "name": "file",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "REG"
+                    },
+                    "type": "file"
+                  }
+                },
+                {
+                  "name": "metadata_key",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "d2e4b4f0fe1cb7d35f615715c6ec7915cha4d9"
+        }
+      }
+    },
+    "schemaFormatVersion": 2,
+    "originalRevisionNumber": 1,
+    "atmWorkflowSchemaRevision": {
+      "stores": [
+        {
+          "type": "treeForest",
+          "requiresInitialValue": true,
+          "name": "input-files",
+          "id": "c3b836156e4e071bca2f000c18da00eac33c48",
+          "description": "",
+          "defaultInitialValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "REG"
+            },
+            "type": "file"
+          }
+        },
+        {
+          "type": "list",
+          "requiresInitialValue": false,
+          "name": "files-format",
+          "id": "46881bca155505505fa085c4aaba156fd9f05e",
+          "description": "",
+          "defaultInitialValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "object"
+          }
+        }
+      ],
+      "state": "draft",
+      "lanes": [
+        {
+          "storeIteratorSpec": {
+            "storeSchemaId": "c3b836156e4e071bca2f000c18da00eac33c48",
+            "maxBatchSize": 1
+          },
+          "parallelBoxes": [
+            {
+              "tasks": [
+                {
+                  "resultMappings": [
+                    {
+                      "storeSchemaId": "46881bca155505505fa085c4aaba156fd9f05e",
+                      "resultName": "format",
+                      "dispatchFunction": "append"
+                    }
+                  ],
+                  "resourceSpecOverride": null,
+                  "name": "mime-file-format-detection",
+                  "lambdaRevisionNumber": 2,
+                  "lambdaId": "d2e4b4f0fe1cb7d35f615715c6ec7915cha4d9",
+                  "id": "af38f074c7d0b949d575904e69da3d1c2652d3",
+                  "argumentMappings": [
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "iteratedItem",
+                        "valueBuilderRecipe": null
+                      },
+                      "argumentName": "file"
+                    },
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "const",
+                        "valueBuilderRecipe": "custom_key"
+                      },
+                      "argumentName": "metadata_key"
+                    }
+                  ]
+                }
+              ],
+              "name": "Parallel box",
+              "id": "aeadeba11c511c537299e0c87e0833e916de3d"
+            }
+          ],
+          "name": "detect mime format",
+          "maxRetries": 0,
+          "id": "e9b8f18594ec5fee773ea36a69dcdb66738fd3"
+        }
+      ],
+      "description": ""
+    }
+  },
+  "originalAtmWorkflowSchemaId": "087b5a69720e988a54fc82ad3fb332cech0ad3",
+  "name": "Mime File Format Detector"
+}

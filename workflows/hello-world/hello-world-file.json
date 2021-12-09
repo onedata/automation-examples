@@ -1,0 +1,144 @@
+{
+  "summary": "",
+  "schemaFormatVersion": 2,
+  "revision": {
+    "supplementaryAtmLambdas": {
+      "4d61c8b8fbaeafa534a3ebeb4e661e70ch1555": {
+        "1": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "name": "response",
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "string"
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 100,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/hello-world-file:v2",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": false
+                }
+              },
+              "name": "hello-world-file",
+              "description": "",
+              "checksum": "0cea10d55a218d5b6e46a682379197a9",
+              "argumentSpecs": [
+                {
+                  "name": "item",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "ANY"
+                    },
+                    "type": "file"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "4d61c8b8fbaeafa534a3ebeb4e661e70ch1555"
+        }
+      }
+    },
+    "schemaFormatVersion": 2,
+    "originalRevisionNumber": 1,
+    "atmWorkflowSchemaRevision": {
+      "stores": [
+        {
+          "type": "treeForest",
+          "requiresInitialValue": true,
+          "name": "input_files",
+          "id": "c96c18d5bf11d6015e1f79900b3d29ece2c121",
+          "description": "",
+          "defaultInitialValue": null,
+          "dataSpec": {
+            "valueConstraints": {
+              "fileType": "ANY"
+            },
+            "type": "file"
+          }
+        },
+        {
+          "type": "list",
+          "requiresInitialValue": false,
+          "name": "results",
+          "id": "b5067e35b943e8adcd4968698dc4084bd351d1",
+          "description": "",
+          "defaultInitialValue": null,
+          "dataSpec": {
+            "valueConstraints": {},
+            "type": "string"
+          }
+        }
+      ],
+      "state": "draft",
+      "lanes": [
+        {
+          "storeIteratorSpec": {
+            "storeSchemaId": "c96c18d5bf11d6015e1f79900b3d29ece2c121",
+            "maxBatchSize": 100
+          },
+          "parallelBoxes": [
+            {
+              "tasks": [
+                {
+                  "resultMappings": [
+                    {
+                      "storeSchemaId": "b5067e35b943e8adcd4968698dc4084bd351d1",
+                      "resultName": "response",
+                      "dispatchFunction": "append"
+                    }
+                  ],
+                  "resourceSpecOverride": null,
+                  "name": "hello-world-file",
+                  "lambdaRevisionNumber": 1,
+                  "lambdaId": "4d61c8b8fbaeafa534a3ebeb4e661e70ch1555",
+                  "id": "ccfa7644c5ba77a11183be05b797a2cbea7a0f",
+                  "argumentMappings": [
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "iteratedItem",
+                        "valueBuilderRecipe": null
+                      },
+                      "argumentName": "item"
+                    }
+                  ]
+                }
+              ],
+              "name": "Parallel box",
+              "id": "d29b80f0521b10bf33708a564f315a524d1c7d"
+            }
+          ],
+          "name": "l1",
+          "maxRetries": 0,
+          "id": "7e768485247dfec1eee8bd2ea0858f0718bd39"
+        }
+      ],
+      "description": ""
+    }
+  },
+  "originalAtmWorkflowSchemaId": "c10012d19c6d98bab6d0f59a5d210ba8chc9d2",
+  "name": "hello-world-file"
+}
