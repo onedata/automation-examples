@@ -14,6 +14,7 @@
               "state": "draft",
               "resultSpecs": [
                 {
+                  "relayMethod": "returnValue",
                   "name": "arg1",
                   "dataSpec": {
                     "valueConstraints": {},
@@ -42,7 +43,7 @@
               },
               "name": "random-exception-v1",
               "description": "",
-              "checksum": "ae7aa4df690279531d2f4e8bd089c6ee",
+              "checksum": "1ce885f286bc0a04c576241d6b399693",
               "argumentSpecs": [
                 {
                   "name": "arg1",
@@ -66,11 +67,11 @@
       "stores": [
         {
           "type": "list",
-          "requiresInitialValue": false,
+          "requiresInitialContent": false,
           "name": "input",
           "id": "a4bcc134e1b287220a01d67407e4741976dea5",
           "description": "",
-          "defaultInitialValue": [
+          "defaultInitialContent": [
             "a",
             "b",
             "c",
@@ -82,21 +83,25 @@
             "i",
             "j"
           ],
-          "dataSpec": {
-            "valueConstraints": {},
-            "type": "string"
+          "config": {
+            "itemDataSpec": {
+              "valueConstraints": {},
+              "type": "string"
+            }
           }
         },
         {
           "type": "list",
-          "requiresInitialValue": false,
+          "requiresInitialContent": false,
           "name": "output",
           "id": "78b00417e46c1f776f8b0e239832cb12ab0c12",
           "description": "",
-          "defaultInitialValue": null,
-          "dataSpec": {
-            "valueConstraints": {},
-            "type": "string"
+          "defaultInitialContent": null,
+          "config": {
+            "itemDataSpec": {
+              "valueConstraints": {},
+              "type": "string"
+            }
           }
         }
       ],
@@ -111,11 +116,15 @@
             {
               "tasks": [
                 {
+                  "timeSeriesStoreConfig": null,
                   "resultMappings": [
                     {
                       "storeSchemaId": "78b00417e46c1f776f8b0e239832cb12ab0c12",
                       "resultName": "arg1",
-                      "dispatchFunction": "append"
+                      "storeContentUpdateOptions": {
+                        "type": "listStoreContentUpdateOptions",
+                        "function": "append"
+                      }
                     }
                   ],
                   "resourceSpecOverride": null,
