@@ -14,6 +14,7 @@
               "state": "draft",
               "resultSpecs": [
                 {
+                  "relayMethod": "returnValue",
                   "name": "result",
                   "dataSpec": {
                     "valueConstraints": {},
@@ -42,7 +43,7 @@
               },
               "name": "checksum-counting-oneclient",
               "description": "",
-              "checksum": "8ab385e86f53814de8e22a127048becd",
+              "checksum": "73a1530d1f533f5b73eb2ecfbd13b126",
               "argumentSpecs": [
                 {
                   "name": "item",
@@ -86,28 +87,32 @@
       "stores": [
         {
           "type": "treeForest",
-          "requiresInitialValue": true,
+          "requiresInitialContent": true,
           "name": "input-files",
           "id": "c6abc18d9954c291ab7ee3cc1e73bb50c1f1a1",
           "description": "",
-          "defaultInitialValue": null,
-          "dataSpec": {
-            "valueConstraints": {
-              "fileType": "REG"
-            },
-            "type": "file"
+          "defaultInitialContent": null,
+          "config": {
+            "itemDataSpec": {
+              "valueConstraints": {
+                "fileType": "REG"
+              },
+              "type": "file"
+            }
           }
         },
         {
           "type": "list",
-          "requiresInitialValue": false,
+          "requiresInitialContent": false,
           "name": "checksums",
           "id": "881f30d630e40cacf1a44b6a67b1ded5a1739e",
           "description": "",
-          "defaultInitialValue": null,
-          "dataSpec": {
-            "valueConstraints": {},
-            "type": "object"
+          "defaultInitialContent": null,
+          "config": {
+            "itemDataSpec": {
+              "valueConstraints": {},
+              "type": "object"
+            }
           }
         }
       ],
@@ -122,11 +127,15 @@
             {
               "tasks": [
                 {
+                  "timeSeriesStoreConfig": null,
                   "resultMappings": [
                     {
                       "storeSchemaId": "881f30d630e40cacf1a44b6a67b1ded5a1739e",
                       "resultName": "result",
-                      "dispatchFunction": "append"
+                      "storeContentUpdateOptions": {
+                        "type": "listStoreContentUpdateOptions",
+                        "function": "append"
+                      }
                     }
                   ],
                   "resourceSpecOverride": null,
@@ -165,11 +174,15 @@
             {
               "tasks": [
                 {
+                  "timeSeriesStoreConfig": null,
                   "resultMappings": [
                     {
                       "storeSchemaId": "881f30d630e40cacf1a44b6a67b1ded5a1739e",
                       "resultName": "result",
-                      "dispatchFunction": "append"
+                      "storeContentUpdateOptions": {
+                        "type": "listStoreContentUpdateOptions",
+                        "function": "append"
+                      }
                     }
                   ],
                   "resourceSpecOverride": null,

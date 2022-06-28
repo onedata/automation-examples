@@ -14,6 +14,7 @@
               "state": "draft",
               "resultSpecs": [
                 {
+                  "relayMethod": "returnValue",
                   "name": "uploadedFile",
                   "dataSpec": {
                     "valueConstraints": {},
@@ -21,6 +22,7 @@
                   }
                 },
                 {
+                  "relayMethod": "returnValue",
                   "name": "logs",
                   "dataSpec": {
                     "valueConstraints": {
@@ -54,7 +56,7 @@
               },
               "name": "bagit-uploader-fetch-files",
               "description": "",
-              "checksum": "28632e3a6abba940bebff2553186e413",
+              "checksum": "99fca473e55bed2aa834712034cc25e6",
               "argumentSpecs": [
                 {
                   "name": "fileToFetch",
@@ -82,6 +84,7 @@
               "state": "draft",
               "resultSpecs": [
                 {
+                  "relayMethod": "returnValue",
                   "name": "filesToFetch",
                   "dataSpec": {
                     "valueConstraints": {
@@ -94,6 +97,7 @@
                   }
                 },
                 {
+                  "relayMethod": "returnValue",
                   "name": "logs",
                   "dataSpec": {
                     "valueConstraints": {
@@ -127,7 +131,7 @@
               },
               "name": "collect-fetch-info",
               "description": "",
-              "checksum": "77b850182439faec5ba610636ac4037e",
+              "checksum": "466a5db6423bb5a89586bac33697e987",
               "argumentSpecs": [
                 {
                   "name": "archive",
@@ -164,54 +168,62 @@
       "stores": [
         {
           "type": "treeForest",
-          "requiresInitialValue": true,
+          "requiresInitialContent": true,
           "name": "input-files",
           "id": "55d4737db06833817483762370c3852feade98",
           "description": "",
-          "defaultInitialValue": null,
-          "dataSpec": {
-            "valueConstraints": {
-              "fileType": "REG"
-            },
-            "type": "file"
+          "defaultInitialContent": null,
+          "config": {
+            "itemDataSpec": {
+              "valueConstraints": {
+                "fileType": "REG"
+              },
+              "type": "file"
+            }
           }
         },
         {
           "type": "singleValue",
-          "requiresInitialValue": true,
+          "requiresInitialContent": true,
           "name": "destination",
           "id": "638941beb8420b5c0d1c1cb366f48e4d7c38a2",
           "description": "",
-          "defaultInitialValue": null,
-          "dataSpec": {
-            "valueConstraints": {
-              "fileType": "DIR"
-            },
-            "type": "file"
+          "defaultInitialContent": null,
+          "config": {
+            "itemDataSpec": {
+              "valueConstraints": {
+                "fileType": "DIR"
+              },
+              "type": "file"
+            }
           }
         },
         {
           "type": "list",
-          "requiresInitialValue": false,
+          "requiresInitialContent": false,
           "name": "files-to-fetch",
           "id": "a004b93b4f8cbac9fef6cdd01a43cdb2b230a2",
           "description": "",
-          "defaultInitialValue": null,
-          "dataSpec": {
-            "valueConstraints": {},
-            "type": "object"
+          "defaultInitialContent": null,
+          "config": {
+            "itemDataSpec": {
+              "valueConstraints": {},
+              "type": "object"
+            }
           }
         },
         {
           "type": "list",
-          "requiresInitialValue": false,
+          "requiresInitialContent": false,
           "name": "downloaded-files",
           "id": "5092989947162e1d8d9bd7af31e953145eb227",
           "description": "",
-          "defaultInitialValue": null,
-          "dataSpec": {
-            "valueConstraints": {},
-            "type": "string"
+          "defaultInitialContent": null,
+          "config": {
+            "itemDataSpec": {
+              "valueConstraints": {},
+              "type": "string"
+            }
           }
         }
       ],
@@ -226,16 +238,23 @@
             {
               "tasks": [
                 {
+                  "timeSeriesStoreConfig": null,
                   "resultMappings": [
                     {
                       "storeSchemaId": "a004b93b4f8cbac9fef6cdd01a43cdb2b230a2",
                       "resultName": "filesToFetch",
-                      "dispatchFunction": "extend"
+                      "storeContentUpdateOptions": {
+                        "type": "listStoreContentUpdateOptions",
+                        "function": "extend"
+                      }
                     },
                     {
                       "storeSchemaId": "CURRENT_TASK_SYSTEM_AUDIT_LOG",
                       "resultName": "logs",
-                      "dispatchFunction": "extend"
+                      "storeContentUpdateOptions": {
+                        "type": "auditLogStoreContentUpdateOptions",
+                        "function": "extend"
+                      }
                     }
                   ],
                   "resourceSpecOverride": null,
@@ -278,16 +297,23 @@
             {
               "tasks": [
                 {
+                  "timeSeriesStoreConfig": null,
                   "resultMappings": [
                     {
                       "storeSchemaId": "5092989947162e1d8d9bd7af31e953145eb227",
                       "resultName": "uploadedFile",
-                      "dispatchFunction": "append"
+                      "storeContentUpdateOptions": {
+                        "type": "listStoreContentUpdateOptions",
+                        "function": "append"
+                      }
                     },
                     {
                       "storeSchemaId": "CURRENT_TASK_SYSTEM_AUDIT_LOG",
                       "resultName": "logs",
-                      "dispatchFunction": "extend"
+                      "storeContentUpdateOptions": {
+                        "type": "auditLogStoreContentUpdateOptions",
+                        "function": "extend"
+                      }
                     }
                   ],
                   "resourceSpecOverride": null,

@@ -14,6 +14,7 @@
               "state": "draft",
               "resultSpecs": [
                 {
+                  "relayMethod": "returnValue",
                   "name": "arg1",
                   "dataSpec": {
                     "valueConstraints": {},
@@ -42,7 +43,7 @@
               },
               "name": "in-out",
               "description": "",
-              "checksum": "b93f382b4780eb09b41e1ae309ab61b2",
+              "checksum": "63d0d049243eb3f06d24a647c10f241d",
               "argumentSpecs": [
                 {
                   "name": "arg1",
@@ -66,30 +67,34 @@
       "stores": [
         {
           "type": "list",
-          "requiresInitialValue": false,
+          "requiresInitialContent": false,
           "name": "input",
           "id": "c3e71bb34d2d6db9c089ad52ad8612cb6d493e",
           "description": "",
-          "defaultInitialValue": [
+          "defaultInitialContent": [
             "ala",
             "ma",
             "kota"
           ],
-          "dataSpec": {
-            "valueConstraints": {},
-            "type": "string"
+          "config": {
+            "itemDataSpec": {
+              "valueConstraints": {},
+              "type": "string"
+            }
           }
         },
         {
           "type": "list",
-          "requiresInitialValue": false,
+          "requiresInitialContent": false,
           "name": "output",
           "id": "68f7c9d6757358f214ca1a95beee2228e19581",
           "description": "",
-          "defaultInitialValue": null,
-          "dataSpec": {
-            "valueConstraints": {},
-            "type": "string"
+          "defaultInitialContent": null,
+          "config": {
+            "itemDataSpec": {
+              "valueConstraints": {},
+              "type": "string"
+            }
           }
         }
       ],
@@ -104,11 +109,15 @@
             {
               "tasks": [
                 {
+                  "timeSeriesStoreConfig": null,
                   "resultMappings": [
                     {
                       "storeSchemaId": "68f7c9d6757358f214ca1a95beee2228e19581",
                       "resultName": "arg1",
-                      "dispatchFunction": "append"
+                      "storeContentUpdateOptions": {
+                        "type": "listStoreContentUpdateOptions",
+                        "function": "append"
+                      }
                     }
                   ],
                   "resourceSpecOverride": null,
