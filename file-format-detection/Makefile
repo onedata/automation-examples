@@ -1,5 +1,5 @@
 REPO=docker.onedata.org/file-format-detection
-TAG=v11
+TAG=v12
 
 .PHONY: file-format-detection
 
