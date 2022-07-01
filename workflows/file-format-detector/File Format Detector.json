@@ -15,7 +15,7 @@
               "resultSpecs": [
                 {
                   "relayMethod": "returnValue",
-                  "name": "format",
+                  "name": "result",
                   "dataSpec": {
                     "valueConstraints": {},
                     "type": "object"
@@ -43,7 +43,7 @@
               },
               "name": "file-format-detection",
               "description": "",
-              "checksum": "9c59314dbbb935d1189493364e40487b",
+              "checksum": "56f716322b82d4c7a29aa08303fc9c15",
               "argumentSpecs": [
                 {
                   "name": "item",
@@ -51,7 +51,7 @@
                   "defaultValue": null,
                   "dataSpec": {
                     "valueConstraints": {
-                      "fileType": "REG"
+                      "fileType": "ANY"
                     },
                     "type": "file"
                   }
@@ -86,7 +86,7 @@
           "config": {
             "itemDataSpec": {
               "valueConstraints": {
-                "fileType": "REG"
+                "fileType": "ANY"
               },
               "type": "file"
             }
@@ -122,7 +122,7 @@
                   "resultMappings": [
                     {
                       "storeSchemaId": "45f8a90ddfd64a076c43a10e2b24eea904f738",
-                      "resultName": "format",
+                      "resultName": "result",
                       "storeContentUpdateOptions": {
                         "type": "listStoreContentUpdateOptions",
                         "function": "append"
