@@ -4,18 +4,18 @@
   "revision": {
     "supplementaryAtmLambdas": {
       "26567ac4a6f7e32ed4aef97fd25b33dcch73f7": {
-        "3": {
+        "4": {
           "schemaFormatVersion": 2,
           "revision": {
             "schemaFormatVersion": 2,
-            "originalRevisionNumber": 3,
+            "originalRevisionNumber": 4,
             "atmLambdaRevision": {
               "summary": "",
               "state": "draft",
               "resultSpecs": [
                 {
                   "relayMethod": "returnValue",
-                  "name": "format",
+                  "name": "result",
                   "dataSpec": {
                     "valueConstraints": {},
                     "type": "object"
@@ -33,7 +33,7 @@
               "preferredBatchSize": 1,
               "operationSpec": {
                 "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/file-format-detection:v11",
+                "dockerImage": "docker.onedata.org/file-format-detection:v12",
                 "dockerExecutionOptions": {
                   "readonly": false,
                   "oneclientOptions": "-i",
@@ -43,7 +43,7 @@
               },
               "name": "file-format-detection",
               "description": "",
-              "checksum": "afbc07431a122795db0621ec738af798",
+              "checksum": "56f716322b82d4c7a29aa08303fc9c15",
               "argumentSpecs": [
                 {
                   "name": "item",
@@ -51,7 +51,7 @@
                   "defaultValue": null,
                   "dataSpec": {
                     "valueConstraints": {
-                      "fileType": "REG"
+                      "fileType": "ANY"
                     },
                     "type": "file"
                   }
@@ -86,7 +86,7 @@
           "config": {
             "itemDataSpec": {
               "valueConstraints": {
-                "fileType": "REG"
+                "fileType": "ANY"
               },
               "type": "file"
             }
@@ -122,7 +122,7 @@
                   "resultMappings": [
                     {
                       "storeSchemaId": "45f8a90ddfd64a076c43a10e2b24eea904f738",
-                      "resultName": "format",
+                      "resultName": "result",
                       "storeContentUpdateOptions": {
                         "type": "listStoreContentUpdateOptions",
                         "function": "append"
@@ -138,7 +138,7 @@
                     "cpuLimit": null
                   },
                   "name": "file-format-detection",
-                  "lambdaRevisionNumber": 3,
+                  "lambdaRevisionNumber": 4,
                   "lambdaId": "26567ac4a6f7e32ed4aef97fd25b33dcch73f7",
                   "id": "8b9a840f0cf87f9b81480796b5b7f972fb38c0",
                   "argumentMappings": [

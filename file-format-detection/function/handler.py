@@ -1,24 +1,15 @@
 import os
 import mimetypes
 import json
-
-
-# disable tensorflow logging as openfaas adds them to response, what causes provider error
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
 import xattr
 import magic
-from guesslang import Guess
+from typing import NamedTuple
 
 
-# mapping file_extension -> Guesslang result, add more if necessary
-validation_mapping: dict = {
-    '.py':  'Python',
-    '.c':  'C',
-    '.cc':  'C++',
-    '.csv': 'CSV',
-    '.json': 'JSON'
-}
+class FileFormat(NamedTuple):
+    name: str
+    mime_type: str
+    extensions: list[str]
 
 
 def handle(req: bytes) -> str:
@@ -29,90 +20,108 @@ def handle(req: bytes) -> str:
     """
     data = json.loads(req)
 
-    results = [process_item(item) for item in data['argsBatch']]
+    results = [process_item(item) for item in data["argsBatch"]]
 
     return json.dumps({"resultsBatch": results})
 
 
 def process_item(args):
+    file = args["item"]
+    metadata_key = args["metadata_key"]
+
+    if file["type"] != "REG":
+        return create_failure_result(file, "NOT_A_REGULAR_FILE")
+
     try:
-        file_id = args["item"]["file_id"]
-        file_path = f'/mnt/onedata/.__onedata__file_id__{file_id}'
-        metadata_key = args["metadata_key"]
+        file_format = get_file_format(file)
+        is_extension_matching_format = check_file_extension_matches_format(
+            file["name"], file_format
+        )
 
-        if args["item"]["type"] == "REG":
-            file_type = get_mime_filename_type(args["item"]["name"]),
-            file_type_str = str(file_type[0])
-            file_name, file_extension = os.path.splitext(args["item"]["name"])
+        if metadata_key != "":
+            set_file_format_xattrs(
+                file, metadata_key, file_format, is_extension_matching_format
+            )
 
-            if metadata_key != "":
-                xd = xattr.xattr(file_path)
-                xd.set(f"{metadata_key}.format-extension", str.encode(str(file_type_str)))
+        return create_success_result(file, file_format, is_extension_matching_format)
 
-            if file_extension in validation_mapping:
-                content_match = verify_language(validation_mapping[file_extension], file_path)
-                inferred_content = infer_content(file_path)
-
-                if metadata_key != "":
-                    xd = xattr.xattr(file_path)
-                    xd.set(f"{metadata_key}.is-extension-matching-content", str.encode(str(content_match)))
-                    xd.set(f"{metadata_key}.format-content", str.encode(inferred_content))
-
-                return {
-                    "format": {
-                        "file": args["item"]["name"],
-                        "format-extension": file_type[0],
-                        "is-extension-matching-content": content_match,
-                        "inferredContent": inferred_content
-                    }}
-            else:
-                return {
-                    "format": {
-                        "file": args["item"]["name"],
-                        "format-extension": file_type[0],
-                        "is-extension-matching-content": "unsupported file extension for content inferring"
-                    }}
-        return {
-            "format": {
-                "format-extension": "not a regular file"
-            }}
     except Exception as ex:
-        return {
-            "format": {
-                "file": args["item"]["name"],
-                "format-extension": f"unsupported file type",
-                "error": str(ex)
-            }}
+        return create_failure_result(file, str(ex))
 
 
-def infer_content(file_path: str) -> str:
-    possible_content_types = []
-    for extension in validation_mapping:
-        extension_content = validation_mapping[extension]
-        if verify_language(extension_content, file_path):
-            possible_content_types.append(validation_mapping[extension])
-    if len(possible_content_types) >= 1:
-        return possible_content_types[0]
-    else:
-        return "unable to infer content type"
+def create_empty_result(file: dict) -> dict:
+    return {"result": {"file-id": file["file_id"], "file-name": file["name"]}}
 
 
-def get_mime_filename_type(file_path: str) -> str:
-    result = mimetypes.guess_type(file_path, strict=True)
-    return "".join(result[0])
+def create_success_result(
+    file: dict, file_format: FileFormat, is_extension_matching_format: bool
+) -> dict:
+    result = create_empty_result(file)
+    result["result"]["detection-passed"] = True
+    result["result"]["format"] = {
+        "name": file_format.name,
+        "mime-type": file_format.mime_type,
+        "extensions": file_format.extensions,
+    }
+    result["result"]["is-extension-matching-format"] = is_extension_matching_format
+    return result
 
 
-def guess_content_code_language(file_path: str) -> str:
-    guess = Guess()
-    with open(file_path, 'rb') as file:
-        data = file.read()
-        language = guess.language_name(data)
-    return language
+def create_failure_result(file: dict, reason: str) -> dict:
+    result = create_empty_result(file)
+    result["result"]["detection-passed"] = False
+    result["result"]["reason"] = reason
+    return result
 
 
-def verify_language(expected_language: str, file_path: str) -> bool:
-    guess = Guess()
-    with open(file_path, 'rb') as file:
-        data = file.read()
-        language = guess.language_name(data)
-    return bool(language == expected_language)
+def get_file_path(file: dict) -> str:
+    return f"/mnt/onedata/.__onedata__file_id__{file['file_id']}"
+
+
+def get_file_format(file: dict) -> FileFormat:
+    file_path = get_file_path(file)
+
+    format_name = get_file_format_name(file_path)
+    mime_type = get_file_mime_type(file_path)
+    format_extensions = get_mime_type_extensions(mime_type)
+
+    return FileFormat(
+        name=format_name,
+        mime_type=mime_type,
+        extensions=format_extensions,
+    )
+
+
+def check_file_extension_matches_format(
+    file_name: str, file_format: FileFormat
+) -> bool:
+    used_extension = os.path.splitext(file_name)[1].lower()
+    return len(file_format.extensions) == 0 or used_extension in file_format.extensions
+
+
+def get_file_format_name(file_path: str) -> str:
+    return magic.from_file(file_path)
+
+
+def get_file_mime_type(file_path: str) -> str:
+    return magic.from_file(file_path, mime=True)
+
+
+def get_mime_type_extensions(mime_type: str) -> list[str]:
+    return mimetypes.guess_all_extensions(mime_type)
+
+
+def set_file_format_xattrs(
+    file: dict,
+    metadata_key: str,
+    file_format: FileFormat,
+    is_extension_matching_format: bool,
+) -> None:
+    file_path = get_file_path(file)
+    file_xattrs = xattr.xattr(file_path)
+    file_xattrs.set(f"{metadata_key}.format-name", str.encode(file_format.name))
+    file_xattrs.set(f"{metadata_key}.mime-type", str.encode(file_format.mime_type))
+    file_xattrs.set(
+        f"{metadata_key}.is-extension-matching-format",
+        str.encode(str(is_extension_matching_format)),
+    )
