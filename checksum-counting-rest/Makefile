@@ -2,10 +2,12 @@ REPO=docker.onedata.org/checksum-counting-rest
 TAG=v1
 
 
-.PHONY: checksum-counting-rest
+.PHONY: build publish
 
 
-checksum-counting-rest:
+build:
 	docker build . -t ${REPO}:${TAG}
-	docker push ${REPO}:${TAG}
 
+
+publish:
+	docker push ${REPO}:${TAG}
