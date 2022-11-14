@@ -19,6 +19,7 @@ import threading
 import time
 import traceback
 import zlib
+from dataclasses import dataclass
 from typing import Final, Iterator, NamedTuple, Optional, Set, Union
 
 import requests
@@ -29,9 +30,9 @@ from openfaas_lambda_utils.types import (
     AtmJobBatchRequest,
     AtmJobBatchRequestCtx,
     AtmJobBatchResponse,
+    AtmTimeSeriesMeasurement,
 )
 from typing_extensions import TypedDict
-
 
 AVAILABLE_CHECKSUM_ALGORITHMS: Final[Set[str]] = set().union(
     {"adler32"}, hashlib.algorithms_available
@@ -59,6 +60,16 @@ class AtmJobResults(TypedDict):
 class AtmJob(NamedTuple):
     ctx: AtmJobBatchRequestCtx
     args: AtmJobArgs
+
+
+@dataclass
+class StatsCounter:
+    file_processed: int = 0
+    bytes_processed: int = 0
+
+    def merge(self, other: "StatsCounter") -> None:
+        self.file_processed += other.file_processed
+        self.bytes_processed += other.bytes_processed
 
 
 def handle(
@@ -98,6 +109,8 @@ def run_job(job: AtmJob) -> Union[AtmException, AtmJobResults]:
 
         if job.args["metadataKey"] != "":
             set_file_metadata(job, checksum)
+
+        _stats.put(StatsCounter(file_processed=1))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
@@ -132,14 +145,14 @@ def calculate_checksum(job: AtmJob, data_stream: Iterator[bytes]) -> str:
     if algorithm == "adler32":
         value = 1
         for data in data_stream:
-            _downloaded_block_sizes.put(len(data))
             value = zlib.adler32(data, value)
+            _stats.put(StatsCounter(bytes_processed=len(data)))
         return format(value, "x")
     else:
         hash = getattr(hashlib, algorithm)()
         for data in data_stream:
-            _downloaded_block_sizes.put(len(data))
             hash.update(data)
+            _stats.put(StatsCounter(bytes_processed=len(data)))
         return hash.hexdigest()
 
 
@@ -164,25 +177,35 @@ def build_file_rest_url(job: AtmJob, subpath: str) -> str:
     )
 
 
-_downloaded_block_sizes: mp.Queue = mp.Queue()
+_stats: mp.Queue = mp.Queue()
 
 
 def monitor_jobs(heartbeat_callback: AtmHeartbeatCallback) -> None:
     while True:
         time.sleep(1)
 
-        throughput = 0
-        while not _downloaded_block_sizes.empty():
-            throughput += _downloaded_block_sizes.get()
+        stats = StatsCounter()
+        while not _stats.empty():
+            stats.merge(_stats.get())
 
-        if throughput != 0:
+        if (stats.file_processed, stats.bytes_processed) != (0, 0):
             heartbeat_callback()
+            stream_measurements(stats)
 
-            measurement = {
-                "tsName": "throughput",
-                "value": throughput,
-                "timestamp": int(time.time()),
-            }
-            with open("/out/stats", "a") as f:
-                json.dump(measurement, f)
-                f.write("\n")
+
+def stream_measurements(stats: StatsCounter) -> None:
+    with open("/out/stats", "a") as f:
+        if stats.file_processed > 0:
+            json.dump(build_measurement("filesProcessed", stats.file_processed), f)
+            f.write("\n")
+        if stats.bytes_processed > 0:
+            json.dump(build_measurement("bytesProcessed", stats.bytes_processed), f)
+            f.write("\n")
+
+
+def build_measurement(ts_name: str, value: int) -> AtmTimeSeriesMeasurement:
+    return {
+        "tsName": ts_name,
+        "value": value,
+        "timestamp": int(time.time()),
+    }
