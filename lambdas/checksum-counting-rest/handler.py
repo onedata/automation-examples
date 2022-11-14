@@ -13,8 +13,8 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import concurrent.futures
 import hashlib
 import json
-import multiprocessing as mp
 import os
+import queue
 import threading
 import time
 import traceback
@@ -33,6 +33,7 @@ from openfaas_lambda_utils.types import (
     AtmTimeSeriesMeasurement,
 )
 from typing_extensions import TypedDict
+
 
 AVAILABLE_CHECKSUM_ALGORITHMS: Final[Set[str]] = set().union(
     {"adler32"}, hashlib.algorithms_available
@@ -88,6 +89,9 @@ def handle(
     with concurrent.futures.ThreadPoolExecutor() as executor:
         job_results = list(executor.map(run_job, jobs))
 
+    _all_jobs_processed.set()
+    _all_stats_streamed.wait()
+
     return {"resultsBatch": job_results}
 
 
@@ -110,7 +114,7 @@ def run_job(job: AtmJob) -> Union[AtmException, AtmJobResults]:
         if job.args["metadataKey"] != "":
             set_file_metadata(job, checksum)
 
-        _stats.put(StatsCounter(file_processed=1))
+        _stats_queue.put(StatsCounter(file_processed=1))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
@@ -146,13 +150,13 @@ def calculate_checksum(job: AtmJob, data_stream: Iterator[bytes]) -> str:
         value = 1
         for data in data_stream:
             value = zlib.adler32(data, value)
-            _stats.put(StatsCounter(bytes_processed=len(data)))
+            _stats_queue.put(StatsCounter(bytes_processed=len(data)))
         return format(value, "x")
     else:
         hash = getattr(hashlib, algorithm)()
         for data in data_stream:
             hash.update(data)
-            _stats.put(StatsCounter(bytes_processed=len(data)))
+            _stats_queue.put(StatsCounter(bytes_processed=len(data)))
         return hash.hexdigest()
 
 
@@ -177,20 +181,26 @@ def build_file_rest_url(job: AtmJob, subpath: str) -> str:
     )
 
 
-_stats: mp.Queue = mp.Queue()
+_all_jobs_processed: threading.Event = threading.Event()
+_all_stats_streamed: threading.Event = threading.Event()
+_stats_queue: queue.Queue = queue.Queue()
 
 
 def monitor_jobs(heartbeat_callback: AtmHeartbeatCallback) -> None:
-    while True:
-        time.sleep(1)
+    all_jobs_processed = False
+
+    while not all_jobs_processed:
+        all_jobs_processed = _all_jobs_processed.wait(timeout=1)
 
         stats = StatsCounter()
-        while not _stats.empty():
-            stats.merge(_stats.get())
+        while not _stats_queue.empty():
+            stats.merge(_stats_queue.get())
 
         if (stats.file_processed, stats.bytes_processed) != (0, 0):
             heartbeat_callback()
             stream_measurements(stats)
+
+    _all_stats_streamed.set()
 
 
 def stream_measurements(stats: StatsCounter) -> None:
