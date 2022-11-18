@@ -11,18 +11,18 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 
 import concurrent.futures
+import dataclasses
 import hashlib
 import json
 import os
 import queue
-import threading
-import time
 import traceback
 import zlib
-from dataclasses import dataclass
-from typing import Final, Iterator, NamedTuple, Optional, Set, Union
+from threading import Event, Thread
+from typing import Final, Iterator, List, NamedTuple, Optional, Set, Union
 
 import requests
+from openfaas_lambda_utils.stats import AtmStatsCounter, TSMetric
 from openfaas_lambda_utils.types import (
     AtmException,
     AtmFile,
@@ -32,70 +32,88 @@ from openfaas_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmTimeSeriesMeasurement,
 )
+from typing_extensions import Annotated as Ann
 from typing_extensions import TypedDict
+
+
+##===================================================================
+## Lambda configuration
+##===================================================================
 
 
 AVAILABLE_CHECKSUM_ALGORITHMS: Final[Set[str]] = set().union(
     {"adler32"}, hashlib.algorithms_available
 )
 DOWNLOAD_CHUNK_SIZE: Final[int] = 10 * 1024**2
-VERIFY_SSL_CERTS: Final[bool] = os.getenv("VERIFY_SSL_CERTIFICATES") == "true"
+VERIFY_SSL_CERTS: Final[bool] = os.getenv("VERIFY_SSL_CERTIFICATES") != "false"
 
 
-class AtmJobArgs(TypedDict):
+##===================================================================
+## Lambda interface
+##===================================================================
+
+
+STATS_PIPED_RESULT_NAME: Final[str] = "stats"
+
+
+@dataclasses.dataclass
+class StatsCounter(AtmStatsCounter):
+    files_processed: Ann[int, TSMetric(name="filesProcessed", unit=None)] = 0
+    bytes_processed: Ann[int, TSMetric(name="bytesProcessed", unit="Bytes")] = 0
+
+
+class JobArgs(TypedDict):
     file: AtmFile
     algorithm: str
     metadataKey: str
 
 
-class AtmFileChecksumReport(TypedDict):
+class FileChecksumReport(TypedDict):
     file_id: str
     algorithm: str
     checksum: Optional[str]
 
 
-class AtmJobResults(TypedDict):
-    result: AtmFileChecksumReport
+class JobResults(TypedDict):
+    result: FileChecksumReport
 
 
-class AtmJob(NamedTuple):
+##===================================================================
+## Lambda implementation
+##===================================================================
+
+
+class Job(NamedTuple):
     ctx: AtmJobBatchRequestCtx
-    args: AtmJobArgs
+    args: JobArgs
 
 
-@dataclass
-class StatsCounter:
-    file_processed: int = 0
-    bytes_processed: int = 0
-
-    def merge(self, other: "StatsCounter") -> None:
-        self.file_processed += other.file_processed
-        self.bytes_processed += other.bytes_processed
+_all_jobs_processed: Event = Event()
+_stats_queue: queue.Queue = queue.Queue()
 
 
 def handle(
-    job_batch_request: AtmJobBatchRequest[AtmJobArgs],
+    job_batch_request: AtmJobBatchRequest[JobArgs],
     heartbeat_callback: AtmHeartbeatCallback,
-) -> AtmJobBatchResponse[AtmJobResults]:
+) -> AtmJobBatchResponse[JobResults]:
 
-    jobs_monitor = threading.Thread(target=monitor_jobs, args=[heartbeat_callback])
-    jobs_monitor.daemon = True
+    jobs_monitor = Thread(target=monitor_jobs, daemon=True, args=[heartbeat_callback])
     jobs_monitor.start()
 
     jobs = [
-        AtmJob(args=job_args, ctx=job_batch_request["ctx"])
+        Job(args=job_args, ctx=job_batch_request["ctx"])
         for job_args in job_batch_request["argsBatch"]
     ]
     with concurrent.futures.ThreadPoolExecutor() as executor:
         job_results = list(executor.map(run_job, jobs))
 
     _all_jobs_processed.set()
-    _all_stats_streamed.wait()
+    jobs_monitor.join()
 
     return {"resultsBatch": job_results}
 
 
-def run_job(job: AtmJob) -> Union[AtmException, AtmJobResults]:
+def run_job(job: Job) -> Union[AtmException, JobResults]:
     if job.args["file"]["type"] != "REG":
         return build_job_results(job, None)
 
@@ -114,14 +132,14 @@ def run_job(job: AtmJob) -> Union[AtmException, AtmJobResults]:
         if job.args["metadataKey"] != "":
             set_file_metadata(job, checksum)
 
-        _stats_queue.put(StatsCounter(file_processed=1))
+        _stats_queue.put(StatsCounter(files_processed=1))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
         return build_job_results(job, checksum)
 
 
-def build_job_results(job: AtmJob, checksum: Optional[str]) -> AtmJobResults:
+def build_job_results(job: Job, checksum: Optional[str]) -> JobResults:
     return {
         "result": {
             "file_id": job.args["file"]["file_id"],
@@ -131,7 +149,7 @@ def build_job_results(job: AtmJob, checksum: Optional[str]) -> AtmJobResults:
     }
 
 
-def get_file_data_stream(job: AtmJob) -> Iterator[bytes]:
+def get_file_data_stream(job: Job) -> Iterator[bytes]:
     response = requests.get(
         build_file_rest_url(job, "content"),
         headers={"x-auth-token": job.ctx["accessToken"]},
@@ -143,7 +161,7 @@ def get_file_data_stream(job: AtmJob) -> Iterator[bytes]:
     return response.iter_content(chunk_size=DOWNLOAD_CHUNK_SIZE)
 
 
-def calculate_checksum(job: AtmJob, data_stream: Iterator[bytes]) -> str:
+def calculate_checksum(job: Job, data_stream: Iterator[bytes]) -> str:
     algorithm = job.args["algorithm"]
 
     if algorithm == "adler32":
@@ -160,7 +178,7 @@ def calculate_checksum(job: AtmJob, data_stream: Iterator[bytes]) -> str:
         return hash.hexdigest()
 
 
-def set_file_metadata(job: AtmJob, checksum: str) -> None:
+def set_file_metadata(job: Job, checksum: str) -> None:
     response = requests.put(
         build_file_rest_url(job, "metadata/xattrs"),
         headers={
@@ -173,7 +191,7 @@ def set_file_metadata(job: AtmJob, checksum: str) -> None:
     response.raise_for_status()
 
 
-def build_file_rest_url(job: AtmJob, subpath: str) -> str:
+def build_file_rest_url(job: Job, subpath: str) -> str:
     return "https://{domain}/api/v3/oneprovider/data/{file_id}/{subpath}".format(
         domain=job.ctx["oneproviderDomain"],
         file_id=job.args["file"]["file_id"],
@@ -181,41 +199,22 @@ def build_file_rest_url(job: AtmJob, subpath: str) -> str:
     )
 
 
-_all_jobs_processed: threading.Event = threading.Event()
-_all_stats_streamed: threading.Event = threading.Event()
-_stats_queue: queue.Queue = queue.Queue()
-
-
 def monitor_jobs(heartbeat_callback: AtmHeartbeatCallback) -> None:
-    all_jobs_processed = False
-
-    while not all_jobs_processed:
-        all_jobs_processed = _all_jobs_processed.wait(timeout=1)
+    any_job_ongoing = True
+    while any_job_ongoing:
+        any_job_ongoing = not _all_jobs_processed.wait(timeout=1)
 
         stats = StatsCounter()
         while not _stats_queue.empty():
-            stats.merge(_stats_queue.get())
+            stats.update(_stats_queue.get())
 
-        if (stats.file_processed, stats.bytes_processed) != (0, 0):
+        if stats:
+            stream_measurements(stats.as_measurements())
             heartbeat_callback()
-            stream_measurements(stats)
-
-    _all_stats_streamed.set()
 
 
-def stream_measurements(stats: StatsCounter) -> None:
-    with open("/out/stats", "a") as f:
-        if stats.file_processed > 0:
-            json.dump(build_measurement("filesProcessed", stats.file_processed), f)
+def stream_measurements(measurements: List[AtmTimeSeriesMeasurement]) -> None:
+    with open(f"/out/{STATS_PIPED_RESULT_NAME}", "a") as f:
+        for measurement in measurements:
+            json.dump(measurement, f)
             f.write("\n")
-        if stats.bytes_processed > 0:
-            json.dump(build_measurement("bytesProcessed", stats.bytes_processed), f)
-            f.write("\n")
-
-
-def build_measurement(ts_name: str, value: int) -> AtmTimeSeriesMeasurement:
-    return {
-        "tsName": ts_name,
-        "value": value,
-        "timestamp": int(time.time()),
-    }

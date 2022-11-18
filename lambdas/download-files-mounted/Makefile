@@ -1,5 +1,5 @@
-REPO=docker.onedata.org/parse-fetch-file
-TAG=v2
+REPO=docker.onedata.org/lambda-download-files-mounted
+TAG=v1
 
 
 .PHONY: build publish
