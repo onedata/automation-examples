@@ -7,16 +7,16 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 import concurrent.futures
 import dataclasses
-import json
 import os
 import os.path
 import queue
 import traceback
-from threading import Event, Lock, Thread
-from typing import Final, List, Union
+from threading import Event, Thread
+from typing import Final, Union
 
 import requests
-from openfaas_lambda_utils.stats import AtmStatsCounter, TSMetric
+from openfaas_lambda_utils.stats import AtmStatsCounter, AtmTimeSeriesMeasurementSpec
+from openfaas_lambda_utils.streaming import AtmResultStreamer
 from openfaas_lambda_utils.types import (
     AtmException,
     AtmHeartbeatCallback,
@@ -25,9 +25,7 @@ from openfaas_lambda_utils.types import (
     AtmObject,
     AtmTimeSeriesMeasurement,
 )
-from typing_extensions import Annotated as Ann
-from typing_extensions import TypedDict
-
+from typing_extensions import Annotated, TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -45,14 +43,23 @@ DOWNLOAD_CHUNK_SIZE: Final[int] = 10 * 1024**2
 ##===================================================================
 
 
-LOGS_PIPED_RESULT_NAME: Final[str] = "logs"
-STATS_PIPED_RESULT_NAME: Final[str] = "stats"
+LOGS_STREAMER: Final[AtmResultStreamer[AtmObject]] = AtmResultStreamer(
+    result_name="logs", synchronized=True
+)
+
+STATS_STREAMER: Final[AtmResultStreamer[AtmTimeSeriesMeasurement]] = AtmResultStreamer(
+    result_name="stats", synchronized=False
+)
 
 
 @dataclasses.dataclass
 class StatsCounter(AtmStatsCounter):
-    files_processed: Ann[int, TSMetric(name="filesProcessed", unit=None)] = 0
-    bytes_processed: Ann[int, TSMetric(name="bytesProcessed", unit="Bytes")] = 0
+    files_processed: Annotated[
+        int, AtmTimeSeriesMeasurementSpec(name="filesProcessed", unit=None)
+    ] = 0
+    bytes_processed: Annotated[
+        int, AtmTimeSeriesMeasurementSpec(name="bytesProcessed", unit="Bytes")
+    ] = 0
 
 
 class FileDownloadInfo(TypedDict):
@@ -76,7 +83,6 @@ class JobResults(TypedDict):
 
 _all_jobs_processed: Event = Event()
 _stats_queue: queue.Queue = queue.Queue()
-_logger_lock: Lock = Lock()
 
 
 def handle(
@@ -111,7 +117,7 @@ def run_job_insecure(job_args: JobArgs) -> None:
 
     if os.path.exists(destination_path):
         if os.stat(destination_path).st_size == job_args["downloadInfo"]["size"]:
-            stream_log(
+            LOGS_STREAMER.stream_item(
                 {
                     "severity": "info",
                     "downloadInfo": job_args["downloadInfo"],
@@ -122,7 +128,7 @@ def run_job_insecure(job_args: JobArgs) -> None:
                 }
             )
         else:
-            stream_log(
+            LOGS_STREAMER.stream_item(
                 {
                     "severity": "info",
                     "downloadInfo": job_args["downloadInfo"],
@@ -167,12 +173,6 @@ def build_destination_path(job_args: JobArgs) -> str:
     return f'{MOUNT_POINT}/{job_args["downloadInfo"]["destinationPath"]}'
 
 
-def stream_log(log: AtmObject) -> None:
-    with _logger_lock, open(f"/out/{LOGS_PIPED_RESULT_NAME}", "a") as f:
-        json.dump(log, f)
-        f.write("\n")
-
-
 def monitor_jobs(heartbeat_callback: AtmHeartbeatCallback) -> None:
     any_job_ongoing = True
     while any_job_ongoing:
@@ -183,12 +183,5 @@ def monitor_jobs(heartbeat_callback: AtmHeartbeatCallback) -> None:
             stats.update(_stats_queue.get())
 
         if stats:
-            stream_measurements(stats.as_measurements())
+            STATS_STREAMER.stream_items(stats.as_measurements())
             heartbeat_callback()
-
-
-def stream_measurements(measurements: List[AtmTimeSeriesMeasurement]) -> None:
-    with open(f"/out/{STATS_PIPED_RESULT_NAME}", "a") as f:
-        for measurement in measurements:
-            json.dump(measurement, f)
-            f.write("\n")

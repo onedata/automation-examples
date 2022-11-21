@@ -9,6 +9,7 @@ __copyright__ = "Copyright (C) 2022 ACK CYFRONET AGH"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 
+import os.path
 import traceback
 from typing import Final, List, NamedTuple, Union
 
@@ -21,7 +22,6 @@ from openfaas_lambda_utils.types import (
     AtmObject,
 )
 from typing_extensions import TypedDict
-
 
 ##===================================================================
 ## Lambda configuration
@@ -93,16 +93,14 @@ def run_job(job: Job) -> Union[AtmException, JobResults]:
 
 
 def parse_fetch_file(job: Job) -> List[FileDownloadInfo]:
+    fetch_file_path = "{mount_point}/.__onedata__file_id__{fetch_file_id}".format(
+        mount_point=MOUNT_POINT, fetch_file_id=job.args["fetchFile"]["file_id"]
+    )
 
-    if job.args["fetchFile"]["type"] != "REG":
+    if os.path.isdir(fetch_file_path):
         return []
 
-    fetch_file_path = "{mount_point}/.__onedata__file_id__{fetch_file_id}".format(
-        mount_point=MOUNT_POINT,
-        fetch_file_id=job.args["fetchFile"]["file_id"]
-    )
     files_to_download = []
-
     with open(fetch_file_path, "r") as f:
         for line in f:
             files_to_download.append(parse_line(job, line))

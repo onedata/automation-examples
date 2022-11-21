@@ -13,16 +13,16 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import concurrent.futures
 import dataclasses
 import hashlib
-import json
 import os
 import queue
 import traceback
 import zlib
 from threading import Event, Thread
-from typing import Final, Iterator, List, NamedTuple, Optional, Set, Union
+from typing import Final, Iterator, NamedTuple, Optional, Set, Union
 
 import requests
-from openfaas_lambda_utils.stats import AtmStatsCounter, TSMetric
+from openfaas_lambda_utils.stats import AtmStatsCounter, AtmTimeSeriesMeasurementSpec
+from openfaas_lambda_utils.streaming import AtmResultStreamer
 from openfaas_lambda_utils.types import (
     AtmException,
     AtmFile,
@@ -32,9 +32,7 @@ from openfaas_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmTimeSeriesMeasurement,
 )
-from typing_extensions import Annotated as Ann
-from typing_extensions import TypedDict
-
+from typing_extensions import Annotated, TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -53,13 +51,19 @@ VERIFY_SSL_CERTS: Final[bool] = os.getenv("VERIFY_SSL_CERTIFICATES") != "false"
 ##===================================================================
 
 
-STATS_PIPED_RESULT_NAME: Final[str] = "stats"
+STATS_STREAMER: Final[AtmResultStreamer[AtmTimeSeriesMeasurement]] = AtmResultStreamer(
+    result_name="stats", synchronized=False
+)
 
 
 @dataclasses.dataclass
 class StatsCounter(AtmStatsCounter):
-    files_processed: Ann[int, TSMetric(name="filesProcessed", unit=None)] = 0
-    bytes_processed: Ann[int, TSMetric(name="bytesProcessed", unit="Bytes")] = 0
+    files_processed: Annotated[
+        int, AtmTimeSeriesMeasurementSpec(name="filesProcessed", unit=None)
+    ] = 0
+    bytes_processed: Annotated[
+        int, AtmTimeSeriesMeasurementSpec(name="bytesProcessed", unit="Bytes")
+    ] = 0
 
 
 class JobArgs(TypedDict):
@@ -209,12 +213,5 @@ def monitor_jobs(heartbeat_callback: AtmHeartbeatCallback) -> None:
             stats.update(_stats_queue.get())
 
         if stats:
-            stream_measurements(stats.as_measurements())
+            STATS_STREAMER.stream_items(stats.as_measurements())
             heartbeat_callback()
-
-
-def stream_measurements(measurements: List[AtmTimeSeriesMeasurement]) -> None:
-    with open(f"/out/{STATS_PIPED_RESULT_NAME}", "a") as f:
-        for measurement in measurements:
-            json.dump(measurement, f)
-            f.write("\n")
