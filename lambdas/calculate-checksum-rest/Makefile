@@ -1,4 +1,4 @@
-REPO=docker.onedata.org/lambda-checksum-counting-rest
+REPO=docker.onedata.org/lambda-calculate-checksum-rest
 TAG=v1
 
 

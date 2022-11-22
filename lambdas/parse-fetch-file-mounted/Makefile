@@ -1,4 +1,4 @@
-REPO=docker.onedata.org/lambda-parse-fetch-files-mounted
+REPO=docker.onedata.org/lambda-parse-fetch-file-mounted
 TAG=v1
 
 

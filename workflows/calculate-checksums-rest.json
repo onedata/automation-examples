@@ -4,11 +4,11 @@
   "revision": {
     "supplementaryAtmLambdas": {
       "b7e8f0318778dfadf3fdcf59a84a232bch9f34": {
-        "3": {
+        "4": {
           "schemaFormatVersion": 2,
           "revision": {
             "schemaFormatVersion": 2,
-            "originalRevisionNumber": 3,
+            "originalRevisionNumber": 4,
             "atmLambdaRevision": {
               "summary": "",
               "state": "draft",
@@ -54,7 +54,7 @@
               "preferredBatchSize": 10,
               "operationSpec": {
                 "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/lambda-checksum-counting-rest:v1",
+                "dockerImage": "docker.onedata.org/lambda-calculate-checksum-rest:v1",
                 "dockerExecutionOptions": {
                   "readonly": false,
                   "oneclientOptions": "",
@@ -62,9 +62,9 @@
                   "mountOneclient": false
                 }
               },
-              "name": "checksum-counting-rest",
+              "name": "calculate-checksum-rest",
               "description": "",
-              "checksum": "0e75719746b7535061dd52151ce9a944",
+              "checksum": "ce98a34b0b32d3bfc5371475f2dca540",
               "argumentSpecs": [
                 {
                   "name": "file",
@@ -390,7 +390,7 @@
                   ],
                   "resourceSpecOverride": null,
                   "name": "md5",
-                  "lambdaRevisionNumber": 3,
+                  "lambdaRevisionNumber": 4,
                   "lambdaId": "b7e8f0318778dfadf3fdcf59a84a232bch9f34",
                   "id": "6b6340cf71995551cf4954c1f818a878f723a4",
                   "argumentMappings": [
@@ -416,13 +416,7 @@
                       "argumentName": "metadataKey"
                     }
                   ]
-                }
-              ],
-              "name": "Parallel box",
-              "id": "1929377f1b93a795813587e7e0f777dd0e4f81"
-            },
-            {
-              "tasks": [
+                },
                 {
                   "timeSeriesStoreConfig": {
                     "timeSeriesCollectionSchema": {
@@ -666,7 +660,7 @@
                   ],
                   "resourceSpecOverride": null,
                   "name": "sha256",
-                  "lambdaRevisionNumber": 3,
+                  "lambdaRevisionNumber": 4,
                   "lambdaId": "b7e8f0318778dfadf3fdcf59a84a232bch9f34",
                   "id": "b046ed546726126def3e10c7f63a69437eba30",
                   "argumentMappings": [
@@ -695,10 +689,10 @@
                 }
               ],
               "name": "Parallel box",
-              "id": "5590c32047956c4d58f4cc9da48a77574ae774"
+              "id": "1929377f1b93a795813587e7e0f777dd0e4f81"
             }
           ],
-          "name": "l1",
+          "name": "calculate-checksums",
           "maxRetries": 1,
           "id": "a4ff4eadccc34717610e0f884640d9295df7ce",
           "dashboardSpec": null
@@ -708,6 +702,6 @@
       "dashboardSpec": null
     }
   },
-  "originalAtmWorkflowSchemaId": "fbe0ed439f3f41d0e62c441169153008ch5954",
+  "originalAtmWorkflowSchemaId": "3b35b557c6357cc0e6a349ff15d6c6aechc955",
   "name": "calculate-checksums-rest"
 }

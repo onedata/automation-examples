@@ -4,11 +4,11 @@
   "revision": {
     "supplementaryAtmLambdas": {
       "d7c4a37f14c8935c613f8ba4825d5069chc3ce": {
-        "1": {
+        "2": {
           "schemaFormatVersion": 2,
           "revision": {
             "schemaFormatVersion": 2,
-            "originalRevisionNumber": 1,
+            "originalRevisionNumber": 2,
             "atmLambdaRevision": {
               "summary": "",
               "state": "draft",
@@ -46,7 +46,7 @@
               "preferredBatchSize": 100,
               "operationSpec": {
                 "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/lambda-parse-fetch-files-mounted:v1",
+                "dockerImage": "docker.onedata.org/lambda-parse-fetch-file-mounted:v1",
                 "dockerExecutionOptions": {
                   "readonly": false,
                   "oneclientOptions": "",
@@ -54,9 +54,9 @@
                   "mountOneclient": true
                 }
               },
-              "name": "parse-fetch-files-mounted",
+              "name": "parse-fetch-file-mounted",
               "description": "",
-              "checksum": "c61e767b736a0c31365e10aa28a4bdcb",
+              "checksum": "f27d5a2f8edf22129bdd26c1c09bdbc4",
               "argumentSpecs": [
                 {
                   "name": "fetchFile",
@@ -87,11 +87,11 @@
         }
       },
       "587a7010cc4e4e17e62717062e34fe1dch15cc": {
-        "1": {
+        "2": {
           "schemaFormatVersion": 2,
           "revision": {
             "schemaFormatVersion": 2,
-            "originalRevisionNumber": 1,
+            "originalRevisionNumber": 2,
             "atmLambdaRevision": {
               "summary": "",
               "state": "draft",
@@ -145,7 +145,7 @@
               "preferredBatchSize": 100,
               "operationSpec": {
                 "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/lambda-download-files-mounted:v1",
+                "dockerImage": "docker.onedata.org/lambda-download-file-mounted:v1",
                 "dockerExecutionOptions": {
                   "readonly": false,
                   "oneclientOptions": "-i",
@@ -153,9 +153,9 @@
                   "mountOneclient": true
                 }
               },
-              "name": "download-files-mounted",
+              "name": "download-file-mounted",
               "description": "",
-              "checksum": "d9a4fff2c4a4762b79ca7962f42b8abc",
+              "checksum": "2fbab69ff32bc346de45c48605f2b693",
               "argumentSpecs": [
                 {
                   "name": "downloadInfo",
@@ -269,8 +269,8 @@
                     }
                   ],
                   "resourceSpecOverride": null,
-                  "name": "parse-fetch-files-mounted",
-                  "lambdaRevisionNumber": 1,
+                  "name": "parse-fetch-file-mounted",
+                  "lambdaRevisionNumber": 2,
                   "lambdaId": "d7c4a37f14c8935c613f8ba4825d5069chc3ce",
                   "id": "656746a9bef5000e2b7f233cbd6fb7a085580e",
                   "argumentMappings": [
@@ -558,8 +558,8 @@
                     }
                   ],
                   "resourceSpecOverride": null,
-                  "name": "download-files-mounted",
-                  "lambdaRevisionNumber": 1,
+                  "name": "download-file-mounted",
+                  "lambdaRevisionNumber": 2,
                   "lambdaId": "587a7010cc4e4e17e62717062e34fe1dch15cc",
                   "id": "45b640e9396cae8d4853663e0f5d09db3e9eb4",
                   "argumentMappings": [
