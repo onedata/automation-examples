@@ -11,7 +11,6 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 
 import concurrent.futures
-import dataclasses
 import hashlib
 import os
 import queue
@@ -21,7 +20,7 @@ from threading import Event, Thread
 from typing import Final, Iterator, NamedTuple, Optional, Set, Union
 
 import requests
-from openfaas_lambda_utils.stats import AtmStatsCounter, AtmTimeSeriesMeasurementSpec
+from openfaas_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
 from openfaas_lambda_utils.streaming import AtmResultStreamer
 from openfaas_lambda_utils.types import (
     AtmException,
@@ -32,7 +31,7 @@ from openfaas_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmTimeSeriesMeasurement,
 )
-from typing_extensions import Annotated, TypedDict
+from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -56,14 +55,16 @@ STATS_STREAMER: Final[AtmResultStreamer[AtmTimeSeriesMeasurement]] = AtmResultSt
 )
 
 
-@dataclasses.dataclass
-class StatsCounter(AtmStatsCounter):
-    files_processed: Annotated[
-        int, AtmTimeSeriesMeasurementSpec(name="filesProcessed", unit=None)
-    ] = 0
-    bytes_processed: Annotated[
-        int, AtmTimeSeriesMeasurementSpec(name="bytesProcessed", unit="Bytes")
-    ] = 0
+class FilesProcessed(
+    AtmTimeSeriesMeasurementBuilder, ts_name="filesProcessed", unit=None
+):
+    pass
+
+
+class BytesProcessed(
+    AtmTimeSeriesMeasurementBuilder, ts_name="bytesProcessed", unit="Bytes"
+):
+    pass
 
 
 class JobArgs(TypedDict):
@@ -93,7 +94,7 @@ class Job(NamedTuple):
 
 
 _all_jobs_processed: Event = Event()
-_stats_queue: queue.Queue = queue.Queue()
+_measurements_queue: queue.Queue = queue.Queue()
 
 
 def handle(
@@ -136,7 +137,7 @@ def run_job(job: Job) -> Union[AtmException, JobResults]:
         if job.args["metadataKey"] != "":
             set_file_metadata(job, checksum)
 
-        _stats_queue.put(StatsCounter(files_processed=1))
+        _measurements_queue.put(FilesProcessed.build(value=1))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
@@ -172,13 +173,13 @@ def calculate_checksum(job: Job, data_stream: Iterator[bytes]) -> str:
         value = 1
         for data in data_stream:
             value = zlib.adler32(data, value)
-            _stats_queue.put(StatsCounter(bytes_processed=len(data)))
+            _measurements_queue.put(BytesProcessed.build(value=len(data)))
         return format(value, "x")
     else:
         hash = getattr(hashlib, algorithm)()
         for data in data_stream:
             hash.update(data)
-            _stats_queue.put(StatsCounter(bytes_processed=len(data)))
+            _measurements_queue.put(BytesProcessed.build(value=len(data)))
         return hash.hexdigest()
 
 
@@ -208,10 +209,10 @@ def monitor_jobs(heartbeat_callback: AtmHeartbeatCallback) -> None:
     while any_job_ongoing:
         any_job_ongoing = not _all_jobs_processed.wait(timeout=1)
 
-        stats = StatsCounter()
-        while not _stats_queue.empty():
-            stats.update(_stats_queue.get())
+        measurements = []
+        while not _measurements_queue.empty():
+            measurements.append(_measurements_queue.get())
 
-        if stats:
-            STATS_STREAMER.stream_items(stats.as_measurements())
+        if measurements:
+            STATS_STREAMER.stream_items(measurements)
             heartbeat_callback()
