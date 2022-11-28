@@ -1,4 +1,4 @@
-REPO=docker.onedata.org/checksum-counting-rest
+REPO=docker.onedata.org/lambda-calculate-checksum-rest
 TAG=v1
 
 
@@ -10,4 +10,4 @@ build:
 
 
 publish:
-	docker push ${REPO}:${TAG}
+	docker push ${REPO}:${TAG} 
