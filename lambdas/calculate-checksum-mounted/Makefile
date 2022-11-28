@@ -1,5 +1,5 @@
-REPO=docker.onedata.org/lambda-checksum-counting-mounted
-TAG=v0
+REPO=docker.onedata.org/lambda-calculate-checksum-mounted
+TAG=v1
 
 
 .PHONY: build publish

@@ -11,16 +11,14 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 
 import concurrent.futures
-import dataclasses
 import hashlib
 import os
 import queue
 import traceback
 import zlib
 from threading import Event, Thread
-from typing import Final, Iterator, NamedTuple, Optional, Set, Union
+from typing import Final, NamedTuple, Optional, Set, Union
 
-import requests
 import xattr
 from openfaas_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
 from openfaas_lambda_utils.streaming import AtmResultStreamer
@@ -33,7 +31,7 @@ from openfaas_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmTimeSeriesMeasurement,
 )
-from typing_extensions import Annotated, TypedDict
+from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -57,16 +55,17 @@ STATS_STREAMER: Final[AtmResultStreamer[AtmTimeSeriesMeasurement]] = AtmResultSt
 )
 
 
-# @dataclasses.dataclass
-# class StatsCounter(AtmStatsCounter):
-#     files_processed: Annotated[
-#         int, AtmTimeSeriesMeasurement(name="filesProcessed", unit=None)
-#     ] = 0
-#     bytes_processed: Annotated[
-#         int, AtmTimeSeriesMeasurementSpec(name="bytesProcessed", unit="Bytes")
-#     ] = 0
+class FilesProcessed(
+    AtmTimeSeriesMeasurementBuilder, ts_name="filesProcessed", unit=None
+):
+    pass
 
-class FilesProcessed(AtmTimeSeriesMeasurementBuilder, ts_name="filesProcessed", unit=None): pass
+
+class BytesProcessed(
+    AtmTimeSeriesMeasurementBuilder, ts_name="bytesProcessed", unit="Bytes"
+):
+    pass
+
 
 class JobArgs(TypedDict):
     file: AtmFile
@@ -132,22 +131,21 @@ def run_job(job: Job) -> Union[AtmException, JobResults]:
         )
 
     try:
-        destination_path = build_destination_path(job.args)
-
+        destination_path = build_file_path(job)
         checksum = calculate_checksum(job, destination_path)
 
         if job.args["metadataKey"] != "":
             set_file_metadata(job, destination_path, checksum)
 
-        _measurements_queue.put(FilesProcessed.build(files_processed=1))
+        _measurements_queue.put(FilesProcessed.build(value=1))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
         return build_job_results(job, checksum)
 
 
-def build_destination_path(job_args: JobArgs) -> str:
-    return f'{MOUNT_POINT}/{job_args["downloadInfo"]["destinationPath"]}'
+def build_file_path(job: Job) -> str:
+    return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["file"]["file_id"]}'
 
 
 def build_job_results(job: Job, checksum: Optional[str]) -> JobResults:
@@ -158,18 +156,6 @@ def build_job_results(job: Job, checksum: Optional[str]) -> JobResults:
             "checksum": checksum,
         }
     }
-
-
-def get_file_data_stream(job: Job) -> Iterator[bytes]:
-    response = requests.get(
-        build_file_rest_url(job, "content"),
-        headers={"x-auth-token": job.ctx["accessToken"]},
-        stream=True,
-        verify=VERIFY_SSL_CERTS,
-    )
-    response.raise_for_status()
-
-    return response.iter_content(chunk_size=DOWNLOAD_CHUNK_SIZE)
 
 
 def calculate_checksum(job: Job, file_path: str) -> str:
@@ -185,8 +171,7 @@ def calculate_checksum(job: Job, file_path: str) -> str:
                 if not data:
                     break
                 value = zlib.adler32(data, value)
-                _measurements_queue.put(FilesProcessed.build(value))
-
+                _measurements_queue.put(BytesProcessed.build(value=len(data)))
             return format(value, "x")
         else:
             hash = getattr(hashlib, algorithm)()
@@ -195,22 +180,13 @@ def calculate_checksum(job: Job, file_path: str) -> str:
                 if not data:
                     break
                 hash.update(data)
-                _measurements_queue.put(FilesProcessed.build(value))
-
+                _measurements_queue.put(BytesProcessed.build(value=len(data)))
             return hash.hexdigest()
 
 
 def set_file_metadata(job: Job, destination_path: str, checksum: str) -> None:
     metadata = xattr.xattr(destination_path)
     metadata.set(job.args["metadataKey"], str.encode(checksum))
-
-
-def build_file_rest_url(job: Job, subpath: str) -> str:
-    return "https://{domain}/api/v3/oneprovider/data/{file_id}/{subpath}".format(
-        domain=job.ctx["oneproviderDomain"],
-        file_id=job.args["file"]["file_id"],
-        subpath=subpath.lstrip("/"),
-    )
 
 
 def monitor_jobs(heartbeat_callback: AtmHeartbeatCallback) -> None:
@@ -223,5 +199,5 @@ def monitor_jobs(heartbeat_callback: AtmHeartbeatCallback) -> None:
             measurements.append(_measurements_queue.get())
 
         if measurements:
-            STATS_STREAMER.stream_items(measurements.as_measurements())
+            STATS_STREAMER.stream_items(measurements)
             heartbeat_callback()
