@@ -33,16 +33,17 @@ from openfaas_lambda_utils.types import (
 )
 from typing_extensions import TypedDict
 
+
 ##===================================================================
 ## Lambda configuration
 ##===================================================================
 
 MOUNT_POINT: Final[str] = "/mnt/onedata"
+
 AVAILABLE_CHECKSUM_ALGORITHMS: Final[Set[str]] = set().union(
     {"adler32"}, hashlib.algorithms_available
 )
-DOWNLOAD_CHUNK_SIZE: Final[int] = 10 * 1024**2
-VERIFY_SSL_CERTS: Final[bool] = os.getenv("VERIFY_SSL_CERTIFICATES") != "false"
+READ_CHUNK_SIZE: Final[int] = 10 * 1024**2
 
 
 ##===================================================================
@@ -119,7 +120,9 @@ def handle(
 
 
 def run_job(job: Job) -> Union[AtmException, JobResults]:
-    if job.args["file"]["type"] != "REG":
+    file_path = build_file_path(job)
+
+    if not os.path.isfile(file_path):
         return build_job_results(job, None)
 
     if job.args["algorithm"] not in AVAILABLE_CHECKSUM_ALGORITHMS:
@@ -131,11 +134,10 @@ def run_job(job: Job) -> Union[AtmException, JobResults]:
         )
 
     try:
-        destination_path = build_file_path(job)
-        checksum = calculate_checksum(job, destination_path)
+        checksum = calculate_checksum(job, file_path)
 
         if job.args["metadataKey"] != "":
-            set_file_metadata(job, destination_path, checksum)
+            set_file_metadata(job, file_path, checksum)
 
         _measurements_queue.put(FilesProcessed.build(value=1))
     except Exception:
@@ -159,15 +161,13 @@ def build_job_results(job: Job, checksum: Optional[str]) -> JobResults:
 
 
 def calculate_checksum(job: Job, file_path: str) -> str:
-
     algorithm = job.args["algorithm"]
 
     with open(file_path, "rb") as file:
-
         if algorithm == "adler32":
             value = 1
             while True:
-                data = file.read(DOWNLOAD_CHUNK_SIZE)
+                data = file.read(READ_CHUNK_SIZE)
                 if not data:
                     break
                 value = zlib.adler32(data, value)
@@ -176,7 +176,7 @@ def calculate_checksum(job: Job, file_path: str) -> str:
         else:
             hash = getattr(hashlib, algorithm)()
             while True:
-                data = file.read(DOWNLOAD_CHUNK_SIZE)
+                data = file.read(READ_CHUNK_SIZE)
                 if not data:
                     break
                 hash.update(data)
