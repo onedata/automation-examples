@@ -20,9 +20,9 @@ from threading import Event, Thread
 from typing import Final, Iterator, NamedTuple, Optional, Set, Union
 
 import requests
-from openfaas_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
-from openfaas_lambda_utils.streaming import AtmResultStreamer
-from openfaas_lambda_utils.types import (
+from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
+from onedata_lambda_utils.streaming import AtmResultStreamer
+from onedata_lambda_utils.types import (
     AtmException,
     AtmFile,
     AtmHeartbeatCallback,

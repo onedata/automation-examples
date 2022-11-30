@@ -20,9 +20,9 @@ from threading import Event, Thread
 from typing import Final, NamedTuple, Optional, Set, Union
 
 import xattr
-from openfaas_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
-from openfaas_lambda_utils.streaming import AtmResultStreamer
-from openfaas_lambda_utils.types import (
+from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
+from onedata_lambda_utils.streaming import AtmResultStreamer
+from onedata_lambda_utils.types import (
     AtmException,
     AtmFile,
     AtmHeartbeatCallback,
@@ -184,8 +184,8 @@ def calculate_checksum(job: Job, file_path: str) -> str:
             return hash.hexdigest()
 
 
-def set_file_metadata(job: Job, destination_path: str, checksum: str) -> None:
-    metadata = xattr.xattr(destination_path)
+def set_file_metadata(job: Job, file_path: str, checksum: str) -> None:
+    metadata = xattr.xattr(file_path)
     metadata.set(job.args["metadataKey"], str.encode(checksum))
 
 
