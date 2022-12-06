@@ -13,7 +13,7 @@ import os.path
 import traceback
 from typing import Final, List, NamedTuple, Union
 
-from openfaas_lambda_utils.types import (
+from onedata_lambda_utils.types import (
     AtmException,
     AtmFile,
     AtmHeartbeatCallback,

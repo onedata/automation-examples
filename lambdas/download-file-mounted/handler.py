@@ -15,9 +15,9 @@ from threading import Event, Thread
 from typing import Final, Union
 
 import requests
-from openfaas_lambda_utils.stats import AtmStatsCounter, AtmTimeSeriesMeasurementSpec
-from openfaas_lambda_utils.streaming import AtmResultStreamer
-from openfaas_lambda_utils.types import (
+from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
+from onedata_lambda_utils.streaming import AtmResultStreamer
+from onedata_lambda_utils.types import (
     AtmException,
     AtmHeartbeatCallback,
     AtmJobBatchRequest,
@@ -26,6 +26,7 @@ from openfaas_lambda_utils.types import (
     AtmTimeSeriesMeasurement,
 )
 from typing_extensions import Annotated, TypedDict
+
 
 ##===================================================================
 ## Lambda configuration
@@ -52,14 +53,16 @@ STATS_STREAMER: Final[AtmResultStreamer[AtmTimeSeriesMeasurement]] = AtmResultSt
 )
 
 
-@dataclasses.dataclass
-class StatsCounter(AtmStatsCounter):
-    files_processed: Annotated[
-        int, AtmTimeSeriesMeasurementSpec(name="filesProcessed", unit=None)
-    ] = 0
-    bytes_processed: Annotated[
-        int, AtmTimeSeriesMeasurementSpec(name="bytesProcessed", unit="Bytes")
-    ] = 0
+class FilesProcessed(
+    AtmTimeSeriesMeasurementBuilder, ts_name="filesProcessed", unit=None
+):
+    pass
+
+
+class BytesProcessed(
+    AtmTimeSeriesMeasurementBuilder, ts_name="bytesProcessed", unit="Bytes"
+):
+    pass
 
 
 class FileDownloadInfo(TypedDict):
@@ -82,7 +85,7 @@ class JobResults(TypedDict):
 
 
 _all_jobs_processed: Event = Event()
-_stats_queue: queue.Queue = queue.Queue()
+_measurements_queue: queue.Queue = queue.Queue()
 
 
 def handle(
@@ -105,7 +108,7 @@ def handle(
 def run_job(job_args: JobArgs) -> Union[JobResults, AtmException]:
     try:
         run_job_insecure(job_args)
-        _stats_queue.put(StatsCounter(files_processed=1))
+        _measurements_queue.put(FilesProcessed.build(value=1))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
@@ -160,7 +163,7 @@ def download_file(job_args: JobArgs) -> None:
             f.write(chunk)
             chunk_size = len(chunk)
             file_size += chunk_size
-            _stats_queue.put(StatsCounter(bytes_processed=chunk_size))
+            _measurements_queue.put(BytesProcessed.build(value=chunk_size))
 
     if file_size != job_args["downloadInfo"]["size"]:
         raise Exception(
@@ -178,10 +181,10 @@ def monitor_jobs(heartbeat_callback: AtmHeartbeatCallback) -> None:
     while any_job_ongoing:
         any_job_ongoing = not _all_jobs_processed.wait(timeout=1)
 
-        stats = StatsCounter()
-        while not _stats_queue.empty():
-            stats.update(_stats_queue.get())
+        measurements = []
+        while not _measurements_queue.empty():
+            measurements.append(_measurements_queue.get())
 
-        if stats:
-            STATS_STREAMER.stream_items(stats.as_measurements())
+        if measurements:
+            STATS_STREAMER.stream_items(measurements)
             heartbeat_callback()
