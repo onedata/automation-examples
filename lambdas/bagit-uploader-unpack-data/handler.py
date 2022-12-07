@@ -10,24 +10,20 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 
 import concurrent.futures
-import hashlib
 import os
-import os.path
 import queue
-import re
+import os.path
 import tarfile
+from threading import Event, Thread
+import time
 import traceback
 import zipfile
-import zlib
-from collections.abc import Callable
 from pathlib import Path
-from threading import Event, Thread
-from typing import IO, Final, Iterator, NamedTuple, Optional, Set, Union
+from typing import Callable, Final, List, NamedTuple, Optional, Union
 
-import requests
-from openfaas_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
-from openfaas_lambda_utils.streaming import AtmResultStreamer
-from openfaas_lambda_utils.types import (
+from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
+from onedata_lambda_utils.streaming import AtmResultStreamer
+from onedata_lambda_utils.types import (
     AtmException,
     AtmFile,
     AtmHeartbeatCallback,
@@ -37,6 +33,7 @@ from openfaas_lambda_utils.types import (
     AtmTimeSeriesMeasurement,
 )
 from typing_extensions import TypedDict
+
 
 ##===================================================================
 ## Lambda configuration
@@ -56,32 +53,31 @@ STATS_STREAMER: Final[AtmResultStreamer[AtmTimeSeriesMeasurement]] = AtmResultSt
 )
 
 
-class FilesProcessed(
-    AtmTimeSeriesMeasurementBuilder, ts_name="filesProcessed", unit=None
+class FilesUnpacked(
+    AtmTimeSeriesMeasurementBuilder, ts_name="filesUnpacked", unit=None
 ):
     pass
 
 
-class BytesProcessed(
-    AtmTimeSeriesMeasurementBuilder, ts_name="bytesProcessed", unit="Bytes"
+class BytesUnpacked(
+    AtmTimeSeriesMeasurementBuilder, ts_name="bytesUnpacked", unit="Bytes"
 ):
     pass
 
 
 class JobArgs(TypedDict):
-    file: AtmFile
-    algorithm: str
-    metadataKey: str
+    archive: AtmFile
+    destinationDir: AtmFile
 
 
-class FileChecksumReport(TypedDict):
-    file_id: str
-    algorithm: str
-    checksum: Optional[str]
+class LogsReport(TypedDict):
+    archive: str
+    status: Optional[str]
 
 
 class JobResults(TypedDict):
-    result: FileChecksumReport
+    unpackedFiles: List[str]
+    statusLog: LogsReport
 
 
 ##===================================================================
@@ -89,158 +85,279 @@ class JobResults(TypedDict):
 ##===================================================================
 
 
+class JobException(Exception):
+    exception: str
+
+
 class Job(NamedTuple):
-    ctx: AtmJobBatchRequestCtx
+    heartbeat_callback: AtmHeartbeatCallback
     args: JobArgs
 
 
-_all_jobs_processed: Event = Event()
-_measurements_queue: queue.Queue = queue.Queue()
+class ZipArchive:
+    def __init__(self, archive: zipfile.ZipFile) -> None:
+        self.archive = archive
+
+    def find_bagit_directory(self) -> str:
+        root_files = []
+
+        for file in self.archive.namelist():
+            path = file.split("/")
+            root_directory = path[0]
+            root_file = path[1]
+            if root_file not in root_files:
+                root_files.append(root_file)
+
+        if "bagit.txt" in root_files:
+            return root_directory
+
+    def list_archive_files(self) -> List[str]:
+        return self.archive.namelist()
+
+    def unpack_archive_file(self, file_archive_info, destination_diretory) -> str:
+        return self.archive.extract(file_archive_info, destination_diretory)
+
+    def get_archive_member(self, name) -> Callable[[], tarfile.TarInfo]:
+        return self.archive.getinfo(name)
 
 
-def handle(request: dict, heartbeat_callback) -> str:
+class TarArchive:
+    def __init__(self, archive: tarfile.TarFile):
+        self.archive = archive
 
+    def find_bagit_directory(self) -> str:
+        root_files = []
+
+        for member in self.archive.getmembers():
+            file = member.path
+
+            if "/" in file:
+                path = file.split("/")
+                root_directory = path[0]
+                root_file = path[1]
+                if root_file not in root_files:
+                    root_files.append(root_file)
+
+        if "bagit.txt" in root_files:
+            return root_directory
+
+    def list_archive_files(self) -> List[str]:
+        return self.archive.getnames()
+
+    def unpack_archive_file(self, file_archive_info, destination_diretory) -> None:
+        return self.archive.extract(file_archive_info, destination_diretory)
+
+    def get_archive_member(self, name) -> Callable[[], tarfile.TarInfo]:
+        return self.archive.getmember(name)
+
+
+class TgzArchive:
+    def __init__(self, archive: tarfile.TarFile) -> None:
+        self.archive = archive
+
+    def find_bagit_directory(self) -> str:
+        root_files = []
+
+        for member in self.archive.getmembers():
+            file = member.path
+
+            if "/" in file:
+                path = file.split("/")
+                root_directory = path[0]
+                root_file = path[1]
+                if root_file not in root_files:
+                    root_files.append(root_file)
+
+        if "bagit.txt" in root_files:
+            return root_directory
+
+    def list_archive_files(self) -> List[str]:
+        return self.archive.getnames()
+
+    def unpack_archive_file(self, file_archive_info, destination_diretory) -> None:
+        return self.archive.extract(file_archive_info, destination_diretory)
+
+    def get_archive_member(self, name) -> Callable[[], tarfile.TarInfo]:
+        return self.archive.getmember(name)
+
+
+class UnpackFileData(NamedTuple):
+    job: Job
+    archive: Union[ZipArchive, TarArchive, TgzArchive]
+    data_directory: str
+    file_path: str
+
+
+class FileInfo(NamedTuple):
+    file_path: str
+    file_size: int
+
+
+_all_archives_unpacked: Event = Event()
+_files_queue: queue.Queue = queue.Queue()
+
+
+def handle(
+    job_batch_request: AtmJobBatchRequest[JobArgs],
+    heartbeat_callback: AtmHeartbeatCallback,
+) -> AtmJobBatchResponse[JobResults]:
+
+    job_results = []
+    for job_args in job_batch_request["argsBatch"]:
+        job = Job(args=job_args, heartbeat_callback=heartbeat_callback)
+        job_results.append(run_job(job))
+
+    return {"resultsBatch": job_results}
+
+
+def run_job(job: Job) -> Union[AtmException, JobResults, LogsReport]:
+    try:
+        unpacked_files = unpack_bagit_archive(job)
+    except JobException as ex:
+        return AtmException(exception=build_error_logs(job, ex))
+    except Exception:
+        return AtmException(exception=traceback.format_exc())
+    else:
+        return build_job_results(job, unpacked_files)
+
+
+def build_error_logs(job: Job, ex: str) -> LogsReport:
     return {
-        "resultsBatch": [
-            process_item(item, request["ctx"], heartbeat_callback)
-            for item in request["argsBatch"]
-        ]
+        "file": job.args["archive"]["name"],
+        "status": f"Failed to unpack files due to: {str(ex)}",
     }
 
 
-def process_item(args: dict, ctx: dict, heartbeat_callback):
-
-    try:
-        uploaded_files = unpack_data_dir(args, ctx, heartbeat_callback)
-        return {
-            "uploadedFiles": uploaded_files,
-            "logs": [
-                {
-                    "severity": "info",
-                    "file": args["archive"]["name"],
-                    "status": f"Successfully uploaded {len(uploaded_files)} files.",
-                }
-            ],
-        }
-    except Exception as ex:
-        return {
-            "exception": [
-                {
-                    "severity": "error",
-                    "file": args["archive"]["name"],
-                    "status": f"Failed to unpack files due to: {str(ex)}",
-                }
-            ]
-        }
+def build_job_results(job: Job, unpacked_files: List[str]) -> JobResults:
+    return {
+        "unpackedFiles": unpacked_files,
+        "statusLog": {
+            "archive": job.args["archive"]["name"],
+            "status": f"Successfully unpacked {len(unpacked_files)} files.",
+        },
+    }
 
 
-def unpack_data_dir(args: dict, ctx: dict, heartbeat_callback) -> list:
-    archive_filename = args["archive"]["name"]
-    archive_path = f'/mnt/onedata/.__onedata__file_id__{args["archive"]["file_id"]}'
+def unpack_bagit_archive(job: Job) -> List[str]:
+    archive_filename = job.args["archive"]["name"]
+    archive_path = build_archive_path(job)
     archive_name, archive_type = os.path.splitext(archive_filename)
 
     if archive_type == ".tar":
         with tarfile.TarFile(archive_path) as archive:
-            return unpack_bagit_archive(
-                args,
-                archive.getnames,
-                archive.getmember,
-                archive.extract,
-                ctx,
-                heartbeat_callback,
-            )
+            tar_archive = TarArchive(archive)
+            return unpack_data_directory(job, tar_archive)
     elif archive_type == ".zip":
         with zipfile.ZipFile(archive_path) as archive:
-            return unpack_bagit_archive(
-                args,
-                archive.namelist,
-                archive.getinfo,
-                archive.extract,
-                ctx,
-                heartbeat_callback,
-            )
+            zip_archive = ZipArchive(archive)
+            return unpack_data_directory(job, zip_archive)
     elif archive_type == ".tgz" or archive_type == ".gz":
         with tarfile.open(archive_path, "r:gz") as archive:
-            return unpack_bagit_archive(
-                args,
-                archive.getnames,
-                archive.getmember,
-                archive.extract,
-                ctx,
-                heartbeat_callback,
-            )
+            tgz_archive = TgzArchive(archive)
+            return unpack_data_directory(job, tgz_archive)
     else:
         raise Exception(f"Unsupported archive type: {archive_type}")
 
 
-def unpack_bagit_archive(
-    args: dict,
-    list_archive_files,
-    get_archive_member,
-    extract_archive_file,
-    ctx: dict,
-    heartbeat_callback,
-) -> list:
-    dst_id = args["destination"]["file_id"]
-    dst_dir = f"/mnt/onedata/.__onedata__file_id__{dst_id}"
+def unpack_data_directory(
+    job: Job, archive: Union[ZipArchive, TarArchive, TgzArchive]
+) -> List[str]:
 
-    archive_files = list_archive_files()
+    archive_files = archive.list_archive_files()
+    bagit_directory = archive.find_bagit_directory()
+    data_directory = f"{bagit_directory}/data/"
 
-    bagit_dir = find_bagit_dir(archive_files)
-    data_dir = f"{bagit_dir}/data/"
+    unpacked_files=[]
 
-    uploaded_files = []
+    # extracting large files may last for a long time, therefore monitor thread with heartbeats is needed
+    # unpacked_monitor = Thread(
+    #     target=monitor_unpack,
+    #     args=(job),
+    #     daemon=True,
+    # )
+    # unpacked_monitor.start()
+
+    # unpacked_archive_files = [
+        # UnpackFileData(
+        #     job,
+        #     archive,
+        #     data_directory,
+        #     file_path,
+        # )
+    #     for file_path in archive_files
+    #     if file_path.startswith(data_directory) and (not file_path.endswith("/"))
+    # ]
+
+    # with concurrent.futures.ThreadPoolExecutor() as executor:
+    #     unpacked_files = list(executor.map(unpack_file, unpacked_archive_files))
+
+    # _all_archives_unpacked.set()
+    # unpacked_monitor.join()
 
     for file_path in archive_files:
         is_directory = file_path.endswith("/")
-        if file_path.startswith(data_dir) and (not is_directory):
+        if file_path.startswith(data_directory) and (not is_directory):
             try:
-                subpath = file_path[len(data_dir) :]
-                file_archive_info = get_archive_member(file_path)
-
-                # tarfile info object has name and size attributes, while zipfile has file_name and file_size
-                if hasattr(file_archive_info, "name"):
-                    file_archive_info.name = subpath
-                    file_size = file_archive_info.size
-                else:
-                    file_archive_info.filename = subpath
-                    file_size = file_archive_info.file_size
-
-                dst_path = f"/mnt/onedata/.__onedata__file_id__{dst_id}/{subpath}"
-
-                # extracting large files may last for a long time, therefore monitor thread with heartbeats is needed
-                monitor_thread = threading.Thread(
-                    target=monitor_unpack,
-                    args=(
-                        dst_path,
-                        file_size,
-                        ctx,
-                        heartbeat_callback,
-                    ),
-                    daemon=True,
-                )
-                monitor_thread.start()
-
-                extract_archive_file(file_archive_info, dst_dir)
-                uploaded_files.append(dst_path)
+                unpacked_file_data = UnpackFileData(job,archive, data_directory,file_path,)
+                destination_path = unpack_file (unpacked_file_data)
+                unpacked_files.append(destination_path)
             except Exception as ex:
                 raise Exception(f"Unpacking file {file_path} failed due to: {str(ex)}")
-    return uploaded_files
+    
+
+    return unpacked_files
 
 
-def find_bagit_dir(archive_files: list) -> str:
-    for file_path in archive_files:
-        dir_path, file_name = os.path.split(file_path)
-        if file_name == "bagit.txt":
-            return dir_path
+def unpack_file(file: UnpackFileData) -> str:
+
+    destination_diretory = build_destination_directory_path(file.job)
+    subpath = file.file_path[len(file.data_directory) :]
+    file_archive_info = file.archive.get_archive_member(file.file_path)
+
+    if hasattr(file_archive_info, "name"):
+        file_archive_info.name = subpath
+        file_size = file_archive_info.size
+    else:
+        file_archive_info.filename = subpath
+        file_size = file_archive_info.file_size
+
+    destination_path = f"{destination_diretory}/{subpath}"
+    _files_queue.put(FileInfo(file.file_path, file_size))
+
+    file.archive.unpack_archive_file(file_archive_info, destination_diretory)
+
+    return destination_path
 
 
-def monitor_unpack(file_path: str, file_size: int, ctx: dict, heartbeat_callback):
-    heartbeat_interval = int(ctx["timeoutSeconds"])
-    size = 0
-    while size < file_size:
-        time.sleep(heartbeat_interval // 2)
-        current_size = Path(file_path).stat().st_size
-        if current_size > size:
-            heartbeat_callback()
-            size = current_size
+def build_archive_path(job: Job) -> str:
+    return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["archive"]["file_id"]}'
+
+
+def build_destination_directory_path(job: Job) -> str:
+    return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["destinationDir"]["file_id"]}'
+
+
+def monitor_unpack_file(job: Job) -> None:
+    # any_archive_unpacking = True
+
+    # while any_archive_unpacking:
+    #     any_archive_unpacking = not _all_archives_unpacked.wait(timeout=1)
+    #     time.sleep(0.5)
+
+    #     measurements = []
+    #     while not _files_queue.empty():
+    #         file = _files_queue.get()
+
+    #     if measurements:
+    #         STATS_STREAMER.stream_items(measurements)
+
+    #     size = 0
+    #     while size < file.file_size:
+    #         current_size = Path(file.file_path).stat().st_size
+    #         if current_size > size:
+    #             job.heartbeat()
+    #             measurements.append(BytesUnpacked.build(value=(size - current_size)))
+    #             size = current_size
+
+    #     measurements.append(FilesUnpacked.build(value=1)) 
+    pass
