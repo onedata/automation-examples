@@ -166,19 +166,13 @@ def calculate_checksum(job: Job, file_path: str) -> str:
     with open(file_path, "rb") as file:
         if algorithm == "adler32":
             value = 1
-            while True:
-                data = file.read(READ_CHUNK_SIZE)
-                if not data:
-                    break
+            for data in iter(lambda: file.read(READ_CHUNK_SIZE), b""):
                 value = zlib.adler32(data, value)
                 _measurements_queue.put(BytesProcessed.build(value=len(data)))
             return format(value, "x")
         else:
             hash = getattr(hashlib, algorithm)()
-            while True:
-                data = file.read(READ_CHUNK_SIZE)
-                if not data:
-                    break
+            for data in iter(lambda: file.read(READ_CHUNK_SIZE), b""):
                 hash.update(data)
                 _measurements_queue.put(BytesProcessed.build(value=len(data)))
             return hash.hexdigest()
