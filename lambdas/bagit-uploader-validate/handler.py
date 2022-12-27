@@ -1,6 +1,5 @@
 """
-A lambda which validates bagit archives and returns correct ones
-
+A lambda which validates bagit archives and returns result in form of archive object
 """
 
 __author__ = "Rafał Widziszewski"
@@ -21,7 +20,7 @@ import zipfile
 import zlib
 from collections.abc import Callable
 from threading import Event, Thread
-from typing import IO, Final, List, NamedTuple, Optional, Set, Union
+from typing import IO, Final, Iterator, List, NamedTuple, Optional, Set, Union
 
 from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
 from onedata_lambda_utils.streaming import AtmResultStreamer
@@ -60,8 +59,8 @@ STATS_STREAMER: Final[AtmResultStreamer[AtmTimeSeriesMeasurement]] = AtmResultSt
 )
 
 
-class ArchiveBytesProcessed(
-    AtmTimeSeriesMeasurementBuilder, ts_name="BytesProcessed", unit=None
+class ArchivePercentProcessed(
+    AtmTimeSeriesMeasurementBuilder, ts_name="PercentProcessed", unit=None
 ):
     pass
 
@@ -89,12 +88,11 @@ class Job(NamedTuple):
 
 
 class ZipArchive:
-    archive: zipfile
+    def __init__(self, archive: zipfile.ZipFile) -> None:
+        self.archive = archive
 
-
-
-    def get_uncompressed_size(self):
-        archive_files = list_archive_files()
+    def get_uncompressed_size(self) -> int:
+        archive_files = self.archive.namelist()
         unpacked_archive_size = 0
 
         for file in archive_files:
@@ -104,82 +102,96 @@ class ZipArchive:
 
         return unpacked_archive_size
 
+    def find_bagit_dir(self) -> str:
+        root_files = []
 
-    def find_bagit_dir(self):
-        zip_f = ZipFile('macaroon_bag1.zip', 'r')
-        root_dirs = []
-        for f in zip_f.namelist():
+        for file in self.archive.namelist():
+            path = file.split("/")
+            root_directory = path[0]
+            root_file = path[1]
+            if root_file not in root_files:
+                root_files.append(root_file)
 
-            r_dir = f.split('/')
-            r_dir = r_dir[1]
-            if r_dir not in root_dirs:
-                root_dirs.append(r_dir)
-    
-                        
+        if "bagit.txt" in root_files:
+            return root_directory
 
+    def list_archive_files(self) -> List[str]:
+        return self.archive.namelist()
 
-
+    def open_archive_file(self, path):
+        return self.archive.open(path)
 
 
 class TarArchive:
+    def __init__(self, archive: tarfile.TarFile):
+        self.archive = archive
 
-
-    def get_uncompressed_size(self):
-        archive_files = list_archive_files()
+    def get_uncompressed_size(self) -> int:
+        archive_files = self.archive.getmembers()
         unpacked_archive_size = 0
 
         for file in archive_files:
-            file_info = file.getinfo
-            file_size = file_info.file_size
+            file_size = file.size
             unpacked_archive_size += file_size
 
         return unpacked_archive_size
 
+    def find_bagit_dir(self) -> str:
+        root_files = []
 
-    def find_bagit_dir(self):
-        tar = tarfile.open("macaroon_bag1.tgz")
+        for member in self.archive.getmembers():
+            file = member.path
 
-        # Only root directories:
-        root_dirs = []
-        for member in tar.getmembers():
-            f=member.path
-            print(f)
+            if "/" in file:
+                path = file.split("/")
+                root_directory = path[0]
+                root_file = path[1]
+                if root_file not in root_files:
+                    root_files.append(root_file)
 
-            if "/" in f:
-                r_dir = f.split('/')
-                r_dir = r_dir[1]
-                if r_dir not in root_dirs:
-                    root_dirs.append(r_dir)    
+        if "bagit.txt" in root_files:
+            return root_directory
+
+    def list_archive_files(self) -> List[str]:
+        return self.archive.getnames()
+
+    def open_archive_file(self, path):
+        return self.archive.extractfile(path)
 
 
 class TgzArchive:
-    
-    
-    def get_uncompressed_size(self):
-        archive.seek(-4, 2)
-        return struct.unpack("I", archive.read(4))[0]
+    def __init__(self, archive: tarfile.TarFile) -> None:
+        self.archive = archive
 
+    def get_uncompressed_size(self) -> tuple:
+        self.archive.seek(-4, 2)
+        return struct.unpack("I", self.archive.read(4))[0]
 
-    def find_bagit_dir(self):
-        tar = tarfile.open("macaroon_bag1.tgz")
+    def find_bagit_dir(self) -> str:
+        root_files = []
 
-        # Only root directories:
-        root_dirs = []
-        for member in tar.getmembers():
-            f=member.path
-            print(f)
+        for member in self.archive.getmembers():
+            file = member.path
 
-            if "/" in f:
-                r_dir = f.split('/')
-                r_dir = r_dir[1]
-                if r_dir not in root_dirs:
-                    root_dirs.append(r_dir)      
+            if "/" in file:
+                path = file.split("/")
+                root_directory = path[0]
+                root_file = path[1]
+                if root_file not in root_files:
+                    root_files.append(root_file)
 
+        if "bagit.txt" in root_files:
+            return root_directory
 
+    def list_archive_files(self) -> List[str]:
+        return self.archive.getnames()
+
+    def open_archive_file(self, path):
+        return self.archive.extractfile(path)
 
 
 class AssertBagitException(Exception):
-    exception: str
+    pass
 
 
 _measurements_queue: queue.Queue = queue.Queue()
@@ -205,7 +217,7 @@ def run_job(job: Job) -> Union[AtmException, JobResults]:
 
         assert_valid_bagit_archive(job)
 
-        _measurements_queue.put(ArchiveBytesProcessed.build(value=1))
+        _measurements_queue.put(ArchivePercentProcessed.build(value=1))
     except AssertBagitException as ex:
         return AtmException(exception=ex)
     except Exception:
@@ -224,20 +236,16 @@ def assert_valid_bagit_archive(job: Job) -> None:
 
     if archive_type == ".tar":
         with tarfile.open(archive_path) as archive:
-            tarfile_size = tarfile_size(archive.getmembers)
-            assert_valid_archive(
-                job, archive.getnames, archive.extractfile, archive_type, archive_size
-            )
+            tar_archive = TarArchive(archive)
+            assert_valid_archive(job, tar_archive)
     elif archive_type == ".zip":
         with zipfile.ZipFile(archive_path) as archive:
-            archive_size = get_zip_size(archive.namelist)
-            assert_valid_archive(job, archive.namelist, archive.open, archive_type, archive_size)
+            zip_archive = ZipArchive(archive)
+            assert_valid_archive(job, zip_archive)
     elif archive_type == ".tgz" or archive_type == ".gz":
         with tarfile.open(archive_path, "r:gz") as archive:
-            archive_size = get_tgz_size(archive)
-            assert_valid_archive(
-                job, archive.getnames, archive.extractfile, archive_type,archive_size
-            )
+            tgz_archive = TgzArchive(archive)
+            assert_valid_archive(job, tgz_archive)
     else:
         raise Exception(f"Unsupported archive type: {archive_type}")
 
@@ -246,20 +254,15 @@ def build_archive_path(job: Job) -> str:
     return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["archive"]["file_id"]}'
 
 
-
 def assert_valid_archive(
-    job: Job,
-    list_archive_files: Callable[[], List[str]],
-    open_archive_file: Callable[[str], IO[bytes]],
-    archive_type: str,
-    archive_size: bytes,
+    job: Job, archive: Union[ZipArchive, TarArchive, TgzArchive]
 ) -> None:
 
+    bagit_dir = archive.find_bagit_dir()
+    archive_size = archive.get_uncompressed_size()
+    archive_files = archive.list_archive_files()
 
-    archive_files = list_archive_files()
-    bagit_dir = find_bagit_dir_tar(archive_files)    
-
-    assert_proper_bagit_txt_content(open_archive_file, bagit_dir)
+    assert_proper_bagit_txt_content(archive.open_archive_file, bagit_dir)
 
     search_for_fetch_file(archive_files, bagit_dir)
 
@@ -269,8 +272,7 @@ def assert_valid_archive(
         if tagmanifest_file in archive_files:
             checksum_verification(
                 job,
-                list_archive_files,
-                open_archive_file,
+                archive,
                 algorithm,
                 tagmanifest_file,
                 bagit_dir,
@@ -279,7 +281,7 @@ def assert_valid_archive(
             break
 
 
-def search_for_fetch_file(archive_files, bagit_dir: str) -> None:
+def search_for_fetch_file(archive_files: list, bagit_dir: str) -> None:
     data_dir = f"{bagit_dir}/data"
     fetch_file = f"{bagit_dir}/fetch.txt"
     if not ((data_dir in archive_files) or (fetch_file in archive_files)):
@@ -290,16 +292,15 @@ def search_for_fetch_file(archive_files, bagit_dir: str) -> None:
 
 def checksum_verification(
     job: Job,
-    list_archive_files: Callable[[], List[str]],
-    open_archive_file: Callable[[str], IO[bytes]],
+    archive: Union[ZipArchive, TarArchive, TgzArchive],
     algorithm: str,
     tagmanifest_file: str,
     bagit_dir: str,
-    archive_size,
+    archive_size: int,
 ) -> None:
-    for line in open_archive_file(tagmanifest_file):
+    for line in archive.open_archive_file(tagmanifest_file):
         exp_checksum, file_rel_path = line.decode("utf-8").strip().split()
-        fd = open_archive_file(f"{bagit_dir}/{file_rel_path}")
+        fd = archive.open_archive_file(f"{bagit_dir}/{file_rel_path}")
         iterator = iter(lambda: fd.read(READ_CHUNK_SIZE), b"")
         calculated_checksum = calculate_checksum(job, iterator, algorithm, archive_size)
         if not exp_checksum == calculated_checksum:
@@ -309,8 +310,8 @@ def checksum_verification(
             )
 
 
-def find_bagit_dir_zip(archive_files: list) -> Optional[str]: 
-    
+def find_bagit_dir_zip(archive_files: list) -> Optional[str]:
+
     for file_path in archive_files:
         dir_path, file_name = os.path.split(file_path)
         if file_name == "bagit.txt":
@@ -319,8 +320,9 @@ def find_bagit_dir_zip(archive_files: list) -> Optional[str]:
     raise Exception("Could not find bagit.txt file in bagit directory.")
 
 
-
-def calculate_checksum(job: Job, iterator, algorithm: str, archive_size) -> str:
+def calculate_checksum(
+    job: Job, iterator: Iterator[bytes], algorithm: str, archive_size
+) -> str:
     if algorithm == "adler32":
         value = 1
         read_data = 0
@@ -328,7 +330,7 @@ def calculate_checksum(job: Job, iterator, algorithm: str, archive_size) -> str:
             read_data += READ_CHUNK_SIZE
             value = zlib.adler32(data, value)
             _measurements_queue.put(
-                ArchiveBytesProcessed.build(
+                ArchivePercentProcessed.build(
                     value=get_bytes_precentage(read_data, archive_size)
                 )
             )
@@ -341,7 +343,7 @@ def calculate_checksum(job: Job, iterator, algorithm: str, archive_size) -> str:
             hash.update(data)
             read_data += READ_CHUNK_SIZE
             _measurements_queue.put(
-                ArchiveBytesProcessed.build(
+                ArchivePercentProcessed.build(
                     value=get_bytes_precentage(read_data, archive_size)
                 )
             )
@@ -349,7 +351,9 @@ def calculate_checksum(job: Job, iterator, algorithm: str, archive_size) -> str:
         return hash.hexdigest()
 
 
-def assert_proper_bagit_txt_content(open_archive_file, bagit_dir) -> None:
+def assert_proper_bagit_txt_content(
+    open_archive_file: Callable[[str], IO[bytes]], bagit_dir: str
+) -> None:
     with open_archive_file(f"{bagit_dir}/bagit.txt") as fd:
         line1, line2 = fd.readlines()
         if not re.match(r"^\s*BagIt-Version: [0-9]+.[0-9]+\s*$", line1.decode("utf-8")):
@@ -362,5 +366,5 @@ def assert_proper_bagit_txt_content(open_archive_file, bagit_dir) -> None:
             )
 
 
-def get_bytes_precentage(read_data, archive_size):
+def get_bytes_precentage(read_data: int, archive_size: int) -> int:
     return read_data / archive_size
