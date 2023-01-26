@@ -60,7 +60,7 @@ STATS_STREAMER: Final[AtmResultStreamer[AtmTimeSeriesMeasurement]] = AtmResultSt
 
 
 class ArchivePercentProcessed(
-    AtmTimeSeriesMeasurementBuilder, ts_name="PercentProcessed", unit=None
+    AtmTimeSeriesMeasurementBuilder, ts_name="percentProcessed", unit=None
 ):
     pass
 
@@ -227,7 +227,7 @@ def run_job(job: Job) -> Union[AtmException, JobResults]:
 
 
 def build_job_results(job: Job) -> JobResults:
-    return {"result": {"validBagitArchive": job.args["archive"]}}
+    return {"validBagitArchive": job.args["archive"]}
 
 
 def assert_valid_bagit_archive(job: Job) -> None:
@@ -321,7 +321,7 @@ def find_bagit_dir_zip(archive_files: list) -> Optional[str]:
 
 
 def calculate_checksum(
-    job: Job, iterator: Iterator[bytes], algorithm: str, archive_size
+    job: Job, iterator: Iterator[bytes], algorithm: str, archive_size: int
 ) -> str:
     if algorithm == "adler32":
         value = 1
