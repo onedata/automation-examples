@@ -35,7 +35,6 @@ from onedata_lambda_utils.types import (
 )
 from typing_extensions import TypedDict
 
-
 ##===================================================================
 ## Lambda configuration
 ##===================================================================
@@ -83,8 +82,11 @@ class JobResults(TypedDict):
 
 
 class Job(NamedTuple):
-    heartbeat_callback: AtmHeartbeatCallback
+    ctx: AtmJobBatchRequestCtx
     args: JobArgs
+
+_all_jobs_processed: Event = Event()
+_measurements_queue: queue.Queue = queue.Queue()    
 
 
 class ZipArchive:
@@ -194,6 +196,7 @@ class AssertBagitException(Exception):
     pass
 
 
+_all_jobs_processed: Event = Event()
 _measurements_queue: queue.Queue = queue.Queue()
 
 
@@ -202,10 +205,18 @@ def handle(
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
 
-    job_results = []
-    for job_args in job_batch_request["argsBatch"]:
-        job = Job(args=job_args, heartbeat_callback=heartbeat_callback)
-        job_results.append(run_job(job))
+    jobs_monitor = Thread(target=monitor_jobs, daemon=True, args=[heartbeat_callback])
+    jobs_monitor.start()
+
+    jobs = [
+        Job(args=job_args, ctx=job_batch_request["ctx"])
+        for job_args in job_batch_request["argsBatch"]
+    ]
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        job_results = list(executor.map(run_job, jobs))
+
+    _all_jobs_processed.set()
+    jobs_monitor.join()
 
     return {"resultsBatch": job_results}
 
@@ -217,7 +228,6 @@ def run_job(job: Job) -> Union[AtmException, JobResults]:
 
         assert_valid_bagit_archive(job)
 
-        _measurements_queue.put(ArchivePercentProcessed.build(value=1))
     except AssertBagitException as ex:
         return AtmException(exception=ex)
     except Exception:
@@ -302,7 +312,7 @@ def checksum_verification(
         exp_checksum, file_rel_path = line.decode("utf-8").strip().split()
         fd = archive.open_archive_file(f"{bagit_dir}/{file_rel_path}")
         iterator = iter(lambda: fd.read(READ_CHUNK_SIZE), b"")
-        calculated_checksum = calculate_checksum(job, iterator, algorithm, archive_size)
+        calculated_checksum = calculate_checksum(iterator, algorithm, archive_size)
         if not exp_checksum == calculated_checksum:
             raise Exception(
                 f"{algorithm} checksum verification failed for file {file_rel_path}. \n"
@@ -321,7 +331,7 @@ def find_bagit_dir_zip(archive_files: list) -> Optional[str]:
 
 
 def calculate_checksum(
-    job: Job, iterator: Iterator[bytes], algorithm: str, archive_size: int
+    iterator: Iterator[bytes], algorithm: str, archive_size: int
 ) -> str:
     if algorithm == "adler32":
         value = 1
@@ -334,7 +344,6 @@ def calculate_checksum(
                     value=get_bytes_precentage(read_data, archive_size)
                 )
             )
-            job.heartbeat_callback()
         return format(value, "x")
     else:
         read_data = 0
@@ -347,7 +356,6 @@ def calculate_checksum(
                     value=get_bytes_precentage(read_data, archive_size)
                 )
             )
-            job.heartbeat_callback()
         return hash.hexdigest()
 
 
@@ -368,3 +376,17 @@ def assert_proper_bagit_txt_content(
 
 def get_bytes_precentage(read_data: int, archive_size: int) -> int:
     return read_data / archive_size
+
+
+def monitor_jobs(heartbeat_callback: AtmHeartbeatCallback) -> None:
+    any_job_ongoing = True
+    while any_job_ongoing:
+        any_job_ongoing = not _all_jobs_processed.wait(timeout=1)
+
+        measurements = []
+        while not _measurements_queue.empty():
+            measurements.append(_measurements_queue.get())
+
+        if measurements:
+            STATS_STREAMER.stream_items(measurements)
+            heartbeat_callback()
