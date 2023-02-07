@@ -181,7 +181,7 @@ def parse_fetch_file(job: Job, archive: Archive) -> List[FileDownloadInfo]:
     if fetch_file:
         dst_dir = f'.__onedata__file_id__{job.args["destinationDir"]["file_id"]}'
 
-        for line_num, line in enumerate(archive.open_file(fetch_file)):
+        for line_num, line in enumerate(archive.open_file(fetch_file), start=1):
             files_to_download.append(parse_line(dst_dir, line_num, line))
             job.heartbeat_callback()
 
@@ -191,13 +191,19 @@ def parse_fetch_file(job: Job, archive: Archive) -> List[FileDownloadInfo]:
 def parse_line(dst_dir: str, line_num: int, line: bytes) -> FileDownloadInfo:
     try:
         url, size, rel_path = line.decode("utf-8").strip().split()
+        size = int(size)
     except Exception:
         raise JobException(
             f"Failed to extract url, size and path from fetch file line number {line_num}"
         )
     else:
+        if not rel_path.startswith("data/"):
+            raise JobException(
+                f"File path not within data/ directory (fetch.txt line {line_num})"
+            )
+
         return {
             "sourceUrl": url,
             "destinationPath": f'{dst_dir}/{rel_path[len("data/"):]}',
-            "size": int(size),
+            "size": size,
         }
