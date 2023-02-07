@@ -196,7 +196,7 @@ def build_archive_path(job_args: JobArgs) -> str:
 
 def assert_valid_archive(archive: BagitArchive) -> None:
     # Report 0 bytesProcessed to signal that thread is alive and running 
-    # so that heatbeat can be sent (needed in case when below functions 
+    # so that heartbeat can be sent (needed in case when below functions 
     # do not stream any measurements due to e.g. empty data directory)
     _measurements_queue.put(BytesProcessed.build(value=0))
 
