@@ -84,8 +84,9 @@ class BagitArchive(abc.ABC):
                 path_tokens = file.split("/")
                 if len(path_tokens) == 2 and path_tokens[1] == "bagit.txt":
                     self._bagit_dir_name = path_tokens[0]
-
-            raise JobException("Bagit directory not found.")
+                    break
+            else:
+                raise JobException("Bagit directory not found.")
 
         return self._bagit_dir_name
 
@@ -194,6 +195,11 @@ def build_archive_path(job_args: JobArgs) -> str:
 
 
 def assert_valid_archive(archive: BagitArchive) -> None:
+    # Report 0 bytesProcessed to signal that thread is alive and running 
+    # so that heatbeat can be sent (needed in case when below functions 
+    # do not stream any measurements due to e.g. empty data directory)
+    _measurements_queue.put(BytesProcessed.build(value=0))
+
     validate_bagit_txt_content(archive)
     assert_required_files_present(archive)
     validate_checksums(archive)
