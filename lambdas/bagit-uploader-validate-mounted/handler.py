@@ -195,14 +195,18 @@ def build_archive_path(job_args: JobArgs) -> str:
 
 
 def assert_valid_archive(archive: BagitArchive) -> None:
-    # Report 0 bytesProcessed to signal that thread is alive and running 
-    # so that heartbeat can be sent (needed in case when below functions 
+    # Report 0 bytesProcessed to signal that thread is alive and running
+    # so that heartbeat can be sent (needed in case when below functions
     # do not stream any measurements due to e.g. empty data directory)
     _measurements_queue.put(BytesProcessed.build(value=0))
 
+    # Optional elements (checked first as it may contain checksum of required files)
+    validate_checksum_file(archive, "tagmanifest", is_optional=True)
+
+    # Required elements
     validate_bagit_txt_content(archive)
-    assert_required_files_present(archive)
-    validate_checksums(archive)
+    validate_data_dir_presence(archive)
+    validate_checksum_file(archive, "manifest", is_optional=False)
 
 
 def validate_bagit_txt_content(archive: BagitArchive) -> None:
@@ -218,31 +222,32 @@ def validate_bagit_txt_content(archive: BagitArchive) -> None:
             )
 
 
-def assert_required_files_present(archive: BagitArchive) -> None:
-    archive_files = archive.list_files()
-    data_dir = archive.build_file_path("data", is_dir=True)
-    fetch_file = archive.build_file_path("fetch.txt")
-
-    if not any(file_path in archive_files for file_path in (data_dir, fetch_file)):
+def validate_data_dir_presence(archive: BagitArchive) -> None:
+    if not archive.build_file_path("data", is_dir=True) in archive.list_files():
         raise JobException(
             "Could not find fetch.txt file or /data directory inside bagit directory."
         )
 
 
-def validate_checksums(archive: BagitArchive) -> None:
+def validate_checksum_file(
+    archive: BagitArchive, name_prefix: str, *, is_optional: bool
+) -> None:
     for algorithm in AVAILABLE_CHECKSUM_ALGORITHMS:
-        tagmanifest_file = archive.build_file_path(f"tagmanifest-{algorithm}.txt")
-
-        if tagmanifest_file not in archive.list_files():
+        checksum_file = archive.build_file_path(f"{name_prefix}-{algorithm}.txt")
+        if checksum_file not in archive.list_files():
             continue
 
-        with archive.open_file(tagmanifest_file) as fd:
+        with archive.open_file(checksum_file) as fd:
             for line in fd:
                 exp_checksum, file_rel_path = line.decode("utf-8").strip().split()
                 file_path = archive.build_file_path(file_rel_path)
                 validate_file_checksum(archive, file_path, algorithm, exp_checksum)
 
         return
+
+    else:
+        if not is_optional:
+            raise JobException(f"{name_prefix} file not found.")
 
 
 def validate_file_checksum(
