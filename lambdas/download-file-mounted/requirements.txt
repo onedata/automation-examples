@@ -1,1 +1,1 @@
-onedata-lambda-utils==0.1.0
+onedata-lambda-utils==0.1.1
