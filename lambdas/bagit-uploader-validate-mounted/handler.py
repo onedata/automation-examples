@@ -130,7 +130,11 @@ class TarBagitArchive(BagitArchive):
         return self.archive.getnames()
 
     def open_file(self, path: str) -> IO[bytes]:
-        return self.archive.extractfile(path)
+        fd = self.archive.extractfile(path)
+        if fd is None:
+            raise JobException(f"Couldn't open {path} in .tar archive")
+
+        return fd
 
 
 @contextlib.contextmanager
