@@ -1,4 +1,4 @@
-REPO=docker.onedata.org/lambda-bagit-register-metadata-mounted
+REPO=docker.onedata.org/lambda-bagit-uploader-register-metadata-mounted
 TAG=v1
 
 

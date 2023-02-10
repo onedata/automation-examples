@@ -178,8 +178,6 @@ def process_manifest_files(job: Job, archive: BagitArchive) -> None:
         manifest_file = archive.build_file_path(f"manifest-{algorithm}.txt")
         if manifest_file in archive.list_files():
             process_manifest_file(job, archive, manifest_file, algorithm)
-    else:
-        raise JobException("Manifest file not found.")
 
 
 def process_manifest_file(
