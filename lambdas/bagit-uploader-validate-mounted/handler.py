@@ -132,7 +132,7 @@ class TarBagitArchive(BagitArchive):
     def open_file(self, path: str) -> IO[bytes]:
         fd = self.archive.extractfile(path)
         if fd is None:
-            raise JobException(f"Couldn't open {path} in .tar archive")
+            raise JobException(f"Couldn't open {path} in archive")
 
         return fd
 
@@ -205,12 +205,11 @@ def assert_valid_archive(archive: BagitArchive) -> None:
     _measurements_queue.put(BytesProcessed.build(value=0))
 
     # Optional elements (checked first as it may contain checksum of required files)
-    validate_checksum_file(archive, "tagmanifest", is_optional=True)
+    validate_any_tagmanifest_file(archive)
 
     # Required elements
     validate_bagit_txt_content(archive)
     validate_data_dir_presence(archive)
-    validate_checksum_file(archive, "manifest", is_optional=False)
 
 
 def validate_bagit_txt_content(archive: BagitArchive) -> None:
@@ -228,30 +227,28 @@ def validate_bagit_txt_content(archive: BagitArchive) -> None:
 
 def validate_data_dir_presence(archive: BagitArchive) -> None:
     if not archive.build_file_path("data", is_dir=True) in archive.list_files():
-        raise JobException(
-            "Could not find fetch.txt file or /data directory inside bagit directory."
-        )
+        raise JobException("/data directory not found.")
 
 
-def validate_checksum_file(
-    archive: BagitArchive, name_prefix: str, *, is_optional: bool
-) -> None:
+def validate_any_tagmanifest_file(archive: BagitArchive) -> None:
     for algorithm in AVAILABLE_CHECKSUM_ALGORITHMS:
-        checksum_file = archive.build_file_path(f"{name_prefix}-{algorithm}.txt")
-        if checksum_file not in archive.list_files():
+        tagmanifest_file = archive.build_file_path(f"tagmanifest-{algorithm}.txt")
+        if tagmanifest_file not in archive.list_files():
             continue
 
-        with archive.open_file(checksum_file) as fd:
+        with archive.open_file(tagmanifest_file) as fd:
             for line in fd:
                 exp_checksum, file_rel_path = line.decode("utf-8").strip().split()
+
                 file_path = archive.build_file_path(file_rel_path)
+                if file_path not in archive.list_files():
+                    raise JobException(
+                        f"{file_path} mentioned by {tagmanifest_file} not found."
+                    )
+
                 validate_file_checksum(archive, file_path, algorithm, exp_checksum)
 
         return
-
-    else:
-        if not is_optional:
-            raise JobException(f"{name_prefix} file not found.")
 
 
 def validate_file_checksum(
@@ -263,7 +260,7 @@ def validate_file_checksum(
 
         if checksum != exp_checksum:
             raise JobException(
-                f"{algorithm} checksum verification failed for file {file_path}.\n"
+                f"{algorithm} checksum verification failed for {file_path}.\n"
                 f"Expected: {exp_checksum}, Calculated: {checksum}"
             )
 
