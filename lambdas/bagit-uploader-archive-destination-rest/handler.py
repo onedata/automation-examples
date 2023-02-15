@@ -200,22 +200,21 @@ def await_archive_preserved(job: Job, archive_id: str) -> None:
     while True:
         archive_info = get_archive_info(job, archive_id)
 
+        stats = archive_info["stats"]
+        bytes_processed = stats["bytesArchived"] - bytes_archived
+        if bytes_processed:
+            _measurements_queue.put(BytesProcessed.build(bytes_processed))
+            bytes_archived = stats["bytesArchived"]
+
+        files_processed = stats["filesArchived"] - files_archived
+        if files_processed:
+            _measurements_queue.put(FilesProcessed.build(files_processed))
+            files_archived = stats["filesArchived"]
+
         if archive_info["state"] == "preserved":
-            return
+            break
 
         elif archive_info["state"] in ("pending", "building", "verifying"):
-            stats = archive_info["stats"]
-
-            bytes_processed = stats["bytesArchived"] - bytes_archived
-            if bytes_processed:
-                _measurements_queue.put(BytesProcessed.build(bytes_processed))
-                bytes_archived = stats["bytesArchived"]
-
-            files_processed = stats["filesArchived"] - files_archived
-            if files_processed:
-                _measurements_queue.put(FilesProcessed.build(files_processed))
-                files_archived = stats["filesArchived"]
-
             time.sleep(ARCHIVE_STATUS_CHECK_INTERVAL_SEC)
 
         else:

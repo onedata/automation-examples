@@ -186,11 +186,7 @@ class BagitArchive(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def unpack_file(
-        self,
-        file_info: BagitArchiveFileInfo,
-        destination_diretory: str,
-    ) -> None:
+    def unpack_file(self, file_info: BagitArchiveFileInfo, dst_dir: str) -> None:
         pass
 
 
@@ -211,12 +207,8 @@ class ZipBagitArchive(BagitArchive):
     def get_file_info(self, path: str) -> ZipBagitArchiveFileInfo:
         return ZipBagitArchiveFileInfo(self.archive.getinfo(path))
 
-    def unpack_file(
-        self,
-        file_info: ZipBagitArchiveFileInfo,
-        destination_diretory: str,
-    ) -> None:
-        self.archive.extract(file_info.info, destination_diretory)
+    def unpack_file(self, file_info: ZipBagitArchiveFileInfo, dst_dir: str) -> None:
+        self.archive.extract(file_info.info, dst_dir)
 
 
 class TarBagitArchive(BagitArchive):
@@ -236,12 +228,8 @@ class TarBagitArchive(BagitArchive):
     def get_file_info(self, path: str) -> TarBagitArchiveFileInfo:
         return TarBagitArchiveFileInfo(self.archive.getmember(path))
 
-    def unpack_file(
-        self,
-        file_info: TarBagitArchiveFileInfo,
-        destination_diretory: str,
-    ) -> None:
-        self.archive.extract(file_info.info, destination_diretory)
+    def unpack_file(self, file_info: TarBagitArchiveFileInfo, dst_dir: str) -> None:
+        self.archive.extract(file_info.info, dst_dir)
 
 
 @contextlib.contextmanager
@@ -315,10 +303,11 @@ def unpack_bagit_archive(job_args: JobArgs) -> List[str]:
 
         for file_info in archive.list_members():
             file_src_path = file_info.get_path()
-            file_data_dir_rel_path = file_src_path[len(data_dir) :]
-            file_dst_path = f"{dst_dir}/{file_data_dir_rel_path}"
 
             if file_src_path.startswith(data_dir) and not file_info.is_dir():
+                file_data_dir_rel_path = file_src_path[len(data_dir):].lstrip("/")
+                file_dst_path = f"{dst_dir}/{file_data_dir_rel_path}"
+
                 files_to_unpack.append(
                     FileUnpackCtx(
                         job_args,
@@ -374,7 +363,7 @@ def monitor_files_unpacking(heartbeat_callback: AtmHeartbeatCallback) -> None:
 
             bytes_unpacked += file_size - progress.current_size
 
-            if file_size == progress.target_size:
+            if file_size >= progress.target_size:
                 files_unpacked += 1
                 monitored_files.pop(file_path)
             else:
