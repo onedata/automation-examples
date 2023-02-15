@@ -349,7 +349,7 @@ def monitor_files_unpacking(heartbeat_callback: AtmHeartbeatCallback) -> None:
     monitored_files: Dict[str, FileUnpackProgress] = {}
     any_unpacking_ongoing = True
 
-    while any_unpacking_ongoing:
+    while any_unpacking_ongoing or monitored_files:
         any_unpacking_ongoing = not _all_archives_unpacked.wait(timeout=1)
 
         while not _files_to_monitor_queue.empty():

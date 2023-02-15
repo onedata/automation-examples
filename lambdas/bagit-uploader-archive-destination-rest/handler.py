@@ -53,14 +53,14 @@ STATS_STREAMER: Final[AtmResultStreamer[AtmTimeSeriesMeasurement]] = AtmResultSt
 )
 
 
-class FilesProcessed(
-    AtmTimeSeriesMeasurementBuilder, ts_name="filesProcessed", unit=None
+class FilesArchived(
+    AtmTimeSeriesMeasurementBuilder, ts_name="filesArchived", unit=None
 ):
     pass
 
 
-class BytesProcessed(
-    AtmTimeSeriesMeasurementBuilder, ts_name="bytesProcessed", unit="Bytes"
+class BytesArchived(
+    AtmTimeSeriesMeasurementBuilder, ts_name="bytesArchived", unit="Bytes"
 ):
     pass
 
@@ -200,16 +200,13 @@ def await_archive_preserved(job: Job, archive_id: str) -> None:
     while True:
         archive_info = get_archive_info(job, archive_id)
 
-        stats = archive_info["stats"]
-        bytes_processed = stats["bytesArchived"] - bytes_archived
-        if bytes_processed:
-            _measurements_queue.put(BytesProcessed.build(bytes_processed))
-            bytes_archived = stats["bytesArchived"]
-
-        files_processed = stats["filesArchived"] - files_archived
-        if files_processed:
-            _measurements_queue.put(FilesProcessed.build(files_processed))
-            files_archived = stats["filesArchived"]
+        archive_stats = archive_info["stats"]
+        if bytes_diff := archive_stats["bytesArchived"] - bytes_archived:
+            _measurements_queue.put(BytesArchived.build(bytes_diff))
+            bytes_archived += bytes_diff
+        if files_diff := archive_stats["filesArchived"] - files_archived:
+            _measurements_queue.put(FilesArchived.build(files_diff))
+            files_archived += files_diff
 
         if archive_info["state"] == "preserved":
             break
