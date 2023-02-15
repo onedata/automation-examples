@@ -1,4 +1,4 @@
-REPO=docker.onedata.org/lambda-bagit-uploader-unpack-data
+REPO=docker.onedata.org/lambda-bagit-uploader-unpack-data-mounted
 TAG=v1
 
 
