@@ -331,6 +331,9 @@ def unpack_file(file_unpack_ctx: FileUnpackCtx) -> str:
         file_size = file_info.get_size()
         _files_to_monitor_queue.put((file_unpack_ctx.file_dst_path, file_size))
 
+        # Tamper with file path so that when unpacking only parent directories 
+        # up to data directory will be created in destination directory 
+        # (normally all directories on path are created)
         file_info.substitute_path(file_unpack_ctx.file_data_dir_rel_path)
         archive.unpack_file(file_info, file_unpack_ctx.dst_dir)
 
