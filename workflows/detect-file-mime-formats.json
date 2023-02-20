@@ -3,12 +3,12 @@
   "schemaFormatVersion": 2,
   "revision": {
     "supplementaryAtmLambdas": {
-      "d2e4b4f0fe1cb7d35f615715c6ec7915cha4d9": {
-        "2": {
+      "e5ffd2d79d86b787379e388957290057chbe75": {
+        "1": {
           "schemaFormatVersion": 2,
           "revision": {
             "schemaFormatVersion": 2,
-            "originalRevisionNumber": 2,
+            "originalRevisionNumber": 1,
             "atmLambdaRevision": {
               "summary": "",
               "state": "draft",
@@ -30,10 +30,10 @@
                 "cpuRequested": 0.1,
                 "cpuLimit": null
               },
-              "preferredBatchSize": 1,
+              "preferredBatchSize": 100,
               "operationSpec": {
                 "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/file-mime-format-detection:v1",
+                "dockerImage": "docker.onedata.org/lambda-detect-file-mime-type-mounted:v1",
                 "dockerExecutionOptions": {
                   "readonly": false,
                   "oneclientOptions": "-i",
@@ -41,9 +41,10 @@
                   "mountOneclient": true
                 }
               },
-              "name": "mime-file-format-detection",
+              "name": "detect-file-mime-format",
               "description": "",
-              "checksum": "24ccf1ae0c152ea9ec6ae7d59334ceb3",
+              "configParameterSpecs": [],
+              "checksum": "ca039fdd6012705db318d9d9b69d4447",
               "argumentSpecs": [
                 {
                   "name": "file",
@@ -57,18 +58,20 @@
                   }
                 },
                 {
-                  "name": "metadata_key",
-                  "isOptional": false,
-                  "defaultValue": null,
+                  "name": "metadataKey",
+                  "isOptional": true,
+                  "defaultValue": "",
                   "dataSpec": {
-                    "valueConstraints": {},
+                    "valueConstraints": {
+                      "allowedValues": null
+                    },
                     "type": "string"
                   }
                 }
               ]
             }
           },
-          "originalAtmLambdaId": "d2e4b4f0fe1cb7d35f615715c6ec7915cha4d9"
+          "originalAtmLambdaId": "e5ffd2d79d86b787379e388957290057chbe75"
         }
       }
     },
@@ -122,18 +125,19 @@
                   "resultMappings": [
                     {
                       "storeSchemaId": "46881bca155505505fa085c4aaba156fd9f05e",
-                      "resultName": "format",
                       "storeContentUpdateOptions": {
                         "type": "listStoreContentUpdateOptions",
                         "function": "append"
-                      }
+                      },
+                      "resultName": "format"
                     }
                   ],
                   "resourceSpecOverride": null,
-                  "name": "mime-file-format-detection",
-                  "lambdaRevisionNumber": 2,
-                  "lambdaId": "d2e4b4f0fe1cb7d35f615715c6ec7915cha4d9",
-                  "id": "af38f074c7d0b949d575904e69da3d1c2652d3",
+                  "name": "detect-file-mime-format",
+                  "lambdaRevisionNumber": 1,
+                  "lambdaId": "e5ffd2d79d86b787379e388957290057chbe75",
+                  "lambdaConfig": {},
+                  "id": "74cad264afecec16aeb0cc782d9ac730561aa9",
                   "argumentMappings": [
                     {
                       "valueBuilder": {
@@ -145,9 +149,9 @@
                     {
                       "valueBuilder": {
                         "valueBuilderType": "const",
-                        "valueBuilderRecipe": "custom_key"
+                        "valueBuilderRecipe": "format"
                       },
-                      "argumentName": "metadata_key"
+                      "argumentName": "metadataKey"
                     }
                   ]
                 }
@@ -158,12 +162,14 @@
           ],
           "name": "detect mime format",
           "maxRetries": 0,
-          "id": "e9b8f18594ec5fee773ea36a69dcdb66738fd3"
+          "id": "e9b8f18594ec5fee773ea36a69dcdb66738fd3",
+          "dashboardSpec": null
         }
       ],
-      "description": ""
+      "description": "",
+      "dashboardSpec": null
     }
   },
-  "originalAtmWorkflowSchemaId": "087b5a69720e988a54fc82ad3fb332cech0ad3",
-  "name": "Mime File Format Detector"
+  "originalAtmWorkflowSchemaId": "7af0427fef589f1179c5accbc2ce3307ch1604",
+  "name": "detect-file-mime-formats"
 }
