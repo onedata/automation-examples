@@ -16,6 +16,7 @@ import os.path
 import tarfile
 import traceback
 import zipfile
+from functools import lru_cache
 from typing import IO, Final, Generator, List, NamedTuple, Optional, Union
 
 from onedata_lambda_utils.types import (
@@ -71,7 +72,7 @@ class Job(NamedTuple):
     args: JobArgs
 
 
-class Archive(abc.ABC):
+class BagitArchive(abc.ABC):
     @abc.abstractmethod
     def list_files(self) -> List[str]:
         pass
@@ -92,10 +93,11 @@ class Archive(abc.ABC):
         return None
 
 
-class ZipArchive(Archive):
+class ZipBagitArchive(BagitArchive):
     def __init__(self, archive: zipfile.ZipFile) -> None:
         self.archive = archive
 
+    @lru_cache
     def list_files(self) -> List[str]:
         return self.archive.namelist()
 
@@ -103,10 +105,11 @@ class ZipArchive(Archive):
         return self.archive.open(path)
 
 
-class TarArchive(Archive):
+class TarBagitArchive(BagitArchive):
     def __init__(self, archive: tarfile.TarFile):
         self.archive = archive
 
+    @lru_cache
     def list_files(self) -> List[str]:
         return self.archive.getnames()
 
@@ -119,18 +122,19 @@ class TarArchive(Archive):
 
 
 @contextlib.contextmanager
-def open_archive(
-    archive_path: str, archive_type: str
-) -> Generator[Archive, None, None]:
+def open_archive(job: Job) -> Generator[BagitArchive, None, None]:
+    archive_path = build_archive_path(job)
+    _, archive_type = os.path.splitext(job.args["archive"]["name"])
+
     if archive_type == ".zip":
         with zipfile.ZipFile(archive_path) as archive:
-            yield ZipArchive(archive)
+            yield ZipBagitArchive(archive)
     elif archive_type == ".tar":
         with tarfile.TarFile(archive_path) as archive:
-            yield TarArchive(archive)
+            yield TarBagitArchive(archive)
     elif archive_type in (".tgz", ".gz"):
         with tarfile.open(archive_path, "r:gz") as archive:
-            yield TarArchive(archive)
+            yield TarBagitArchive(archive)
     else:
         raise JobException(f"Unsupported archive type: {archive_type}")
 
@@ -150,10 +154,7 @@ def handle(
 
 def run_job(job: Job) -> Union[AtmException, JobResults]:
     try:
-        archive_path = build_archive_path(job)
-        _, archive_type = os.path.splitext(job.args["archive"]["name"])
-
-        with open_archive(archive_path, archive_type) as archive:
+        with open_archive(job) as archive:
             files_to_download = parse_fetch_file(job, archive)
     except JobException as ex:
         return AtmException(exception=str(ex))
@@ -174,11 +175,10 @@ def build_archive_path(job: Job) -> str:
     return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["archive"]["file_id"]}'
 
 
-def parse_fetch_file(job: Job, archive: Archive) -> List[FileDownloadInfo]:
+def parse_fetch_file(job: Job, archive: BagitArchive) -> List[FileDownloadInfo]:
     files_to_download = []
 
-    fetch_file = archive.find_fetch_file()
-    if fetch_file:
+    if fetch_file := archive.find_fetch_file():
         dst_dir = f'.__onedata__file_id__{job.args["destinationDir"]["file_id"]}'
 
         for line_num, line in enumerate(archive.open_file(fetch_file), start=1):
