@@ -86,7 +86,7 @@ class BagitArchive(abc.ABC):
                     self._bagit_dir_name = path_tokens[0]
                     break
             else:
-                raise JobException("Bagit directory not found.")
+                raise JobException("Bagit directory not found")
 
         return self._bagit_dir_name
 
@@ -138,9 +138,10 @@ class TarBagitArchive(BagitArchive):
 
 
 @contextlib.contextmanager
-def open_archive(
-    archive_path: str, archive_type: str
-) -> Generator[BagitArchive, None, None]:
+def open_archive(job_args: JobArgs) -> Generator[BagitArchive, None, None]:
+    archive_path = build_archive_path(job_args)
+    _, archive_type = os.path.splitext(job_args["archive"]["name"])
+
     if archive_type == ".zip":
         with zipfile.ZipFile(archive_path) as archive:
             yield ZipBagitArchive(archive)
@@ -178,12 +179,9 @@ def handle(
 def run_job(job_args: JobArgs) -> Optional[AtmException]:
     try:
         if job_args["archive"]["type"] != "REG":
-            return AtmException(exception=("Not an archive file."))
+            return AtmException(exception=("Not an archive file"))
 
-        archive_path = build_archive_path(job_args)
-        _, archive_type = os.path.splitext(job_args["archive"]["name"])
-
-        with open_archive(archive_path, archive_type) as archive:
+        with open_archive(job_args) as archive:
             assert_valid_archive(archive)
 
     except JobException as ex:
@@ -217,17 +215,17 @@ def validate_bagit_txt_content(archive: BagitArchive) -> None:
         line1, line2 = fd.readlines()
         if not re.match(r"^\s*BagIt-Version: [0-9]+.[0-9]+\s*$", line1.decode("utf-8")):
             raise JobException(
-                "Invalid 'Tag-File-Character-Encoding' definition in 1st line in bagit.txt."
+                "Invalid 'Tag-File-Character-Encoding' definition in 1st line in bagit.txt"
             )
         if not re.match(r"^\s*Tag-File-Character-Encoding: \w+", line2.decode("utf-8")):
             raise JobException(
-                "Invalid 'Tag-File-Character-Encoding' definition in 2nd line in bagit.txt."
+                "Invalid 'Tag-File-Character-Encoding' definition in 2nd line in bagit.txt"
             )
 
 
 def validate_data_dir_presence(archive: BagitArchive) -> None:
     if not archive.build_file_path("data", is_dir=True) in archive.list_files():
-        raise JobException("/data directory not found.")
+        raise JobException("/data directory not found")
 
 
 def validate_any_tagmanifest_file(archive: BagitArchive) -> None:
@@ -243,7 +241,7 @@ def validate_any_tagmanifest_file(archive: BagitArchive) -> None:
                 file_path = archive.build_file_path(file_rel_path)
                 if file_path not in archive.list_files():
                     raise JobException(
-                        f"{file_path} mentioned by {tagmanifest_file} not found."
+                        f"{file_path} mentioned by {tagmanifest_file} not found"
                     )
 
                 validate_file_checksum(archive, file_path, algorithm, exp_checksum)

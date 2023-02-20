@@ -165,7 +165,7 @@ class BagitArchive(abc.ABC):
                     self._bagit_dir_name = path_tokens[0]
                     break
             else:
-                raise JobException("Bagit directory not found.")
+                raise JobException("Bagit directory not found")
 
         return self._bagit_dir_name
 
@@ -276,12 +276,7 @@ def run_job(job_args: JobArgs) -> Union[AtmException, JobResults]:
     try:
         unpacked_files = unpack_bagit_archive(job_args)
     except JobException as ex:
-        return AtmException(
-            exception={
-                "archive": job_args["archive"]["name"],
-                "status": f"Failed to unpack files due to: {str(ex)}",
-            }
-        )
+        return AtmException(exception=str(ex))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:

@@ -216,7 +216,7 @@ def await_archive_preserved(job: Job, archive_id: str) -> None:
 
         else:
             raise JobException(
-                f'Archivisation (id: "{archive_id}") failed with status: {archive_info["status"]}.'
+                f'Archivisation (id: "{archive_id}") failed with status: {archive_info["status"]}'
             )
 
 

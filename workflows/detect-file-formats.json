@@ -3,7 +3,7 @@
   "schemaFormatVersion": 2,
   "revision": {
     "supplementaryAtmLambdas": {
-      "d2e4b4f0fe1cb7d35f615715c6ec7915cha4d9": {
+      "e1819c0e2ef5240915725d4060bec2bech7a57": {
         "2": {
           "schemaFormatVersion": 2,
           "revision": {
@@ -15,7 +15,7 @@
               "resultSpecs": [
                 {
                   "relayMethod": "returnValue",
-                  "name": "format",
+                  "name": "result",
                   "dataSpec": {
                     "valueConstraints": {},
                     "type": "object"
@@ -30,10 +30,10 @@
                 "cpuRequested": 0.1,
                 "cpuLimit": null
               },
-              "preferredBatchSize": 1,
+              "preferredBatchSize": 100,
               "operationSpec": {
                 "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/file-mime-format-detection:v1",
+                "dockerImage": "docker.onedata.org/lambda-detect-file-format-mounted:v1",
                 "dockerExecutionOptions": {
                   "readonly": false,
                   "oneclientOptions": "-i",
@@ -41,9 +41,10 @@
                   "mountOneclient": true
                 }
               },
-              "name": "mime-file-format-detection",
+              "name": "detect-file-format",
               "description": "",
-              "checksum": "24ccf1ae0c152ea9ec6ae7d59334ceb3",
+              "configParameterSpecs": [],
+              "checksum": "07ccb0a55e48e9cd5d67aa32046eabc0",
               "argumentSpecs": [
                 {
                   "name": "file",
@@ -57,18 +58,20 @@
                   }
                 },
                 {
-                  "name": "metadata_key",
-                  "isOptional": false,
-                  "defaultValue": null,
+                  "name": "metadataKey",
+                  "isOptional": true,
+                  "defaultValue": "",
                   "dataSpec": {
-                    "valueConstraints": {},
+                    "valueConstraints": {
+                      "allowedValues": null
+                    },
                     "type": "string"
                   }
                 }
               ]
             }
           },
-          "originalAtmLambdaId": "d2e4b4f0fe1cb7d35f615715c6ec7915cha4d9"
+          "originalAtmLambdaId": "e1819c0e2ef5240915725d4060bec2bech7a57"
         }
       }
     },
@@ -80,13 +83,13 @@
           "type": "treeForest",
           "requiresInitialContent": true,
           "name": "input-files",
-          "id": "c3b836156e4e071bca2f000c18da00eac33c48",
+          "id": "a10b3daf76091ff177abc4903e60503e1d9f71",
           "description": "",
           "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
               "valueConstraints": {
-                "fileType": "REG"
+                "fileType": "ANY"
               },
               "type": "file"
             }
@@ -95,8 +98,8 @@
         {
           "type": "list",
           "requiresInitialContent": false,
-          "name": "files-format",
-          "id": "46881bca155505505fa085c4aaba156fd9f05e",
+          "name": "formats",
+          "id": "45f8a90ddfd64a076c43a10e2b24eea904f738",
           "description": "",
           "defaultInitialContent": null,
           "config": {
@@ -111,8 +114,8 @@
       "lanes": [
         {
           "storeIteratorSpec": {
-            "storeSchemaId": "c3b836156e4e071bca2f000c18da00eac33c48",
-            "maxBatchSize": 1
+            "storeSchemaId": "a10b3daf76091ff177abc4903e60503e1d9f71",
+            "maxBatchSize": 2
           },
           "parallelBoxes": [
             {
@@ -121,19 +124,20 @@
                   "timeSeriesStoreConfig": null,
                   "resultMappings": [
                     {
-                      "storeSchemaId": "46881bca155505505fa085c4aaba156fd9f05e",
-                      "resultName": "format",
+                      "storeSchemaId": "45f8a90ddfd64a076c43a10e2b24eea904f738",
                       "storeContentUpdateOptions": {
                         "type": "listStoreContentUpdateOptions",
                         "function": "append"
-                      }
+                      },
+                      "resultName": "result"
                     }
                   ],
                   "resourceSpecOverride": null,
-                  "name": "mime-file-format-detection",
+                  "name": "detect-file-format",
                   "lambdaRevisionNumber": 2,
-                  "lambdaId": "d2e4b4f0fe1cb7d35f615715c6ec7915cha4d9",
-                  "id": "af38f074c7d0b949d575904e69da3d1c2652d3",
+                  "lambdaId": "e1819c0e2ef5240915725d4060bec2bech7a57",
+                  "lambdaConfig": {},
+                  "id": "dd0c7c0ba64e7ecd81aac190ddb2d578f46987",
                   "argumentMappings": [
                     {
                       "valueBuilder": {
@@ -145,25 +149,27 @@
                     {
                       "valueBuilder": {
                         "valueBuilderType": "const",
-                        "valueBuilderRecipe": "custom_key"
+                        "valueBuilderRecipe": "format"
                       },
-                      "argumentName": "metadata_key"
+                      "argumentName": "metadataKey"
                     }
                   ]
                 }
               ],
               "name": "Parallel box",
-              "id": "aeadeba11c511c537299e0c87e0833e916de3d"
+              "id": "4b1ea214f6bc255a96fd4a5c649cc054b4da11"
             }
           ],
-          "name": "detect mime format",
+          "name": "l1",
           "maxRetries": 0,
-          "id": "e9b8f18594ec5fee773ea36a69dcdb66738fd3"
+          "id": "c76bf9281ff51c0620cd51c9ca5f3698c81097",
+          "dashboardSpec": null
         }
       ],
-      "description": ""
+      "description": "This workflow takes files as input. For each file,  tries to  infer code language, or file type based only on its content (Guesslang library is used).  Also, checks mime type of file, and indicate if content match mime extension.\nCurrently supported file extensions are: .py .c .cc .csv .json. More extensions can be added in lambda implementation. ",
+      "dashboardSpec": null
     }
   },
-  "originalAtmWorkflowSchemaId": "087b5a69720e988a54fc82ad3fb332cech0ad3",
-  "name": "Mime File Format Detector"
+  "originalAtmWorkflowSchemaId": "6e812cc4e7c0ccc26656f7731d7026eech668f",
+  "name": "detect-file-formats"
 }

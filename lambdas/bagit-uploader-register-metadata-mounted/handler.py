@@ -73,7 +73,7 @@ class BagitArchive(abc.ABC):
                     self._bagit_dir_name = path_tokens[0]
                     break
             else:
-                raise JobException("Bagit directory not found.")
+                raise JobException("Bagit directory not found")
 
         return self._bagit_dir_name
 
@@ -125,9 +125,10 @@ class TarBagitArchive(BagitArchive):
 
 
 @contextlib.contextmanager
-def open_archive(
-    archive_path: str, archive_type: str
-) -> Generator[BagitArchive, None, None]:
+def open_archive(job: Job) -> Generator[BagitArchive, None, None]:
+    archive_path = build_archive_path(job)
+    _, archive_type = os.path.splitext(job.args["archive"]["name"])
+
     if archive_type == ".zip":
         with zipfile.ZipFile(archive_path) as archive:
             yield ZipBagitArchive(archive)
@@ -157,12 +158,9 @@ def handle(
 def run_job(job: Job) -> Optional[AtmException]:
     try:
         if job.args["archive"]["type"] != "REG":
-            return AtmException(exception=("Not an archive file."))
+            return AtmException(exception=("Not an archive file"))
 
-        archive_path = build_archive_path(job)
-        _, archive_type = os.path.splitext(job.args["archive"]["name"])
-
-        with open_archive(archive_path, archive_type) as archive:
+        with open_archive(job) as archive:
             process_manifest_files(job, archive)
 
     except JobException as ex:
