@@ -41,12 +41,6 @@ class JobArgs(TypedDict):
     metadataKey: str
 
 
-class FileFormat(NamedTuple):
-    format_name: str
-    mime_type: str
-    extensions: List[str]
-
-
 class FileFormatReport(TypedDict):
     fileId: str
     fileName: str
@@ -63,6 +57,12 @@ class JobResults(TypedDict):
 ##===================================================================
 ## Lambda implementation
 ##===================================================================
+
+
+class FileFormat(NamedTuple):
+    format_name: str
+    mime_type: str
+    extensions: List[str]
 
 
 def handle(
