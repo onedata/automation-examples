@@ -140,7 +140,7 @@ def open_archive(job: Job) -> Generator[BagitArchive, None, None]:
 
 
 def handle(
-    job_batch_request: AtmJobBatchRequest[JobArgs],
+    job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
 
@@ -191,7 +191,7 @@ def parse_fetch_file(job: Job, archive: BagitArchive) -> List[FileDownloadInfo]:
 def parse_line(dst_dir: str, line_num: int, line: bytes) -> FileDownloadInfo:
     try:
         url, size, rel_path = line.decode("utf-8").strip().split()
-        size = int(size)
+        sanitized_size = int(size)
     except Exception:
         raise JobException(
             f"Failed to extract url, size and path from fetch file line number {line_num}"
@@ -205,5 +205,5 @@ def parse_line(dst_dir: str, line_num: int, line: bytes) -> FileDownloadInfo:
         return {
             "sourceUrl": url,
             "destinationPath": f'{dst_dir}/{rel_path[len("data/"):]}',
-            "size": size,
+            "size": sanitized_size,
         }
