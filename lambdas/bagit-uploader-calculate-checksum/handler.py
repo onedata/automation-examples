@@ -1,5 +1,5 @@
 """
-A lambda wchich calculates checksums for file, and compares them with checksums from manifests, 
+A lambda which calculates checksums for file, and compares them with checksums from manifests, 
 which were previously set as custom metadata under 'checksum.<algorithm>.expected' key.
 """
 
@@ -15,7 +15,7 @@ import queue
 import traceback
 import zlib
 from threading import Event, Thread
-from typing import IO, Final, NamedTuple, Optional, Set, Union
+from typing import IO, Final, List, NamedTuple, Optional, Set, Union
 
 import xattr
 from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
@@ -64,6 +64,7 @@ class BytesProcessed(
 
 
 class JobArgs(TypedDict):
+    checksumAlgorithms: List[str]
     filePath: str
 
 
@@ -90,7 +91,7 @@ _measurements_queue: queue.Queue = queue.Queue()
 
 
 def handle(
-    job_batch_request: AtmJobBatchRequest[JobArgs],
+    job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
 
@@ -111,70 +112,61 @@ def handle(
 
 
 def run_job(job: Job) -> Union[AtmException, JobResults]:
+    # Report 0 bytesProcessed to signal that thread is alive and running
+    # so that heartbeat can be sent (needed in case when below functions
+    # do not stream any measurements due to e.g. empty data directory)
+    _measurements_queue.put(BytesProcessed.build(value=0))
+
     file_path = job.args["filePath"]
     file_info = {}
+    file_info["file"] = file_path
     try:
-        if os.path.isfile(file_path):
-            for algorithm in AVAILABLE_CHECKSUM_ALGORITHMS:
-                xattr_file = xattr.xattr(file_path)
-                expected_checksum_key = f"checksum.{algorithm}.expected"
-                calculated_checksum_key = f"checksum.{algorithm}.calculated"
-                if expected_checksum_key in xattr_file.list():
-                    try:
-                        calculated_checksum = calculate_checksum(file_path, algorithm)
-                    except Exception as ex:
-                        raise JobException(
-                            f"Failed to open file and calculate checksum due to: {str(ex)}"
-                        )
+        if not os.path.isfile(file_path):
+            return {"checksums": file_info}
 
-                    try:
-                        expected_checksum = set_calculated_checksum_metadata(
-                            expected_checksum_key,
-                            calculated_checksum_key,
-                            calculated_checksum,
-                            xattr_file,
-                        )
-                    except Exception as ex:
-                        raise JobException(
-                            f"Failed set calculated checksum metadata due to: {str(ex)}"
-                        )
+        xattr_file = xattr.xattr(file_path)
 
-                    _measurements_queue.put(FilesProcessed.build(value=1))
-                    file_info["file"] = file_path
-                    if expected_checksum != calculated_checksum:
-                        raise JobException(
-                            f"Expected file checksum: {expected_checksum}, when calculated checksum is: {calculated_checksum}"
-                        )
+        for algorithm in AVAILABLE_CHECKSUM_ALGORITHMS:
+            expected_checksum_key = f"checksum.{algorithm}.expected"
+            calculated_checksum_key = f"checksum.{algorithm}.calculated"
+            if not expected_checksum_key in xattr_file.list():
+                continue
 
-                    file_info[algorithm] = {
-                        "expected": expected_checksum,
-                        "calculated": calculated_checksum,
-                        "status": "ok",
-                    }
+            try:
+                calculated_checksum = calculate_checksum(file_path, algorithm)
+            except Exception as ex:
+                raise JobException(
+                    f"Failed to open file and calculate checksum due to: {str(ex)}"
+                )
+
+            try:
+                expected_checksum = xattr_file.get(expected_checksum_key).decode("utf8")
+                xattr_file.set(
+                    calculated_checksum_key, str.encode(f'"{calculated_checksum}"')
+                )
+            except Exception as ex:
+                raise JobException(
+                    f"Failed set calculated checksum metadata due to: {str(ex)}"
+                )
+
+            _measurements_queue.put(FilesProcessed.build(value=1))
+
+            if expected_checksum != calculated_checksum:
+                raise JobException(
+                    f"Expected file checksum: {expected_checksum}, when calculated checksum is: {calculated_checksum}"
+                )
+
+            file_info[algorithm] = {
+                "expected": expected_checksum,
+                "calculated": calculated_checksum,
+                "status": "ok",
+            }
     except JobException as ex:
-        return AtmException(
-            exception={"reason": f"Checksum verification failed due to: {str(ex)}"}
-        )
+        return AtmException(exception=str(ex))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
         return {"checksums": file_info}
-
-
-def set_calculated_checksum_metadata(
-    expected_checksum_key: str,
-    calculated_checksum_key: str,
-    calculated_checksum: str,
-    xattr_file: xattr,
-) -> str:
-
-    expected_checksum = xattr_file.get(expected_checksum_key).decode("utf8")
-    xattr_file.set(
-        calculated_checksum_key,
-        str.encode(f'"{calculated_checksum}"'),
-    )
-
-    return expected_checksum
 
 
 def calculate_checksum(file_path: str, algorithm: str) -> str:
