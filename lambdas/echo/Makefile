@@ -1,4 +1,4 @@
-REPO=docker.onedata.org/lambda-inout
+REPO=docker.onedata.org/lambda-echo
 TAG=v1
 
 

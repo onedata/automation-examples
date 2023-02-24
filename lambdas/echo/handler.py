@@ -1,5 +1,6 @@
 """
-A lambda which returns its input as output.
+A lambda created mainly for testing the automation workflows mechanism. 
+Returns its input as output and optionally throws exceptions and/or delays execution.
 """
 
 __author__ = "Bartosz Walkowicz"
@@ -27,7 +28,7 @@ from typing_extensions import TypeAlias, TypedDict
 
 class TaskConfig(TypedDict):
     sleepDurationSec: float
-    exceptionProbability: int
+    exceptionProbability: float  # range: [0, 1]
     streamResults: bool
 
 
@@ -54,8 +55,8 @@ def handle(
 
     results = []
     for job_args in job_batch_request["argsBatch"]:
-        if random.randint(1, 100) <= task_config["exceptionProbability"]:
-            results.append(AtmException(exception="Random failure"))
+        if random.random() <= task_config["exceptionProbability"]:
+            results.append(AtmException(exception="Random exception"))
 
         elif task_config["streamResults"]:
             results.append(None)
