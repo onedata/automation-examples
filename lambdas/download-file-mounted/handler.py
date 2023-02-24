@@ -6,7 +6,6 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 
 import concurrent.futures
-import dataclasses
 import os
 import os.path
 import queue
@@ -25,8 +24,7 @@ from onedata_lambda_utils.types import (
     AtmObject,
     AtmTimeSeriesMeasurement,
 )
-from typing_extensions import Annotated, TypedDict
-
+from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -89,7 +87,7 @@ _measurements_queue: queue.Queue = queue.Queue()
 
 
 def handle(
-    job_batch_request: AtmJobBatchRequest[JobArgs],
+    job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
 

@@ -25,6 +25,7 @@ from onedata_lambda_utils.types import (
     AtmHeartbeatCallback,
     AtmJobBatchRequest,
     AtmJobBatchResponse,
+    AtmObject,
 )
 from typing_extensions import TypedDict
 
@@ -143,7 +144,7 @@ def open_archive(job: Job) -> Generator[BagitArchive, None, None]:
 
 
 def handle(
-    job_batch_request: AtmJobBatchRequest[JobArgs],
+    job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[Optional[AtmException]]:
 
