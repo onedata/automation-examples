@@ -3,7 +3,7 @@
   "schemaFormatVersion": 2,
   "revision": {
     "supplementaryAtmLambdas": {
-      "6c0cee778409413f2858a0d4986eb4f9ch23f8": {
+      "3c9950cb908e03277a61bf7f145a8e6cch8dbf": {
         "1": {
           "schemaFormatVersion": 2,
           "revision": {
@@ -15,10 +15,10 @@
               "resultSpecs": [
                 {
                   "relayMethod": "returnValue",
-                  "name": "arg1",
+                  "name": "value",
                   "dataSpec": {
                     "valueConstraints": {},
-                    "type": "string"
+                    "type": "object"
                   }
                 }
               ],
@@ -33,53 +33,86 @@
               "preferredBatchSize": 100,
               "operationSpec": {
                 "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/in-out:v1",
+                "dockerImage": "docker.onedata.org/lambda-echo:v1",
                 "dockerExecutionOptions": {
-                  "readonly": true,
+                  "readonly": false,
                   "oneclientOptions": "",
                   "oneclientMountPoint": "/mnt/onedata",
                   "mountOneclient": false
                 }
               },
-              "name": "in-out",
+              "name": "echo",
               "description": "",
-              "checksum": "63d0d049243eb3f06d24a647c10f241d",
+              "configParameterSpecs": [
+                {
+                  "name": "sleepDurationSec",
+                  "isOptional": false,
+                  "defaultValue": 0,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "integersOnly": false,
+                      "allowedValues": null
+                    },
+                    "type": "number"
+                  }
+                },
+                {
+                  "name": "exceptionProbability",
+                  "isOptional": false,
+                  "defaultValue": 0,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "integersOnly": false,
+                      "allowedValues": null
+                    },
+                    "type": "number"
+                  }
+                },
+                {
+                  "name": "streamResults",
+                  "isOptional": false,
+                  "defaultValue": false,
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "boolean"
+                  }
+                }
+              ],
+              "checksum": "2e427a32271712435f600e69b8e5776e",
               "argumentSpecs": [
                 {
-                  "name": "arg1",
+                  "name": "value",
                   "isOptional": false,
                   "defaultValue": null,
                   "dataSpec": {
                     "valueConstraints": {},
-                    "type": "string"
+                    "type": "object"
                   }
                 }
               ]
             }
           },
-          "originalAtmLambdaId": "6c0cee778409413f2858a0d4986eb4f9ch23f8"
+          "originalAtmLambdaId": "3c9950cb908e03277a61bf7f145a8e6cch8dbf"
         }
       }
     },
     "schemaFormatVersion": 2,
-    "originalRevisionNumber": 1,
+    "originalRevisionNumber": 2,
     "atmWorkflowSchemaRevision": {
       "stores": [
         {
           "type": "list",
-          "requiresInitialContent": false,
+          "requiresInitialContent": true,
           "name": "input",
           "id": "c3e71bb34d2d6db9c089ad52ad8612cb6d493e",
           "description": "",
-          "defaultInitialContent": [
-            "ala",
-            "ma",
-            "kota"
-          ],
+          "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
-              "valueConstraints": {},
-              "type": "string"
+              "valueConstraints": {
+                "fileType": "ANY"
+              },
+              "type": "file"
             }
           }
         },
@@ -93,7 +126,7 @@
           "config": {
             "itemDataSpec": {
               "valueConstraints": {},
-              "type": "string"
+              "type": "object"
             }
           }
         }
@@ -113,25 +146,26 @@
                   "resultMappings": [
                     {
                       "storeSchemaId": "68f7c9d6757358f214ca1a95beee2228e19581",
-                      "resultName": "arg1",
                       "storeContentUpdateOptions": {
                         "type": "listStoreContentUpdateOptions",
                         "function": "append"
-                      }
+                      },
+                      "resultName": "value"
                     }
                   ],
                   "resourceSpecOverride": null,
-                  "name": "in-out",
+                  "name": "echo",
                   "lambdaRevisionNumber": 1,
-                  "lambdaId": "6c0cee778409413f2858a0d4986eb4f9ch23f8",
-                  "id": "ae9fb0fe6ab5a384a7e079ac041032c1469f6f",
+                  "lambdaId": "3c9950cb908e03277a61bf7f145a8e6cch8dbf",
+                  "lambdaConfig": {},
+                  "id": "c2436e82972b3a1fc059868ab70eed81574357",
                   "argumentMappings": [
                     {
                       "valueBuilder": {
                         "valueBuilderType": "iteratedItem",
                         "valueBuilderRecipe": null
                       },
-                      "argumentName": "arg1"
+                      "argumentName": "value"
                     }
                   ]
                 }
@@ -140,14 +174,16 @@
               "id": "36a1ce286581790f69590d99af639901a0abcb"
             }
           ],
-          "name": "l1",
+          "name": "lane 1",
           "maxRetries": 1,
-          "id": "16ccc3eb65c151464fcb0dbb5e3e35f0c1966c"
+          "id": "16ccc3eb65c151464fcb0dbb5e3e35f0c1966c",
+          "dashboardSpec": null
         }
       ],
-      "description": ""
+      "description": "",
+      "dashboardSpec": null
     }
   },
-  "originalAtmWorkflowSchemaId": "1cf97316b6c4d0e6a655c41c1fdf0f29ch1a45",
-  "name": "inout"
+  "originalAtmWorkflowSchemaId": "c6a6a319d2ebd1c723c42a7412b3b86bch1d37",
+  "name": "echo"
 }
