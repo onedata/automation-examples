@@ -37,6 +37,8 @@ from typing_extensions import TypedDict
 
 MOUNT_POINT: Final[str] = "/mnt/onedata"
 
+SUPPORTED_URL_SCHEMAS: Final[Tuple[str, ...]] = ("root:", "http:", "https:")
+
 AVAILABLE_CHECKSUM_ALGORITHMS: Final[Set[str]] = set().union(
     {"adler32"}, hashlib.algorithms_available
 )
@@ -238,7 +240,9 @@ def validate_any_tagmanifest_file(archive: BagitArchive) -> None:
         if tagmanifest_file not in archive.list_files():
             continue
 
-        for exp_checksum, file_rel_path in parse_tag_file(tagmanifest_file, archive):
+        for exp_checksum, file_rel_path in parse_manifest_file(
+            tagmanifest_file, archive
+        ):
             file_path = archive.build_file_path(file_rel_path)
             if file_path not in archive.list_files():
                 raise JobException(
@@ -309,7 +313,7 @@ def validate_payload(archive: BagitArchive) -> None:
 
     for manifest_file in archive.list_manifest_files():
         referenced_files = set()
-        for _, path in parse_tag_file(manifest_file, archive):
+        for _, path in parse_manifest_file(manifest_file, archive):
             referenced_files.add(path)
 
         if payload_files != referenced_files:
@@ -320,20 +324,22 @@ def validate_payload(archive: BagitArchive) -> None:
             )
 
 
-def parse_tag_file(tag_file: str, archive: BagitArchive) -> List[Tuple[str, str]]:
-    tags = []
-    with archive.open_file(tag_file) as fd:
+def parse_manifest_file(
+    manifest_file: str, archive: BagitArchive
+) -> List[Tuple[str, str]]:
+    checksums = []
+    with archive.open_file(manifest_file) as fd:
         for line_num, line in enumerate(fd, start=1):
             try:
-                tag_name, tag_value = line.decode("utf-8").strip().split()
+                checksum, file_path = line.decode("utf-8").strip().split()
             except Exception:
                 raise JobException(
-                    f"Failed to parse line number {line_num} in {tag_file} file"
+                    f"Failed to parse line number {line_num} in {manifest_file} file"
                 )
             else:
-                tags.append((tag_name, tag_value))
+                checksums.append((checksum, file_path))
 
-    return tags
+    return checksums
 
 
 def parse_fetch_file(archive: BagitArchive) -> List[str]:
@@ -356,7 +362,7 @@ def parse_fetch_file(archive: BagitArchive) -> List[str]:
                 raise JobException(
                     f"File path not within data/ directory (fetch.txt line {line_num})"
                 )
-            if not url.startswith("root") and not url.startswith("http"):
+            if not any(url.startswith(schema) for schema in SUPPORTED_URL_SCHEMAS):
                 raise JobException(
                     f"URL from line number {line_num} in fetch.txt is not supported"
                 )
