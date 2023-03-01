@@ -300,7 +300,7 @@ def unpack_bagit_archive(job_args: JobArgs) -> List[str]:
             file_src_path = file_info.get_path()
 
             if file_src_path.startswith(data_dir) and not file_info.is_dir():
-                file_data_dir_rel_path = file_src_path[len(data_dir):].lstrip("/")
+                file_data_dir_rel_path = file_src_path[len(data_dir) :].lstrip("/")
                 file_dst_path = f"{dst_dir}/{file_data_dir_rel_path}"
 
                 files_to_unpack.append(
@@ -326,8 +326,8 @@ def unpack_file(file_unpack_ctx: FileUnpackCtx) -> str:
         file_size = file_info.get_size()
         _files_to_monitor_queue.put((file_unpack_ctx.file_dst_path, file_size))
 
-        # Tamper with file path so that when unpacking only parent directories 
-        # up to data directory will be created in destination directory 
+        # Tamper with file path so that when unpacking only parent directories
+        # up to data directory will be created in destination directory
         # (normally all directories on path are created)
         file_info.substitute_path(file_unpack_ctx.file_data_dir_rel_path)
         archive.unpack_file(file_info, file_unpack_ctx.dst_dir)
@@ -340,7 +340,7 @@ def build_archive_path(job_args: JobArgs) -> str:
 
 
 def build_dst_dir_path(job_args: JobArgs) -> str:
-    return f'{MOUNT_POINT}/.__onedata__file_id__{job_args["destinationDir"]["file_id"]}'
+    return f'/.__onedata__file_id__{job_args["destinationDir"]["file_id"]}'
 
 
 def monitor_files_unpacking(heartbeat_callback: AtmHeartbeatCallback) -> None:
