@@ -63,7 +63,7 @@ class Job(NamedTuple):
 
 
 def handle(
-    job_batch_request: AtmJobBatchRequest[JobArgs],
+    job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
 

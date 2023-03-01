@@ -29,6 +29,7 @@ from onedata_lambda_utils.types import (
     AtmJobBatchRequest,
     AtmJobBatchRequestCtx,
     AtmJobBatchResponse,
+    AtmObject,
     AtmTimeSeriesMeasurement,
 )
 from typing_extensions import TypedDict
@@ -98,7 +99,7 @@ _measurements_queue: queue.Queue = queue.Queue()
 
 
 def handle(
-    job_batch_request: AtmJobBatchRequest[JobArgs],
+    job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
 

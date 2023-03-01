@@ -1,0 +1,175 @@
+{
+  "summary": "",
+  "schemaFormatVersion": 2,
+  "revision": {
+    "supplementaryAtmLambdas": {
+      "e5ffd2d79d86b787379e388957290057chbe75": {
+        "1": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "relayMethod": "returnValue",
+                  "name": "format",
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "object"
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 100,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/lambda-detect-file-mime-type-mounted:v1",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "detect-file-mime-format",
+              "description": "",
+              "configParameterSpecs": [],
+              "checksum": "ca039fdd6012705db318d9d9b69d4447",
+              "argumentSpecs": [
+                {
+                  "name": "file",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "REG"
+                    },
+                    "type": "file"
+                  }
+                },
+                {
+                  "name": "metadataKey",
+                  "isOptional": true,
+                  "defaultValue": "",
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "allowedValues": null
+                    },
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "e5ffd2d79d86b787379e388957290057chbe75"
+        }
+      }
+    },
+    "schemaFormatVersion": 2,
+    "originalRevisionNumber": 1,
+    "atmWorkflowSchemaRevision": {
+      "stores": [
+        {
+          "type": "treeForest",
+          "requiresInitialContent": true,
+          "name": "input-files",
+          "id": "c3b836156e4e071bca2f000c18da00eac33c48",
+          "description": "",
+          "defaultInitialContent": null,
+          "config": {
+            "itemDataSpec": {
+              "valueConstraints": {
+                "fileType": "REG"
+              },
+              "type": "file"
+            }
+          }
+        },
+        {
+          "type": "list",
+          "requiresInitialContent": false,
+          "name": "files-format",
+          "id": "46881bca155505505fa085c4aaba156fd9f05e",
+          "description": "",
+          "defaultInitialContent": null,
+          "config": {
+            "itemDataSpec": {
+              "valueConstraints": {},
+              "type": "object"
+            }
+          }
+        }
+      ],
+      "state": "draft",
+      "lanes": [
+        {
+          "storeIteratorSpec": {
+            "storeSchemaId": "c3b836156e4e071bca2f000c18da00eac33c48",
+            "maxBatchSize": 1
+          },
+          "parallelBoxes": [
+            {
+              "tasks": [
+                {
+                  "timeSeriesStoreConfig": null,
+                  "resultMappings": [
+                    {
+                      "storeSchemaId": "46881bca155505505fa085c4aaba156fd9f05e",
+                      "storeContentUpdateOptions": {
+                        "type": "listStoreContentUpdateOptions",
+                        "function": "append"
+                      },
+                      "resultName": "format"
+                    }
+                  ],
+                  "resourceSpecOverride": null,
+                  "name": "detect-file-mime-format",
+                  "lambdaRevisionNumber": 1,
+                  "lambdaId": "e5ffd2d79d86b787379e388957290057chbe75",
+                  "lambdaConfig": {},
+                  "id": "74cad264afecec16aeb0cc782d9ac730561aa9",
+                  "argumentMappings": [
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "iteratedItem",
+                        "valueBuilderRecipe": null
+                      },
+                      "argumentName": "file"
+                    },
+                    {
+                      "valueBuilder": {
+                        "valueBuilderType": "const",
+                        "valueBuilderRecipe": "format"
+                      },
+                      "argumentName": "metadataKey"
+                    }
+                  ]
+                }
+              ],
+              "name": "Parallel box",
+              "id": "aeadeba11c511c537299e0c87e0833e916de3d"
+            }
+          ],
+          "name": "detect mime format",
+          "maxRetries": 0,
+          "id": "e9b8f18594ec5fee773ea36a69dcdb66738fd3",
+          "dashboardSpec": null
+        }
+      ],
+      "description": "",
+      "dashboardSpec": null
+    }
+  },
+  "originalAtmWorkflowSchemaId": "7af0427fef589f1179c5accbc2ce3307ch1604",
+  "name": "detect-file-mime-formats"
+}
