@@ -115,11 +115,6 @@ def run_job(job_args: JobArgs) -> Union[JobResults, AtmException]:
         return {"processedFilePath": job_args["downloadInfo"]["destinationPath"]}
 
 
-def build_result_destinationPath(job_args: JobArgs) -> str:
-    if MOUNT_POINT in job_args["downloadInfo"]["destinationPath"]:
-        job_args["downloadInfo"]["destinationPath"].replace(MOUNT_POINT, "")
-
-
 def run_job_insecure(job_args: JobArgs) -> None:
     destination_path = build_destination_path(job_args)
 

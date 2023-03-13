@@ -332,6 +332,10 @@ def unpack_file(file_unpack_ctx: FileUnpackCtx) -> str:
         file_info.substitute_path(file_unpack_ctx.file_data_dir_rel_path)
         archive.unpack_file(file_info, file_unpack_ctx.dst_dir)
 
+        if "/mnt/onedata/" in file_unpack_ctx.file_dst_path:
+            relative_path = file_unpack_ctx.file_dst_path.replace("/mnt/onedata/", "")
+            return relative_path
+
         return file_unpack_ctx.file_dst_path
 
 
@@ -340,7 +344,7 @@ def build_archive_path(job_args: JobArgs) -> str:
 
 
 def build_dst_dir_path(job_args: JobArgs) -> str:
-    return f'/.__onedata__file_id__{job_args["destinationDir"]["file_id"]}'
+    return f'{MOUNT_POINT}/.__onedata__file_id__{job_args["destinationDir"]["file_id"]}'
 
 
 def monitor_files_unpacking(heartbeat_callback: AtmHeartbeatCallback) -> None:
