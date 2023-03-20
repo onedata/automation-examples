@@ -17,7 +17,19 @@ import zlib
 import re
 from concurrent.futures import ALL_COMPLETED, ThreadPoolExecutor, as_completed, wait
 from threading import Event, Thread
-from typing import IO, Final, Generator, List, Literal, NamedTuple, Set, Tuple, Union
+from typing import (
+    IO,
+    Dict,
+    Final,
+    Generator,
+    List,
+    Literal,
+    NamedTuple,
+    Set,
+    Tuple,
+    TypeAlias,
+    Union,
+)
 
 import xattr
 from onedata_lambda_utils.streaming import AtmResultStreamer
@@ -65,31 +77,40 @@ class ChecksumInfo(TypedDict):
     status: str
 
 
+ChecksumAlgorithm: TypeAlias = Literal[
+    "sha1",
+    "sha224",
+    "sha256",
+    "sha384",
+    "sha512",
+    "blake2b",
+    "blake2s",
+    "md5",
+    "sha3_224",
+    "sha3_256",
+    "sha3_384",
+    "sha3_512",
+    "shake_128",
+    "shake_256",
+]
+
+ChecksumsInfoMap = Dict[ChecksumAlgorithm, ChecksumInfo]
+
+
+class JobHeh(TypedDict):
+    checksums: ChecksumsInfoMap
+    filePath: str
+
+
 class JobResults(TypedDict):
-    algorithm: Literal[
-        "sha1",
-        "sha224",
-        "sha256",
-        "sha384",
-        "sha512",
-        " blake2b",
-        "blake2s",
-        "md5",
-        "sha3_224",
-        "sha3_256",
-        "sha3_384",
-        "sha3_512",
-        "shake_128",
-        "shake_256",
-    ]
-    checksums: ChecksumInfo
+    result: JobHeh
 
 
 ##===================================================================
 ## Lambda implementation
 ##===================================================================
 
-MATCH_CHECKSUM_ALGORITHM: Final[str] = "(?<=checksum.)(.*)(?=.expected)"
+MATCH_CHECKSUM_ALGORITHM: Final[str] = "^checksum.(?P<heh>.+).expected$"
 
 
 class JobException(Exception):
@@ -121,6 +142,7 @@ def handle(
     results_batch = assemble_results(jobs_executed)
 
     _all_jobs_processed.set()
+    jobs_monitor.join()
 
     return {"resultsBatch": results_batch}
 
@@ -134,16 +156,16 @@ def get_exp_file_checksums(
         file_path = build_file_path(job_args)
         xattr_file = xattr.xattr(file_path)
 
-        algorithms = []
         if os.path.isfile(file_path):
             for xattr_content in xattr_file.list():
-                algorithm = re.findall(MATCH_CHECKSUM_ALGORITHM, xattr_content)
-                expected_checksum_key = f"checksum.{algorithm[0]}.expected"
-                expected_checksum = xattr_file.get(expected_checksum_key).decode("utf8")
-                algorithms.append(algorithm[0])
-
-        for algorithm in algorithms:
-            jobs.append((file_path, algorithm, expected_checksum))
+                match = re.match(MATCH_CHECKSUM_ALGORITHM, xattr_content)
+                if match:
+                    algorithm = match.group("heh")
+                    expected_checksum_key = f"checksum.{algorithm}.expected"
+                    expected_checksum = xattr_file.get(expected_checksum_key).decode(
+                        "utf8"
+                    )
+                    jobs.append((file_path, algorithm, expected_checksum))
 
     return jobs
 
@@ -151,10 +173,15 @@ def get_exp_file_checksums(
 def assemble_results(results: List[ExpFileChecksum]) -> JobResults:
     results_dict = dict()
 
-    for file_path, file_info in results:
-        results_dict.setdefault(file_path, {}).update(file_info)
+    for expFileChecksum in results:
+        results_dict.setdefault(expFileChecksum.file_path, {}).update(
+            expFileChecksum.file_info
+        )
 
-    return [{"checksums": results_dict[key]} for key in results_dict]
+    return [
+        {"result": {"checksums": results_dict[key], "filePath": key}}
+        for key in results_dict
+    ]
 
 
 def verify_file_checksum(
