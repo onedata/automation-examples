@@ -110,7 +110,7 @@ class JobResults(TypedDict):
 ## Lambda implementation
 ##===================================================================
 
-MATCH_CHECKSUM_ALGORITHM: Final[str] = "^checksum.(?P<heh>.+).expected$"
+MATCH_CHECKSUM_ALGORITHM: Final[str] = "^checksum.(?P<algorithm>.+).expected$"
 
 
 class JobException(Exception):
@@ -134,12 +134,12 @@ def handle(
     jobs_monitor = Thread(target=monitor_jobs, daemon=True, args=[heartbeat_callback])
     jobs_monitor.start()
 
-    results_batch = get_exp_file_checksums(job_batch_request)
+    tasks = get_exp_file_checksums(job_batch_request)
 
     with ThreadPoolExecutor() as executor:
-        jobs_executed = list(executor.map(verify_file_checksum, results_batch))
+        jobs_executed = list(executor.map(verify_file_checksum, tasks))
 
-    results_batch = assemble_results(jobs_executed)
+    results_batch = assemble_results(tasks, jobs_executed)
 
     _all_jobs_processed.set()
     jobs_monitor.join()
@@ -160,7 +160,7 @@ def get_exp_file_checksums(
             for xattr_content in xattr_file.list():
                 match = re.match(MATCH_CHECKSUM_ALGORITHM, xattr_content)
                 if match:
-                    algorithm = match.group("heh")
+                    algorithm = match.group("algorithm")
                     expected_checksum_key = f"checksum.{algorithm}.expected"
                     expected_checksum = xattr_file.get(expected_checksum_key).decode(
                         "utf8"
@@ -170,13 +170,27 @@ def get_exp_file_checksums(
     return jobs
 
 
-def assemble_results(results: List[ExpFileChecksum]) -> JobResults:
+def assemble_results(
+    tasks: List[Tuple[str, str, str]],
+    results: List[Union[AtmException, ExpFileChecksum]],
+) -> JobResults:
     results_dict = dict()
+    file_paths = []
+
+    for task in tasks:
+        file_path, _, _ = task
+        file_paths.append(file_path)
 
     for expFileChecksum in results:
-        results_dict.setdefault(expFileChecksum.file_path, {}).update(
-            expFileChecksum.file_info
-        )
+        if hasattr(expFileChecksum, "file_info"):
+            results_dict.setdefault(expFileChecksum.file_path, {}).update(
+                expFileChecksum.file_info
+            )
+            file_paths.pop(0)
+        else:
+            file_path = file_paths[0]
+            results_dict.setdefault(file_path, {}).update(AtmException.exception)
+            file_paths.pop(0)
 
     return [
         {"result": {"checksums": results_dict[key], "filePath": key}}
