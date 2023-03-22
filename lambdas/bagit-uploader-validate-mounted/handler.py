@@ -307,7 +307,7 @@ def validate_payload(archive: BagitArchive) -> None:
 
     payload_files = set()
     for file in archive.list_files():
-        if file.startswith(data_dir):
+        if file.startswith(data_dir) and len(file) > len(data_dir):
             payload_files.add(file[len(bagit_dir) + 1 :])
 
     payload_files.update(parse_fetch_file(archive))
