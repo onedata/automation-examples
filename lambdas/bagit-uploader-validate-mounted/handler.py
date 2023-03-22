@@ -227,7 +227,7 @@ def validate_structure(archive: BagitArchive) -> None:
     if not archive.build_file_path("bagit.txt") in archive.list_files():
         raise JobException("bagit.txt file not found")
 
-    if not archive.list_manifest_files(archive):
+    if not archive.list_manifest_files():
         raise JobException("No manifest file found")
 
     if not archive.build_file_path("data", is_dir=True) in archive.list_files():
@@ -302,12 +302,13 @@ def validate_bagit_txt(archive: BagitArchive) -> None:
 
 
 def validate_payload(archive: BagitArchive) -> None:
-    data_dir = archive.build_file_path("data/")
+    bagit_dir = archive.get_bagit_dir_name()
+    data_dir = f"{bagit_dir}/data/"
 
     payload_files = set()
     for file in archive.list_files():
-        if file.startswith(data_dir):
-            payload_files.add(file)
+        if file.startswith(data_dir) and len(file) > len(data_dir):
+            payload_files.add(file[len(bagit_dir) + 1 :])
 
     payload_files.update(parse_fetch_file(archive))
 
