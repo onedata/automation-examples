@@ -11,26 +11,14 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import hashlib
 import os.path
 import queue
-import itertools
+import re
 import time
 import traceback
 import zlib
-import re
-from concurrent.futures import ALL_COMPLETED, ThreadPoolExecutor, as_completed, wait
+from concurrent.futures import ThreadPoolExecutor
+from itertools import groupby
 from threading import Event, Thread
-from typing import (
-    IO,
-    Dict,
-    Final,
-    Generator,
-    List,
-    Literal,
-    NamedTuple,
-    Set,
-    Tuple,
-    TypeAlias,
-    Union,
-)
+from typing import Dict, Final, List, Literal, NamedTuple, TypeAlias, Union, get_args
 
 import xattr
 from onedata_lambda_utils.streaming import AtmResultStreamer
@@ -38,7 +26,6 @@ from onedata_lambda_utils.types import (
     AtmException,
     AtmHeartbeatCallback,
     AtmJobBatchRequest,
-    AtmJobBatchRequestCtx,
     AtmJobBatchResponse,
     AtmObject,
     AtmTimeSeriesMeasurement,
@@ -49,16 +36,16 @@ from typing_extensions import TypedDict
 ## Lambda configuration
 ##===================================================================
 
+
 MOUNT_POINT: Final[str] = "/mnt/onedata"
 
-AVAILABLE_CHECKSUM_ALGORITHMS: Final[Set[str]] = set().union(
-    {"adler32"}, hashlib.algorithms_available
-)
 READ_CHUNK_SIZE: Final[int] = 10 * 1024**2
+
 
 ##===================================================================
 ## Lambda interface
 ##===================================================================
+
 
 ## Statistics are streamed as the file is processed during checksum counting in form of "bytesProcessed__{algorithm}",
 ## where algorithm is defined by how the checksum is calculated.
@@ -72,21 +59,16 @@ class JobArgs(TypedDict):
     filePath: str
 
 
-class ChecksumInfo(TypedDict):
-    expected: str
-    calculated: str
-    status: str
-
-
 ChecksumAlgorithm: TypeAlias = Literal[
+    "adler32",
+    "blake2b",
+    "blake2s",
+    "md5",
     "sha1",
     "sha224",
     "sha256",
     "sha384",
     "sha512",
-    "blake2b",
-    "blake2s",
-    "md5",
     "sha3_224",
     "sha3_256",
     "sha3_384",
@@ -95,23 +77,35 @@ ChecksumAlgorithm: TypeAlias = Literal[
     "shake_256",
 ]
 
-ChecksumsInfoMap = Dict[ChecksumAlgorithm, ChecksumInfo]
+
+class ChecksumStatus(TypedDict):
+    expected: str
+    calculated: str
+    status: str
 
 
-class JobHeh(TypedDict):
-    checksums: ChecksumsInfoMap
+ChecksumReport: TypeAlias = Dict[ChecksumAlgorithm, ChecksumStatus]
+
+
+class JobChecksumsReport(TypedDict):
     filePath: str
+    checksums: ChecksumReport
 
 
 class JobResults(TypedDict):
-    result: JobHeh
+    result: JobChecksumsReport
 
 
 ##===================================================================
 ## Lambda implementation
 ##===================================================================
 
-MATCH_CHECKSUM_ALGORITHM: Final[str] = "^checksum.(?P<algorithm>.+).expected$"
+
+RE_EXP_CHECKSUM_XATTR_NAME: Final[
+    str
+] = r"^checksum.(?P<algorithm>{algorithms}).expected$".format(
+    algorithms="|".join(get_args(ChecksumAlgorithm))
+)
 
 
 class JobException(Exception):
@@ -120,7 +114,8 @@ class JobException(Exception):
 
 class ExpFileChecksum(NamedTuple):
     file_path: str
-    file_info: dict
+    algorithm: ChecksumAlgorithm
+    checksum: str
 
 
 _all_jobs_processed: Event = Event()
@@ -135,12 +130,12 @@ def handle(
     jobs_monitor = Thread(target=monitor_jobs, daemon=True, args=[heartbeat_callback])
     jobs_monitor.start()
 
-    tasks = get_exp_file_checksums(job_batch_request)
+    exp_checksums = get_exp_file_checksums(job_batch_request["argsBatch"])
 
     with ThreadPoolExecutor() as executor:
-        jobs_executed = list(executor.map(verify_file_checksum, tasks))
+        checksum_reports = list(executor.map(verify_file_checksum, exp_checksums))
 
-    results_batch = assemble_results(tasks, jobs_executed)
+    results_batch = assemble_results(exp_checksums, checksum_reports)
 
     _all_jobs_processed.set()
     jobs_monitor.join()
@@ -148,150 +143,95 @@ def handle(
     return {"resultsBatch": results_batch}
 
 
-def get_exp_file_checksums(
-    job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject]
-) -> List[Tuple[str, str, str]]:
-    jobs = []
+def get_exp_file_checksums(args_batch: List[JobArgs]) -> List[ExpFileChecksum]:
+    exp_checksums = []
 
-    for job_args in job_batch_request["argsBatch"]:
+    for job_args in args_batch:
         file_path = build_file_path(job_args)
-        xattr_file = xattr.xattr(file_path)
+        if not os.path.isfile(file_path):
+            continue
 
-        if os.path.isfile(file_path):
-            for xattr_content in xattr_file.list():
-                match = re.match(MATCH_CHECKSUM_ALGORITHM, xattr_content)
-                if match:
-                    algorithm = match.group("algorithm")
-                    expected_checksum_key = f"checksum.{algorithm}.expected"
-                    expected_checksum = xattr_file.get(expected_checksum_key).decode(
-                        "utf8"
+        file_xattrs = xattr.xattr(file_path)
+        for xattr_name in file_xattrs.list():
+            if match := re.match(RE_EXP_CHECKSUM_XATTR_NAME, xattr_name):
+                exp_checksums.append(
+                    ExpFileChecksum(
+                        file_path=file_path,
+                        algorithm=match.group("algorithm"),
+                        checksum=file_xattrs.get(xattr_name).decode("utf8"),
                     )
-                    jobs.append((file_path, algorithm, expected_checksum))
+                )
 
-    return jobs
-
-
-def assemble_results(
-    tasks: List[Tuple[str, str, str]],
-    results: List[Union[AtmException, ExpFileChecksum]],
-) -> Union[AtmException, JobResults]:
-    file_paths = []
-    file_paths_with_exception = []
-    file_paths_appended = []
-
-    results_dict = dict()
-    results_batch = []
-
-    for task in tasks:
-        file_path, _, _ = task
-        file_paths.append(file_path)
-
-    for (file_path, expFileChecksum) in zip(file_paths, results):
-        if not hasattr(expFileChecksum, "file_info"):
-            file_paths_with_exception.append(file_path)
-
-    for (file_path, expFileChecksum) in zip(file_paths, results):
-        if (
-            hasattr(expFileChecksum, "file_path")
-            and not expFileChecksum.file_path in file_paths_with_exception
-        ):
-            results_dict.setdefault(expFileChecksum.file_path, {}).update(
-                expFileChecksum.file_info
-            )
-        else:
-            if not file_path in file_paths_appended:
-                results_batch.append(expFileChecksum["exception"])
-                file_paths_appended.append(file_path)
-
-    results_batch.append(
-        {"result": {"checksums": results_dict[key], "filePath": key}}
-        for key in results_dict
-    )
-
-    return results_batch
-
-
-def verify_file_checksum(
-    job: Tuple[str, str, str]
-) -> Union[JobException, ExpFileChecksum]:
-    file_path, algorithm, expected_checksum = job
-    file_info = {}
-
-    try:
-        file_info[algorithm] = calculate_and_compare_checksums(
-            algorithm, file_path, expected_checksum
-        )
-
-    except JobException as ex:
-        return AtmException(exception=str(ex))
-    except Exception:
-        return AtmException(exception=traceback.format_exc())
-    else:
-        return ExpFileChecksum(file_path, file_info)
-
-
-def calculate_and_compare_checksums(
-    algorithm: str, file_path: str, expected_checksum: str
-) -> Union[AtmException, None, dict]:
-    xattr_file = xattr.xattr(file_path)
-
-    calculated_checksum_key = f"checksum.{algorithm}.calculated"
-
-    calculated_checksum = calculate_file_checksum(file_path, algorithm)
-
-    set_calculated_checksum_metadata(
-        calculated_checksum_key,
-        calculated_checksum,
-        xattr_file,
-    )
-
-    if expected_checksum != calculated_checksum:
-        raise JobException(
-            f"Expected file checksum: {expected_checksum}, when calculated checksum is: {calculated_checksum}"
-        )
-
-    return {
-        "expected": expected_checksum,
-        "calculated": calculated_checksum,
-        "status": "ok",
-    }
+    return exp_checksums
 
 
 def build_file_path(job_args: JobArgs) -> str:
     return f'{MOUNT_POINT}/{job_args["filePath"]}'
 
 
-def set_calculated_checksum_metadata(
-    calculated_checksum_key: str,
-    calculated_checksum: str,
-    xattr_file: xattr,
-) -> Union[None, AtmException]:
+def assemble_results(
+    exp_checksums: List[ExpFileChecksum],
+    checksum_reports: List[Union[ChecksumReport, AtmException]],
+) -> List[Union[JobResults, AtmException]]:
+    results_batch = []
+
+    for file_path, group in groupby(
+        zip(exp_checksums, checksum_reports), key=lambda item: item[0].file_path
+    ):
+        checksums = {}
+        for _, checksum_report in group:
+            if "exception" in checksum_report:
+                results_batch.append(checksum_report)
+                break
+
+            checksums.update(checksum_report)
+        else:
+            results_batch.append(
+                {"result": {"filePath": file_path, "checksums": checksums}}
+            )
+
+    return results_batch
+
+
+def verify_file_checksum(
+    exp_file_checksum: ExpFileChecksum,
+) -> Union[AtmException, ChecksumReport]:
+    file_path = exp_file_checksum.file_path
+    algorithm = exp_file_checksum.algorithm
+
     try:
-        xattr_file.set(
-            calculated_checksum_key,
-            str.encode(f'"{calculated_checksum}"'),
-        )
-    except Exception as ex:
-        raise JobException(f"Failed set calculated checksum metadata due to: {str(ex)}")
+        checksum = calculate_file_checksum(file_path, algorithm)
+        set_file_xattr(file_path, f"checksum.{algorithm}.calculated", checksum)
+        assert_exp_checksum(checksum, exp_file_checksum.checksum)
+    except JobException as ex:
+        return AtmException(exception=str(ex))
+    except Exception:
+        return AtmException(exception=traceback.format_exc())
+    else:
+        return {
+            algorithm: {
+                "expected": exp_file_checksum.checksum,
+                "calculated": checksum,
+                "status": "ok",
+            }
+        }
 
 
-def calculate_file_checksum(file_path: str, algorithm: str) -> Union[str, AtmException]:
+def calculate_file_checksum(file_path: str, algorithm: ChecksumAlgorithm) -> str:
     try:
         return calculate_checksum(file_path, algorithm)
     except Exception as ex:
         raise JobException(f"Failed to calculate checksum due to: {str(ex)}")
 
 
-def calculate_checksum(file_path: str, algorithm: str) -> str:
+def calculate_checksum(file_path: str, algorithm: ChecksumAlgorithm) -> str:
     with open(file_path, "rb") as file:
         if algorithm == "adler32":
             value = 1
             for data in iter(lambda: file.read(READ_CHUNK_SIZE), b""):
                 value = zlib.adler32(data, value)
                 _measurements_queue.put(build_time_series_measurment(algorithm, data))
-
-            value_str = format(value, "x")
-            return value_str
+            return format(value, "x")
         else:
             hash = getattr(hashlib, algorithm)()
             for data in iter(lambda: file.read(READ_CHUNK_SIZE), b""):
@@ -300,12 +240,32 @@ def calculate_checksum(file_path: str, algorithm: str) -> str:
             return hash.hexdigest()
 
 
-def build_time_series_measurment(algorithm: str, data: bytes):
+def build_time_series_measurment(
+    algorithm: ChecksumAlgorithm, data: bytes
+) -> AtmTimeSeriesMeasurement:
     return {
         "tsName": f"bytesProcessed_{algorithm}",
         "timestamp": int(time.time()),
         "value": len(data),
     }
+
+
+def set_file_xattr(file_path: str, xattr_name: str, xattr_value: str) -> None:
+    file_xattrs = xattr.xattr(file_path)
+
+    try:
+        file_xattrs.set(xattr_name, str.encode(f'"{xattr_value}"'))
+    except Exception as ex:
+        raise JobException(
+            f"Failed to set xattr {xattr_name}:{xattr_value} due to: {str(ex)}"
+        )
+
+
+def assert_exp_checksum(checksum: str, exp_checksum: str) -> None:
+    if checksum != exp_checksum:
+        raise JobException(
+            f"Expected file checksum: {exp_checksum}, when calculated checksum is: {checksum}"
+        )
 
 
 def monitor_jobs(heartbeat_callback: AtmHeartbeatCallback) -> None:
