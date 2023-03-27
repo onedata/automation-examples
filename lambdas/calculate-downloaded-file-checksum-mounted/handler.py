@@ -169,15 +169,16 @@ def handle(
 
 
 def run_job(job: Job) -> Union[JobResults, AtmException]:
+    algorithm = job.ctx["config"]["algorithm"]
     file_path = build_file_path(job)
 
     if not os.path.isfile(file_path):
         return build_job_results(job, None)
 
     try:
-        checksum = calculate_checksum(job, file_path)
+        checksum = calculate_checksum(algorithm, file_path)
         if xattr_name := job.ctx["config"]["metadataKey"]:
-            set_file_xattr(file_path, xattr_name, checksum)
+            set_file_checksum_xattr(file_path, xattr_name, checksum)
     except JobException as ex:
         return AtmException(exception=str(ex))
     except Exception:
@@ -202,9 +203,7 @@ def build_job_results(job: Job, checksum: Optional[str]) -> JobResults:
     }
 
 
-def calculate_checksum(job: Job, file_path: str) -> str:
-    algorithm = job.ctx["config"]["algorithm"]
-
+def calculate_checksum(algorithm: ChecksumAlgorithm, file_path: str) -> str:
     with open(file_path, "rb") as fd:
         data_stream = iter(lambda: fd.read(READ_CHUNK_SIZE), b"")
 
@@ -222,14 +221,14 @@ def calculate_checksum(job: Job, file_path: str) -> str:
             return hash.hexdigest()
 
 
-def set_file_xattr(file_path: str, xattr_name: str, xattr_value: str) -> None:
+def set_file_checksum_xattr(file_path: str, xattr_name: str, checksum: str) -> None:
     file_xattrs = xattr.xattr(file_path)
 
     try:
-        file_xattrs.set(xattr_name, str.encode(f'"{xattr_value}"'))
+        file_xattrs.set(xattr_name, str.encode(checksum))
     except Exception as ex:
         raise JobException(
-            f"Failed to set xattr {xattr_name}:{xattr_value} due to: {str(ex)}"
+            f"Failed to set xattr {xattr_name}:{checksum} due to: {str(ex)}"
         )
 
 
