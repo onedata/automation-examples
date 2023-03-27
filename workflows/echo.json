@@ -3,7 +3,7 @@
   "schemaFormatVersion": 2,
   "revision": {
     "supplementaryAtmLambdas": {
-      "4d61c8b8fbaeafa534a3ebeb4e661e70ch1555": {
+      "3c9950cb908e03277a61bf7f145a8e6cch8dbf": {
         "1": {
           "schemaFormatVersion": 2,
           "revision": {
@@ -15,10 +15,10 @@
               "resultSpecs": [
                 {
                   "relayMethod": "returnValue",
-                  "name": "response",
+                  "name": "value",
                   "dataSpec": {
                     "valueConstraints": {},
-                    "type": "string"
+                    "type": "object"
                   }
                 }
               ],
@@ -33,7 +33,7 @@
               "preferredBatchSize": 100,
               "operationSpec": {
                 "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/hello-world-file:v2",
+                "dockerImage": "docker.onedata.org/lambda-echo:v1",
                 "dockerExecutionOptions": {
                   "readonly": false,
                   "oneclientOptions": "",
@@ -41,37 +41,70 @@
                   "mountOneclient": false
                 }
               },
-              "name": "hello-world-file",
+              "name": "echo",
               "description": "",
-              "checksum": "edef2760af7ba55c4a2628f0aec42fa6",
+              "configParameterSpecs": [
+                {
+                  "name": "sleepDurationSec",
+                  "isOptional": false,
+                  "defaultValue": 0,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "integersOnly": false,
+                      "allowedValues": null
+                    },
+                    "type": "number"
+                  }
+                },
+                {
+                  "name": "exceptionProbability",
+                  "isOptional": false,
+                  "defaultValue": 0,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "integersOnly": false,
+                      "allowedValues": null
+                    },
+                    "type": "number"
+                  }
+                },
+                {
+                  "name": "streamResults",
+                  "isOptional": false,
+                  "defaultValue": false,
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "boolean"
+                  }
+                }
+              ],
+              "checksum": "2e427a32271712435f600e69b8e5776e",
               "argumentSpecs": [
                 {
-                  "name": "item",
+                  "name": "value",
                   "isOptional": false,
                   "defaultValue": null,
                   "dataSpec": {
-                    "valueConstraints": {
-                      "fileType": "ANY"
-                    },
-                    "type": "file"
+                    "valueConstraints": {},
+                    "type": "object"
                   }
                 }
               ]
             }
           },
-          "originalAtmLambdaId": "4d61c8b8fbaeafa534a3ebeb4e661e70ch1555"
+          "originalAtmLambdaId": "3c9950cb908e03277a61bf7f145a8e6cch8dbf"
         }
       }
     },
     "schemaFormatVersion": 2,
-    "originalRevisionNumber": 1,
+    "originalRevisionNumber": 2,
     "atmWorkflowSchemaRevision": {
       "stores": [
         {
-          "type": "treeForest",
+          "type": "list",
           "requiresInitialContent": true,
-          "name": "input_files",
-          "id": "c96c18d5bf11d6015e1f79900b3d29ece2c121",
+          "name": "input",
+          "id": "c3e71bb34d2d6db9c089ad52ad8612cb6d493e",
           "description": "",
           "defaultInitialContent": null,
           "config": {
@@ -86,14 +119,14 @@
         {
           "type": "list",
           "requiresInitialContent": false,
-          "name": "results",
-          "id": "b5067e35b943e8adcd4968698dc4084bd351d1",
+          "name": "output",
+          "id": "68f7c9d6757358f214ca1a95beee2228e19581",
           "description": "",
           "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
               "valueConstraints": {},
-              "type": "string"
+              "type": "object"
             }
           }
         }
@@ -102,7 +135,7 @@
       "lanes": [
         {
           "storeIteratorSpec": {
-            "storeSchemaId": "c96c18d5bf11d6015e1f79900b3d29ece2c121",
+            "storeSchemaId": "c3e71bb34d2d6db9c089ad52ad8612cb6d493e",
             "maxBatchSize": 100
           },
           "parallelBoxes": [
@@ -112,42 +145,45 @@
                   "timeSeriesStoreConfig": null,
                   "resultMappings": [
                     {
-                      "storeSchemaId": "b5067e35b943e8adcd4968698dc4084bd351d1",
-                      "resultName": "response",
+                      "storeSchemaId": "68f7c9d6757358f214ca1a95beee2228e19581",
                       "storeContentUpdateOptions": {
                         "type": "listStoreContentUpdateOptions",
                         "function": "append"
-                      }
+                      },
+                      "resultName": "value"
                     }
                   ],
                   "resourceSpecOverride": null,
-                  "name": "hello-world-file",
+                  "name": "echo",
                   "lambdaRevisionNumber": 1,
-                  "lambdaId": "4d61c8b8fbaeafa534a3ebeb4e661e70ch1555",
-                  "id": "ccfa7644c5ba77a11183be05b797a2cbea7a0f",
+                  "lambdaId": "3c9950cb908e03277a61bf7f145a8e6cch8dbf",
+                  "lambdaConfig": {},
+                  "id": "c2436e82972b3a1fc059868ab70eed81574357",
                   "argumentMappings": [
                     {
                       "valueBuilder": {
                         "valueBuilderType": "iteratedItem",
                         "valueBuilderRecipe": null
                       },
-                      "argumentName": "item"
+                      "argumentName": "value"
                     }
                   ]
                 }
               ],
               "name": "Parallel box",
-              "id": "d29b80f0521b10bf33708a564f315a524d1c7d"
+              "id": "36a1ce286581790f69590d99af639901a0abcb"
             }
           ],
-          "name": "l1",
-          "maxRetries": 0,
-          "id": "7e768485247dfec1eee8bd2ea0858f0718bd39"
+          "name": "lane 1",
+          "maxRetries": 1,
+          "id": "16ccc3eb65c151464fcb0dbb5e3e35f0c1966c",
+          "dashboardSpec": null
         }
       ],
-      "description": ""
+      "description": "",
+      "dashboardSpec": null
     }
   },
-  "originalAtmWorkflowSchemaId": "c10012d19c6d98bab6d0f59a5d210ba8chc9d2",
-  "name": "hello-world-file"
+  "originalAtmWorkflowSchemaId": "c6a6a319d2ebd1c723c42a7412b3b86bch1d37",
+  "name": "echo"
 }

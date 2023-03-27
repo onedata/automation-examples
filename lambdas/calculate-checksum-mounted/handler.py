@@ -29,10 +29,10 @@ from onedata_lambda_utils.types import (
     AtmJobBatchRequest,
     AtmJobBatchRequestCtx,
     AtmJobBatchResponse,
+    AtmObject,
     AtmTimeSeriesMeasurement,
 )
 from typing_extensions import TypedDict
-
 
 ##===================================================================
 ## Lambda configuration
@@ -99,7 +99,7 @@ _measurements_queue: queue.Queue = queue.Queue()
 
 
 def handle(
-    job_batch_request: AtmJobBatchRequest[JobArgs],
+    job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
 
@@ -163,16 +163,18 @@ def build_job_results(job: Job, checksum: Optional[str]) -> JobResults:
 def calculate_checksum(job: Job, file_path: str) -> str:
     algorithm = job.args["algorithm"]
 
-    with open(file_path, "rb") as file:
+    with open(file_path, "rb") as fd:
+        data_stream = iter(lambda: fd.read(READ_CHUNK_SIZE), b"")
+
         if algorithm == "adler32":
             value = 1
-            for data in iter(lambda: file.read(READ_CHUNK_SIZE), b""):
+            for data in data_stream:
                 value = zlib.adler32(data, value)
                 _measurements_queue.put(BytesProcessed.build(value=len(data)))
             return format(value, "x")
         else:
             hash = getattr(hashlib, algorithm)()
-            for data in iter(lambda: file.read(READ_CHUNK_SIZE), b""):
+            for data in data_stream:
                 hash.update(data)
                 _measurements_queue.put(BytesProcessed.build(value=len(data)))
             return hash.hexdigest()
