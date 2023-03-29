@@ -333,7 +333,6 @@ def unpack_file(file_unpack_ctx: FileUnpackCtx) -> str:
         file_info.substitute_path(file_unpack_ctx.file_data_dir_rel_path)
         archive.unpack_file(file_info, file_unpack_ctx.dst_dir)
 
-        ##    relative_path = file_unpack_ctx.file_dst_path.replace("/mnt/onedata/", "")
         return build_relative_file_dst_path(file_unpack_ctx)
 
 
