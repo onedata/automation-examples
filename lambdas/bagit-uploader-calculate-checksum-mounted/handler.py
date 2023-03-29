@@ -200,7 +200,7 @@ def verify_file_checksum(
     algorithm = exp_file_checksum.algorithm
 
     try:
-        checksum = calculate_file_checksum(file_path, algorithm)
+        checksum = calculate_checksum(file_path, algorithm)
         set_file_xattr(file_path, f"checksum.{algorithm}.calculated", checksum)
         assert_exp_checksum(checksum, exp_file_checksum.checksum)
     except JobException as ex:
@@ -217,30 +217,30 @@ def verify_file_checksum(
         }
 
 
-def calculate_file_checksum(file_path: str, algorithm: ChecksumAlgorithm) -> str:
+def calculate_checksum(file_path: str, algorithm: ChecksumAlgorithm) -> str:
     try:
-        return calculate_checksum(file_path, algorithm)
+        return calculate_checksum_insecure(file_path, algorithm)
     except Exception as ex:
         raise JobException(f"Failed to calculate checksum due to: {str(ex)}")
 
 
-def calculate_checksum(file_path: str, algorithm: ChecksumAlgorithm) -> str:
+def calculate_checksum_insecure(file_path: str, algorithm: ChecksumAlgorithm) -> str:
     with open(file_path, "rb") as file:
         if algorithm == "adler32":
             value = 1
             for data in iter(lambda: file.read(READ_CHUNK_SIZE), b""):
                 value = zlib.adler32(data, value)
-                _measurements_queue.put(build_time_series_measurment(algorithm, data))
+                _measurements_queue.put(build_time_series_measurement(algorithm, data))
             return format(value, "x")
         else:
             hash = getattr(hashlib, algorithm)()
             for data in iter(lambda: file.read(READ_CHUNK_SIZE), b""):
                 hash.update(data)
-                _measurements_queue.put(build_time_series_measurment(algorithm, data))
+                _measurements_queue.put(build_time_series_measurement(algorithm, data))
             return hash.hexdigest()
 
 
-def build_time_series_measurment(
+def build_time_series_measurement(
     algorithm: ChecksumAlgorithm, data: bytes
 ) -> AtmTimeSeriesMeasurement:
     return {

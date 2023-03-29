@@ -11,7 +11,7 @@ import os.path
 import queue
 import traceback
 from threading import Event, Thread
-from typing import Final, Union
+from typing import Final, Iterator, Union
 
 import requests
 from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
@@ -25,6 +25,8 @@ from onedata_lambda_utils.types import (
     AtmTimeSeriesMeasurement,
 )
 from typing_extensions import TypedDict
+from XRootD import client
+from XRootD.client.flags import OpenFlags
 
 ##===================================================================
 ## Lambda configuration
@@ -33,7 +35,6 @@ from typing_extensions import TypedDict
 
 MOUNT_POINT: Final[str] = "/mnt/onedata"
 
-HTTP_GET_TIMEOUT_SEC: Final[int] = 120
 DOWNLOAD_CHUNK_SIZE: Final[int] = 10 * 1024**2
 
 
@@ -82,6 +83,10 @@ class JobResults(TypedDict):
 ##===================================================================
 
 
+class JobException(Exception):
+    pass
+
+
 _all_jobs_processed: Event = Event()
 _measurements_queue: queue.Queue = queue.Queue()
 
@@ -107,6 +112,8 @@ def run_job(job_args: JobArgs) -> Union[JobResults, AtmException]:
     try:
         run_job_insecure(job_args)
         _measurements_queue.put(FilesProcessed.build(value=1))
+    except (JobException, requests.RequestException) as ex:
+        return AtmException(exception=str(ex))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
@@ -147,24 +154,51 @@ def run_job_insecure(job_args: JobArgs) -> None:
 
 
 def download_file(job_args: JobArgs) -> None:
+    if job_args["downloadInfo"]["sourceUrl"].startswith("root:/"):
+        download_xrootd_file(job_args)
+    else:
+        download_http_file(job_args)
+
+
+def download_xrootd_file(job_args: JobArgs) -> None:
+    url = job_args["downloadInfo"]["sourceUrl"]
+
+    with client.File() as fd:
+        status, _ = fd.open(url, OpenFlags.READ)
+        if not status.ok:
+            raise JobException(
+                f"Failed to open xrootd file at {url} due to: {status.message}"
+            )
+
+        data_stream = (
+            chunk.encode()
+            for chunk in fd.readchunks(offset=0, chunksize=DOWNLOAD_CHUNK_SIZE)
+        )
+        write_file(job_args, data_stream)
+
+
+def download_http_file(job_args: JobArgs) -> None:
     r = requests.get(
         job_args["downloadInfo"]["sourceUrl"],
         stream=True,
         allow_redirects=True,
-        timeout=HTTP_GET_TIMEOUT_SEC,
     )
     r.raise_for_status()
 
+    write_file(job_args, r.iter_content(DOWNLOAD_CHUNK_SIZE))
+
+
+def write_file(job_args: JobArgs, data_stream: Iterator[bytes]) -> None:
     file_size = 0
     with open(build_destination_path(job_args), "wb") as f:
-        for chunk in r.iter_content(DOWNLOAD_CHUNK_SIZE):
+        for chunk in data_stream:
             f.write(chunk)
             chunk_size = len(chunk)
             file_size += chunk_size
             _measurements_queue.put(BytesProcessed.build(value=chunk_size))
 
     if file_size != job_args["downloadInfo"]["size"]:
-        raise Exception(
+        raise JobException(
             f"Mismatch between expected ({job_args['downloadInfo']['size']} B) "
             f"and actual ({file_size} B) size of downloaded file"
         )
