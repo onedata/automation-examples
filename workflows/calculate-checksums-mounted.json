@@ -3,12 +3,12 @@
   "schemaFormatVersion": 2,
   "revision": {
     "supplementaryAtmLambdas": {
-      "748d3e02cde7fe4535042025e63171dfch75af": {
-        "5": {
+      "16c4a2e9fb781509bfe5591266e3d704ch7fae": {
+        "6": {
           "schemaFormatVersion": 2,
           "revision": {
             "schemaFormatVersion": 2,
-            "originalRevisionNumber": 5,
+            "originalRevisionNumber": 6,
             "atmLambdaRevision": {
               "summary": "",
               "state": "draft",
@@ -64,7 +64,47 @@
               },
               "name": "calculate-checksum-mounted",
               "description": "",
-              "checksum": "04ddab6f07a9d25294ffb524820aadeb",
+              "configParameterSpecs": [
+                {
+                  "name": "algorithm",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "allowedValues": [
+                        "adler32",
+                        "blake2b",
+                        "blake2s",
+                        "md5",
+                        "sha1",
+                        "sha224",
+                        "sha256",
+                        "sha384",
+                        "sha512",
+                        "sha3_224",
+                        "sha3_256",
+                        "sha3_384",
+                        "sha3_512",
+                        "shake_128",
+                        "shake_256"
+                      ]
+                    },
+                    "type": "string"
+                  }
+                },
+                {
+                  "name": "metadataKey",
+                  "isOptional": false,
+                  "defaultValue": "",
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "allowedValues": null
+                    },
+                    "type": "string"
+                  }
+                }
+              ],
+              "checksum": "7da00b77933825c06db45b7b8dc9fbd7",
               "argumentSpecs": [
                 {
                   "name": "file",
@@ -76,29 +116,11 @@
                     },
                     "type": "file"
                   }
-                },
-                {
-                  "name": "algorithm",
-                  "isOptional": false,
-                  "defaultValue": null,
-                  "dataSpec": {
-                    "valueConstraints": {},
-                    "type": "string"
-                  }
-                },
-                {
-                  "name": "metadataKey",
-                  "isOptional": false,
-                  "defaultValue": null,
-                  "dataSpec": {
-                    "valueConstraints": {},
-                    "type": "string"
-                  }
                 }
               ]
             }
           },
-          "originalAtmLambdaId": "748d3e02cde7fe4535042025e63171dfch75af"
+          "originalAtmLambdaId": "16c4a2e9fb781509bfe5591266e3d704ch7fae"
         }
       }
     },
@@ -390,8 +412,12 @@
                   ],
                   "resourceSpecOverride": null,
                   "name": "md5",
-                  "lambdaRevisionNumber": 5,
-                  "lambdaId": "748d3e02cde7fe4535042025e63171dfch75af",
+                  "lambdaRevisionNumber": 6,
+                  "lambdaId": "16c4a2e9fb781509bfe5591266e3d704ch7fae",
+                  "lambdaConfig": {
+                    "metadataKey": "md5_checksum",
+                    "algorithm": "md5"
+                  },
                   "id": "6b6340cf71995551cf4954c1f818a878f723a4",
                   "argumentMappings": [
                     {
@@ -400,20 +426,6 @@
                         "valueBuilderRecipe": null
                       },
                       "argumentName": "file"
-                    },
-                    {
-                      "valueBuilder": {
-                        "valueBuilderType": "const",
-                        "valueBuilderRecipe": "md5"
-                      },
-                      "argumentName": "algorithm"
-                    },
-                    {
-                      "valueBuilder": {
-                        "valueBuilderType": "const",
-                        "valueBuilderRecipe": "md5_checksum"
-                      },
-                      "argumentName": "metadataKey"
                     }
                   ]
                 },
@@ -660,8 +672,12 @@
                   ],
                   "resourceSpecOverride": null,
                   "name": "sha256",
-                  "lambdaRevisionNumber": 5,
-                  "lambdaId": "748d3e02cde7fe4535042025e63171dfch75af",
+                  "lambdaRevisionNumber": 6,
+                  "lambdaId": "16c4a2e9fb781509bfe5591266e3d704ch7fae",
+                  "lambdaConfig": {
+                    "metadataKey": "sha256_checksum",
+                    "algorithm": "sha256"
+                  },
                   "id": "b046ed546726126def3e10c7f63a69437eba30",
                   "argumentMappings": [
                     {
@@ -670,20 +686,6 @@
                         "valueBuilderRecipe": null
                       },
                       "argumentName": "file"
-                    },
-                    {
-                      "valueBuilder": {
-                        "valueBuilderType": "const",
-                        "valueBuilderRecipe": "sha256"
-                      },
-                      "argumentName": "algorithm"
-                    },
-                    {
-                      "valueBuilder": {
-                        "valueBuilderType": "const",
-                        "valueBuilderRecipe": "sha256_checksum"
-                      },
-                      "argumentName": "metadataKey"
                     }
                   ]
                 }
@@ -702,6 +704,6 @@
       "dashboardSpec": null
     }
   },
-  "originalAtmWorkflowSchemaId": "e2298900ca0c8927580829e55d99760fch00f8",
+  "originalAtmWorkflowSchemaId": "13fd1e0b3bb579234650859f28981fa0cha638",
   "name": "calculate-checksums-mounted"
 }
