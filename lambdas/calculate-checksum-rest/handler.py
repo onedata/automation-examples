@@ -17,7 +17,17 @@ import queue
 import traceback
 import zlib
 from threading import Event, Thread
-from typing import Final, Iterator, NamedTuple, Optional, Set, Union
+from typing import (
+    Final,
+    FrozenSet,
+    Iterator,
+    Literal,
+    NamedTuple,
+    Optional,
+    TypeAlias,
+    Union,
+    get_args,
+)
 
 import requests
 from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
@@ -29,7 +39,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchRequest,
     AtmJobBatchRequestCtx,
     AtmJobBatchResponse,
-    AtmObject,
     AtmTimeSeriesMeasurement,
 )
 from typing_extensions import TypedDict
@@ -39,9 +48,6 @@ from typing_extensions import TypedDict
 ##===================================================================
 
 
-AVAILABLE_CHECKSUM_ALGORITHMS: Final[Set[str]] = set().union(
-    {"adler32"}, hashlib.algorithms_available
-)
 DOWNLOAD_CHUNK_SIZE: Final[int] = 10 * 1024**2
 VERIFY_SSL_CERTS: Final[bool] = os.getenv("VERIFY_SSL_CERTIFICATES") != "false"
 
@@ -68,10 +74,37 @@ class BytesProcessed(
     pass
 
 
+ChecksumAlgorithm: TypeAlias = Literal[
+    "adler32",
+    "blake2b",
+    "blake2s",
+    "md5",
+    "sha1",
+    "sha224",
+    "sha256",
+    "sha384",
+    "sha512",
+    "sha3_224",
+    "sha3_256",
+    "sha3_384",
+    "sha3_512",
+    "shake_128",
+    "shake_256",
+]
+
+
+AVAILABLE_CHECKSUM_ALGORITHMS: Final[FrozenSet[ChecksumAlgorithm]] = frozenset(
+    get_args(ChecksumAlgorithm)
+)
+
+
+class TaskConfig(TypedDict):
+    algorithm: ChecksumAlgorithm
+    metadataKey: str
+
+
 class JobArgs(TypedDict):
     file: AtmFile
-    algorithm: str
-    metadataKey: str
 
 
 class FileChecksumReport(TypedDict):
@@ -90,7 +123,7 @@ class JobResults(TypedDict):
 
 
 class Job(NamedTuple):
-    ctx: AtmJobBatchRequestCtx
+    ctx: AtmJobBatchRequestCtx[TaskConfig]
     args: JobArgs
 
 
@@ -99,9 +132,18 @@ _measurements_queue: queue.Queue = queue.Queue()
 
 
 def handle(
-    job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
+    job_batch_request: AtmJobBatchRequest[JobArgs, TaskConfig],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
+
+    algorithm = job_batch_request["ctx"]["config"]["algorithm"]
+    if algorithm not in AVAILABLE_CHECKSUM_ALGORITHMS:
+        return AtmException(
+            exception=(
+                f"{algorithm} algorithm is unsupported. "
+                f"Available ones are: {AVAILABLE_CHECKSUM_ALGORITHMS}"
+            )
+        )
 
     jobs_monitor = Thread(target=monitor_jobs, daemon=True, args=[heartbeat_callback])
     jobs_monitor.start()
@@ -123,33 +165,28 @@ def run_job(job: Job) -> Union[AtmException, JobResults]:
     if job.args["file"]["type"] != "REG":
         return build_job_results(job, None)
 
-    if job.args["algorithm"] not in AVAILABLE_CHECKSUM_ALGORITHMS:
-        return AtmException(
-            exception=(
-                f"{job.args['algorithm']} algorithm is unsupported."
-                f"Available ones are: {AVAILABLE_CHECKSUM_ALGORITHMS}"
-            )
-        )
-
     try:
+        algorithm = job.ctx["config"]["algorithm"]
         data_stream = get_file_data_stream(job)
-        checksum = calculate_checksum(job, data_stream)
+        checksum = calculate_checksum(algorithm, data_stream)
 
-        if job.args["metadataKey"] != "":
-            set_file_metadata(job, checksum)
-
-        _measurements_queue.put(FilesProcessed.build(value=1))
+        if xattr_name := job.ctx["config"]["metadataKey"]:
+            set_file_xattr(job, xattr_name, checksum)
+    except requests.RequestException as ex:
+        return AtmException(exception=str(ex))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
         return build_job_results(job, checksum)
+    finally:
+        _measurements_queue.put(FilesProcessed.build(value=1))
 
 
 def build_job_results(job: Job, checksum: Optional[str]) -> JobResults:
     return {
         "result": {
             "file_id": job.args["file"]["file_id"],
-            "algorithm": job.args["algorithm"],
+            "algorithm": job.ctx["config"]["algorithm"],
             "checksum": checksum,
         }
     }
@@ -167,9 +204,9 @@ def get_file_data_stream(job: Job) -> Iterator[bytes]:
     return response.iter_content(chunk_size=DOWNLOAD_CHUNK_SIZE)
 
 
-def calculate_checksum(job: Job, data_stream: Iterator[bytes]) -> str:
-    algorithm = job.args["algorithm"]
-
+def calculate_checksum(
+    algorithm: ChecksumAlgorithm, data_stream: Iterator[bytes]
+) -> str:
     if algorithm == "adler32":
         value = 1
         for data in data_stream:
@@ -184,14 +221,14 @@ def calculate_checksum(job: Job, data_stream: Iterator[bytes]) -> str:
         return hash.hexdigest()
 
 
-def set_file_metadata(job: Job, checksum: str) -> None:
+def set_file_xattr(job: Job, xattr_name: str, checksum: str) -> None:
     response = requests.put(
         build_file_rest_url(job, "metadata/xattrs"),
         headers={
             "x-auth-token": job.ctx["accessToken"],
             "content-type": "application/json",
         },
-        json={job.args["metadataKey"]: checksum},
+        json={xattr_name: checksum},
         verify=VERIFY_SSL_CERTS,
     )
     response.raise_for_status()
