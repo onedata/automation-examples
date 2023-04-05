@@ -9,16 +9,24 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 
 import hashlib
-import os.path
 import queue
 import re
 import time
 import traceback
 import zlib
-from concurrent.futures import ThreadPoolExecutor
-from itertools import groupby
+from concurrent.futures import Executor, Future, ThreadPoolExecutor
 from threading import Event, Thread
-from typing import Dict, Final, List, Literal, NamedTuple, TypeAlias, Union, get_args
+from typing import (
+    Dict,
+    Final,
+    List,
+    Literal,
+    NamedTuple,
+    Tuple,
+    TypeAlias,
+    Union,
+    get_args,
+)
 
 import xattr
 from onedata_lambda_utils.streaming import AtmResultStreamer
@@ -130,12 +138,18 @@ def handle(
     jobs_monitor = Thread(target=monitor_jobs, daemon=True, args=[heartbeat_callback])
     jobs_monitor.start()
 
-    exp_checksums = get_exp_file_checksums(job_batch_request["argsBatch"])
-
     with ThreadPoolExecutor() as executor:
-        checksum_reports = list(executor.map(verify_file_checksum, exp_checksums))
+        jobs_results_or_futures = []
 
-    results_batch = assemble_results(exp_checksums, checksum_reports)
+        for job_args in job_batch_request["argsBatch"]:
+            file_path = build_file_path(job_args)
+
+            if futures := schedule_file_verifications(executor, file_path):
+                jobs_results_or_futures.append((file_path, futures))
+            else:
+                jobs_results_or_futures.append(build_job_results(file_path, {}))
+
+        results_batch = list(map(assemble_results, jobs_results_or_futures))
 
     _all_jobs_processed.set()
     jobs_monitor.join()
@@ -143,66 +157,58 @@ def handle(
     return {"resultsBatch": results_batch}
 
 
-def get_exp_file_checksums(args_batch: List[JobArgs]) -> List[ExpFileChecksum]:
-    exp_checksums = []
-
-    for job_args in args_batch:
-        file_path = build_file_path(job_args)
-        if not os.path.isfile(file_path):
-            continue
-
-        file_xattrs = xattr.xattr(file_path)
-        for xattr_name in file_xattrs.list():
-            if match := re.match(RE_EXP_CHECKSUM_XATTR_NAME, xattr_name):
-                exp_checksums.append(
-                    ExpFileChecksum(
-                        file_path=file_path,
-                        algorithm=match.group("algorithm"),
-                        checksum=file_xattrs.get(xattr_name).decode("utf8"),
-                    )
-                )
-
-    return exp_checksums
-
-
 def build_file_path(job_args: JobArgs) -> str:
     return f'{MOUNT_POINT}/{job_args["filePath"]}'
 
 
-def assemble_results(
-    exp_checksums: List[ExpFileChecksum],
-    checksum_reports: List[Union[ChecksumReport, AtmException]],
-) -> List[Union[JobResults, AtmException]]:
-    results_batch = []
+def schedule_file_verifications(executor: Executor, file_path: str) -> List[Future]:
+    futures = []
 
-    for file_path, group in groupby(
-        zip(exp_checksums, checksum_reports), key=lambda item: item[0].file_path
-    ):
-        checksums = {}
-        for _, checksum_report in group:
-            if "exception" in checksum_report:
-                results_batch.append(checksum_report)
-                break
-
-            checksums.update(checksum_report)
-        else:
-            results_batch.append(
-                {"result": {"filePath": file_path, "checksums": checksums}}
+    file_xattrs = xattr.xattr(file_path)
+    for xattr_name in file_xattrs.list():
+        if match := re.match(RE_EXP_CHECKSUM_XATTR_NAME, xattr_name):
+            futures.append(
+                executor.submit(
+                    verify_file_checksum,
+                    file_path,
+                    match.group("algorithm"),
+                    file_xattrs.get(xattr_name).decode("utf8"),
+                )
             )
 
-    return results_batch
+    return futures
+
+
+def assemble_results(
+    job_results_or_futures: Union[JobResults, Tuple[str, List[Future]]]
+) -> Union[JobResults, AtmException]:
+    match job_results_or_futures:
+        case {"result": _}:
+            return job_results_or_futures
+
+        case (file_path, futures):
+            checksums = {}
+            for future in futures:
+                verification_result = future.result()
+                if "exception" in verification_result:
+                    return verification_result
+
+                checksums.update(verification_result)
+            else:
+                return build_job_results(file_path, checksums)
+
+
+def build_job_results(file_path: str, checksums: ChecksumReport) -> JobResults:
+    return {"result": {"filePath": file_path, "checksums": checksums}}
 
 
 def verify_file_checksum(
-    exp_file_checksum: ExpFileChecksum,
+    file_path: str, algorithm: ChecksumAlgorithm, exp_checksum: str
 ) -> Union[AtmException, ChecksumReport]:
-    file_path = exp_file_checksum.file_path
-    algorithm = exp_file_checksum.algorithm
-
     try:
         checksum = calculate_checksum(file_path, algorithm)
         set_file_xattr(file_path, f"checksum.{algorithm}.calculated", checksum)
-        assert_exp_checksum(checksum, exp_file_checksum.checksum)
+        assert_exp_checksum(checksum, exp_checksum)
     except JobException as ex:
         return AtmException(exception=str(ex))
     except Exception:
@@ -210,7 +216,7 @@ def verify_file_checksum(
     else:
         return {
             algorithm: {
-                "expected": exp_file_checksum.checksum,
+                "expected": exp_checksum,
                 "calculated": checksum,
                 "status": "ok",
             }
