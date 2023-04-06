@@ -108,6 +108,10 @@ class BagitArchive(abc.ABC):
     def open_file(self, path: str) -> IO[bytes]:
         pass
 
+    @abc.abstractmethod
+    def is_file(self, path: str) -> bool:
+        pass
+
 
 class ZipBagitArchive(BagitArchive):
     def __init__(self, archive: zipfile.ZipFile) -> None:
@@ -122,6 +126,10 @@ class ZipBagitArchive(BagitArchive):
 
     def open_file(self, path: str) -> IO[bytes]:
         return self.archive.open(path)
+
+    def is_file(self, path: str) -> bool:
+        zip_info = self.archive.getinfo(path)
+        return not zip_info.is_dir()
 
 
 class TarBagitArchive(BagitArchive):
@@ -141,6 +149,10 @@ class TarBagitArchive(BagitArchive):
             raise JobException(f"Couldn't open {path} in archive")
 
         return fd
+
+    def is_file(self, path: str) -> bool:
+        tar_info = self.archive.getmember(path)
+        return tar_info.isfile()
 
 
 @contextlib.contextmanager
@@ -307,7 +319,11 @@ def validate_payload(archive: BagitArchive) -> None:
 
     payload_files = set()
     for file in archive.list_files():
-        if file.startswith(data_dir) and len(file) > len(data_dir):
+        if (
+            file.startswith(data_dir)
+            and len(file) > len(data_dir)
+            and archive.is_file(file)
+        ):
             payload_files.add(file[len(bagit_dir) + 1 :])
 
     payload_files.update(parse_fetch_file(archive))

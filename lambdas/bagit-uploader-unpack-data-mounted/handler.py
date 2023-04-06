@@ -333,7 +333,14 @@ def unpack_file(file_unpack_ctx: FileUnpackCtx) -> str:
         file_info.substitute_path(file_unpack_ctx.file_data_dir_rel_path)
         archive.unpack_file(file_info, file_unpack_ctx.dst_dir)
 
-        return file_unpack_ctx.file_dst_path
+        return build_relative_file_dst_path(file_unpack_ctx)
+
+
+def build_relative_file_dst_path(file_unpack_ctx: FileUnpackCtx) -> str:
+    return ".__onedata__file_id__{dst_dir_id}/{file_rel_path}".format(
+        dst_dir_id=file_unpack_ctx.job_args["destinationDir"]["file_id"],
+        file_rel_path=file_unpack_ctx.file_data_dir_rel_path,
+    )
 
 
 def build_archive_path(job_args: JobArgs) -> str:
