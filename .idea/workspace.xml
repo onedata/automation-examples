@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="73e2e631-e317-4cd2-b160-43a109f808c9" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/bagit-uploader-archive-destination-rest/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/bagit-uploader-archive-destination-rest/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/bagit-uploader-calculate-checksum-mounted/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/bagit-uploader-calculate-checksum-mounted/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/bagit-uploader-parse-fetch-file-mounted/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/bagit-uploader-parse-fetch-file-mounted/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/bagit-uploader-register-metadata-mounted/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/bagit-uploader-register-metadata-mounted/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/bagit-uploader-unpack-data-mounted/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/bagit-uploader-unpack-data-mounted/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/bagit-uploader-validate-mounted/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/bagit-uploader-validate-mounted/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/calculate-checksum-mounted/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/calculate-checksum-mounted/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/calculate-checksum-rest/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/calculate-checksum-rest/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/calculate-downloaded-file-checksum-mounted/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/calculate-downloaded-file-checksum-mounted/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/demo/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/demo/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/detect-file-format-mounted/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/detect-file-format-mounted/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/detect-file-mime-type-mounted/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/detect-file-mime-type-mounted/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/download-file-mounted/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/download-file-mounted/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/echo/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/echo/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lambdas/parse-fetch-file-mounted/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/lambdas/parse-fetch-file-mounted/handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/static_analysis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/recalculate-workflow-checksums.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/recalculate-workflow-checksums.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="2P0WSgECbdPZuUGBZa1dJ4LKOTg" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="73e2e631-e317-4cd2-b160-43a109f808c9" name="Changes" comment="" />
+      <created>1682594481501</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1682594481501</updated>
+    </task>
+    <servers />
+  </component>
+</project>

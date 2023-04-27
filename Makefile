@@ -10,3 +10,14 @@ black-format:
 
 black-check:
 	docker run --rm -i -v `pwd`:`pwd` -w `pwd`  $(STATIC_ANALYSER_IMAGE) black . --check
+		
+##
+## Isort import sorting
+##
+
+isort-format:
+	docker run --rm -i -v `pwd`:`pwd` -w `pwd`  $(STATIC_ANALYSER_IMAGE) isort -rc . 
+
+
+isort-check:
+	docker run --rm -i -v `pwd`:`pwd` -w `pwd`  $(STATIC_ANALYSER_IMAGE) isort -rc . --check	
