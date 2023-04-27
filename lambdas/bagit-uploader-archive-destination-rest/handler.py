@@ -180,7 +180,6 @@ def create_archive(job: Job, dataset_id: str) -> str:
             {
                 "datasetId": dataset_id,
                 "config": {
-                    "incremental": {"enabled": True},
                     "includeDip": True,
                     "layout": "bagit",
                 },
