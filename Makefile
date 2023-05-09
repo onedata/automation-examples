@@ -27,4 +27,4 @@ isort-check:
 ##
 
 static-analysis:	
-	docker run --rm -i -v /home/rwidzisz/automation-examples:/tmp/automation-examples $(STATIC_ANALYSER_IMAGE) pylint /tmp/automation-examples --rcfile /tmp/rc_file		
+	docker run --rm -i -v `pwd`:`pwd` -w `pwd`  $(STATIC_ANALYSER_IMAGE) pylint . --recursive=true
