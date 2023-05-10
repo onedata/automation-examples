@@ -16,29 +16,17 @@ import traceback
 import zlib
 from concurrent.futures import Executor, Future, ThreadPoolExecutor
 from threading import Event, Thread
-from typing import (
-    Dict,
-    Final,
-    List,
-    Literal,
-    NamedTuple,
-    Tuple,
-    TypeAlias,
-    Union,
-    get_args,
-)
+from typing import (Dict, Final, List, Literal, NamedTuple, Tuple, TypeAlias,
+                    Union, get_args)
+
+from typing_extensions import TypedDict
 
 import xattr
 from onedata_lambda_utils.streaming import AtmResultStreamer
-from onedata_lambda_utils.types import (
-    AtmException,
-    AtmHeartbeatCallback,
-    AtmJobBatchRequest,
-    AtmJobBatchResponse,
-    AtmObject,
-    AtmTimeSeriesMeasurement,
-)
-from typing_extensions import TypedDict
+from onedata_lambda_utils.types import (AtmException, AtmHeartbeatCallback,
+                                        AtmJobBatchRequest,
+                                        AtmJobBatchResponse, AtmObject,
+                                        AtmTimeSeriesMeasurement)
 
 ##===================================================================
 ## Lambda configuration

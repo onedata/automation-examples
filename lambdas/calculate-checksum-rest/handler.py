@@ -30,6 +30,8 @@ from typing import (
 )
 
 import requests
+from typing_extensions import TypedDict
+
 from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
 from onedata_lambda_utils.streaming import AtmResultStreamer
 from onedata_lambda_utils.types import (
@@ -41,7 +43,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmTimeSeriesMeasurement,
 )
-from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -198,6 +199,7 @@ def get_file_data_stream(job: Job) -> Iterator[bytes]:
         headers={"x-auth-token": job.ctx["accessToken"]},
         stream=True,
         verify=VERIFY_SSL_CERTS,
+        timeout=120,
     )
     response.raise_for_status()
 
@@ -214,11 +216,11 @@ def calculate_checksum(
             _measurements_queue.put(BytesProcessed.build(value=len(data)))
         return format(value, "x")
     else:
-        hash = getattr(hashlib, algorithm)()
+        data_hash = getattr(hashlib, algorithm)()
         for data in data_stream:
-            hash.update(data)
+            data_hash.update(data)
             _measurements_queue.put(BytesProcessed.build(value=len(data)))
-        return hash.hexdigest()
+        return data_hash.hexdigest()
 
 
 def set_file_xattr(job: Job, xattr_name: str, checksum: str) -> None:
@@ -230,16 +232,17 @@ def set_file_xattr(job: Job, xattr_name: str, checksum: str) -> None:
         },
         json={xattr_name: checksum},
         verify=VERIFY_SSL_CERTS,
+        timeout=60,
     )
     response.raise_for_status()
 
 
 def build_file_rest_url(job: Job, subpath: str) -> str:
-    return "https://{domain}/api/v3/oneprovider/data/{file_id}/{subpath}".format(
-        domain=job.ctx["oneproviderDomain"],
-        file_id=job.args["file"]["file_id"],
-        subpath=subpath.lstrip("/"),
-    )
+    domain = job.ctx["oneproviderDomain"]
+    file_id = job.args["file"]["file_id"]
+    subpath = subpath.lstrip("/")
+
+    return f"https://{domain}/api/v3/oneprovider/data/{file_id}/{subpath}"
 
 
 def monitor_jobs(heartbeat_callback: AtmHeartbeatCallback) -> None:

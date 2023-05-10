@@ -19,6 +19,8 @@ import zipfile
 from functools import lru_cache
 from typing import IO, Final, Generator, List, NamedTuple, Optional, Union
 
+from typing_extensions import TypedDict
+
 from onedata_lambda_utils.types import (
     AtmException,
     AtmFile,
@@ -27,7 +29,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmObject,
 )
-from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda configuration

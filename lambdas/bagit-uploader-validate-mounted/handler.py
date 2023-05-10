@@ -20,6 +20,8 @@ import zlib
 from functools import lru_cache
 from typing import IO, Final, Generator, Iterator, List, NamedTuple, Set, Tuple
 
+from typing_extensions import TypedDict
+
 from onedata_lambda_utils.types import (
     AtmException,
     AtmFile,
@@ -28,7 +30,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmObject,
 )
-from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -198,7 +199,7 @@ def run_job(job_args: JobArgs) -> JobResults:
             "validArchives": [],
             "statusLog": {
                 "archive": job_args["archive"]["name"],
-                "status": f"Invalid bagit archive",
+                "status": "Invalid bagit archive",
                 "reason": str(ex),
             },
         }
@@ -207,7 +208,7 @@ def run_job(job_args: JobArgs) -> JobResults:
             "validArchives": [],
             "statusLog": {
                 "archive": job_args["archive"]["name"],
-                "status": f"Failed to validate bagit archive",
+                "status": "Failed to validate bagit archive",
                 "reason": traceback.format_exc(),
             },
         }
@@ -216,7 +217,7 @@ def run_job(job_args: JobArgs) -> JobResults:
             "validArchives": [job_args["archive"]],
             "statusLog": {
                 "archive": job_args["archive"]["name"],
-                "status": f"Valid bagit archive",
+                "status": "Valid bagit archive",
             },
         }
 
@@ -287,10 +288,10 @@ def calculate_checksum(data_stream: Iterator[bytes], algorithm: str) -> str:
             value = zlib.adler32(data, value)
         return format(value, "x")
     else:
-        hash = hashlib.new(algorithm)
+        hash_data = hashlib.new(algorithm)
         for data in data_stream:
-            hash.update(data)
-        return hash.hexdigest()
+            hash_data.update(data)
+        return hash_data.hexdigest()
 
 
 def validate_bagit_txt(archive: BagitArchive) -> None:

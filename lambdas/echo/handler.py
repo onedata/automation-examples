@@ -12,6 +12,8 @@ import json
 import random
 import time
 
+from typing_extensions import TypeAlias, TypedDict
+
 from onedata_lambda_utils.types import (
     AtmException,
     AtmHeartbeatCallback,
@@ -19,7 +21,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmObject,
 )
-from typing_extensions import TypeAlias, TypedDict
 
 ##===================================================================
 ## Lambda interface
@@ -62,7 +63,7 @@ def handle(
             results.append(None)
 
             for arg_name, arg_value in job_args.values():
-                with open(f"/out/{arg_name}", "a+") as f:
+                with open(f"/out/{arg_name}", encoding="UTF-8" "a+") as f:
                     json.dump(arg_value, f)
                     f.write("\n")
 

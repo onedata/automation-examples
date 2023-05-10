@@ -28,6 +28,8 @@ from typing import (
     get_args,
 )
 
+from typing_extensions import TypedDict
+
 import xattr
 from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
 from onedata_lambda_utils.streaming import AtmResultStreamer
@@ -40,7 +42,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmTimeSeriesMeasurement,
 )
-from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -210,11 +211,11 @@ def calculate_checksum(algorithm: ChecksumAlgorithm, file_path: str) -> str:
                 _measurements_queue.put(BytesProcessed.build(value=len(data)))
             return format(value, "x")
         else:
-            hash = getattr(hashlib, algorithm)()
+            data_hash = getattr(hashlib, algorithm)()
             for data in data_stream:
-                hash.update(data)
+                data_hash.update(data)
                 _measurements_queue.put(BytesProcessed.build(value=len(data)))
-            return hash.hexdigest()
+            return data_hash.hexdigest()
 
 
 def set_file_checksum_xattr(file_path: str, xattr_name: str, checksum: str) -> None:

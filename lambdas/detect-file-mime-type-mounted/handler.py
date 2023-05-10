@@ -11,6 +11,8 @@ import mimetypes
 import traceback
 from typing import Final, Union
 
+from typing_extensions import TypedDict
+
 import xattr
 from onedata_lambda_utils.types import (
     AtmException,
@@ -20,7 +22,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmObject,
 )
-from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -76,8 +77,8 @@ def run_job(job_args: JobArgs) -> Union[AtmException, JobResults]:
         mime_type = get_mime_filename_type(job_args["file"]["name"])
 
         if metadata_key := job_args["metadataKey"]:
-            xd = xattr.xattr(build_file_path(job_args))
-            xd.set(f"{metadata_key}.mime-type", str.encode(mime_type))
+            xattr_data = xattr.xattr(build_file_path(job_args))
+            xattr_data.set(f"{metadata_key}.mime-type", str.encode(mime_type))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:

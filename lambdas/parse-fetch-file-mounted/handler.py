@@ -13,6 +13,8 @@ import os.path
 import traceback
 from typing import Final, List, NamedTuple, Union
 
+from typing_extensions import TypedDict
+
 from onedata_lambda_utils.types import (
     AtmException,
     AtmFile,
@@ -21,7 +23,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmObject,
 )
-from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -93,15 +94,14 @@ def run_job(job: Job) -> Union[AtmException, JobResults]:
 
 
 def parse_fetch_file(job: Job) -> List[FileDownloadInfo]:
-    fetch_file_path = "{mount_point}/.__onedata__file_id__{fetch_file_id}".format(
-        mount_point=MOUNT_POINT, fetch_file_id=job.args["fetchFile"]["file_id"]
-    )
+    fetch_file_id = job.args["fetchFile"]["file_id"]
+    fetch_file_path = f"{MOUNT_POINT}/.__onedata__file_id__{fetch_file_id}"
 
     if os.path.isdir(fetch_file_path):
         return []
 
     files_to_download = []
-    with open(fetch_file_path, "r") as f:
+    with open(fetch_file_path, encoding="UTF-8" "r") as f:
         for line in f:
             files_to_download.append(parse_line(job, line))
             job.heartbeat_callback()
@@ -111,12 +111,11 @@ def parse_fetch_file(job: Job) -> List[FileDownloadInfo]:
 
 def parse_line(job: Job, line: str) -> FileDownloadInfo:
     url, size, rel_path = line.strip().split()
+    root_dir_id = job.args["destinationDir"]["file_id"]
+    rel_path = rel_path.lstrip("/")
 
     return {
         "sourceUrl": url,
-        "destinationPath": ".__onedata__file_id__{root_dir_id}/{rel_path}".format(
-            root_dir_id=job.args["destinationDir"]["file_id"],
-            rel_path=rel_path.lstrip("/"),
-        ),
+        "destinationPath": f".__onedata__file_id__{root_dir_id}/{rel_path}",
         "size": int(size),
     }
