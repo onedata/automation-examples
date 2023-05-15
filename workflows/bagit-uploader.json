@@ -3,26 +3,24 @@
   "schemaFormatVersion": 2,
   "revision": {
     "supplementaryAtmLambdas": {
-      "ed55f2587be5e7b355637308719601dfchded5": {
-        "8": {
+      "cf06804370466e71a8c8afb2bb43cd03cha05a": {
+        "3": {
           "schemaFormatVersion": 2,
           "revision": {
             "schemaFormatVersion": 2,
-            "originalRevisionNumber": 8,
+            "originalRevisionNumber": 3,
             "atmLambdaRevision": {
               "summary": "",
               "state": "draft",
               "resultSpecs": [
                 {
                   "relayMethod": "returnValue",
-                  "name": "validArchives",
+                  "name": "filesToDownload",
                   "dataSpec": {
                     "valueConstraints": {
                       "itemDataSpec": {
-                        "valueConstraints": {
-                          "fileType": "ANY"
-                        },
-                        "type": "file"
+                        "valueConstraints": {},
+                        "type": "object"
                       }
                     },
                     "type": "array"
@@ -48,7 +46,7 @@
               "preferredBatchSize": 5,
               "operationSpec": {
                 "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/lambda-bagit-uploader-validate-mounted:v1",
+                "dockerImage": "docker.onedata.org/lambda-bagit-uploader-parse-fetch-file-mounted:v1",
                 "dockerExecutionOptions": {
                   "readonly": false,
                   "oneclientOptions": "-i",
@@ -56,9 +54,10 @@
                   "mountOneclient": true
                 }
               },
-              "name": "bagit-uploader-validate",
+              "name": "bagit-uploader-unpack-fetch",
               "description": "",
-              "checksum": "159a7bb8bc822b90cc57329da7b7f12a",
+              "configParameterSpecs": [],
+              "checksum": "00b8d4e06527cd4b7b6764c82651b14c",
               "argumentSpecs": [
                 {
                   "name": "archive",
@@ -70,14 +69,25 @@
                     },
                     "type": "file"
                   }
+                },
+                {
+                  "name": "destinationDir",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "fileType": "DIR"
+                    },
+                    "type": "file"
+                  }
                 }
               ]
             }
           },
-          "originalAtmLambdaId": "ed55f2587be5e7b355637308719601dfchded5"
+          "originalAtmLambdaId": "cf06804370466e71a8c8afb2bb43cd03cha05a"
         }
       },
-      "735a1e07b947ef82fd3a2671c44cceb9chb35b": {
+      "be5a954ef1a92ff93b74f150651dc3a9chcd83": {
         "4": {
           "schemaFormatVersion": 2,
           "revision": {
@@ -133,24 +143,116 @@
               },
               "name": "bagit-uploader-calculate-checksum",
               "description": "",
-              "checksum": "d9c7103edac323eb65c41a1104cb62cd",
+              "configParameterSpecs": [],
+              "checksum": "99538f27b51daf0c6383727498273993",
               "argumentSpecs": [
                 {
                   "name": "filePath",
                   "isOptional": false,
                   "defaultValue": null,
                   "dataSpec": {
-                    "valueConstraints": {},
+                    "valueConstraints": {
+                      "allowedValues": null
+                    },
                     "type": "string"
                   }
                 }
               ]
             }
           },
-          "originalAtmLambdaId": "735a1e07b947ef82fd3a2671c44cceb9chb35b"
+          "originalAtmLambdaId": "be5a954ef1a92ff93b74f150651dc3a9chcd83"
         }
       },
-      "6837298bcfc606eb2b0829c1f12338f3chb8a1": {
+      "9ee667fcfc4f96bd86b6ce0d3119ad45ch2cc4": {
+        "5": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 5,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "relayMethod": "returnValue",
+                  "name": "processedFilePath",
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "allowedValues": null
+                    },
+                    "type": "string"
+                  }
+                },
+                {
+                  "relayMethod": "filePipe",
+                  "name": "logs",
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "object"
+                  }
+                },
+                {
+                  "relayMethod": "filePipe",
+                  "name": "stats",
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "specs": [
+                        {
+                          "unit": "none",
+                          "nameMatcherType": "exact",
+                          "nameMatcher": "filesProcessed"
+                        },
+                        {
+                          "unit": "bytes",
+                          "nameMatcherType": "exact",
+                          "nameMatcher": "bytesProcessed"
+                        }
+                      ]
+                    },
+                    "type": "timeSeriesMeasurement"
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 10,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/lambda-download-file-mounted:v1",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "bagit-uploader-fetch-files",
+              "description": "",
+              "configParameterSpecs": [],
+              "checksum": "b000f0e82afe817a1f6ffe11d2ce3d90",
+              "argumentSpecs": [
+                {
+                  "name": "downloadInfo",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "valueConstraints": {},
+                    "type": "object"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "9ee667fcfc4f96bd86b6ce0d3119ad45ch2cc4"
+        }
+      },
+      "870d9c0bdb7d4b6b577051865d53d9e5ch64d9": {
         "3": {
           "schemaFormatVersion": 2,
           "revision": {
@@ -181,7 +283,8 @@
               },
               "name": "register-metadata-from-data",
               "description": "",
-              "checksum": "c34725e194ed8fce7749c7b58e655cbd",
+              "configParameterSpecs": [],
+              "checksum": "746e49d0262206e573128a68c8669c14",
               "argumentSpecs": [
                 {
                   "name": "archive",
@@ -208,27 +311,29 @@
               ]
             }
           },
-          "originalAtmLambdaId": "6837298bcfc606eb2b0829c1f12338f3chb8a1"
+          "originalAtmLambdaId": "870d9c0bdb7d4b6b577051865d53d9e5ch64d9"
         }
       },
-      "6250dc2c0bcb1332ada2b0e9eacdcdb8ch8192": {
-        "3": {
+      "6757d97ae7dc250e41dbc12a863a9df6ch7526": {
+        "8": {
           "schemaFormatVersion": 2,
           "revision": {
             "schemaFormatVersion": 2,
-            "originalRevisionNumber": 3,
+            "originalRevisionNumber": 8,
             "atmLambdaRevision": {
               "summary": "",
               "state": "draft",
               "resultSpecs": [
                 {
                   "relayMethod": "returnValue",
-                  "name": "filesToDownload",
+                  "name": "validArchives",
                   "dataSpec": {
                     "valueConstraints": {
                       "itemDataSpec": {
-                        "valueConstraints": {},
-                        "type": "object"
+                        "valueConstraints": {
+                          "fileType": "ANY"
+                        },
+                        "type": "file"
                       }
                     },
                     "type": "array"
@@ -254,7 +359,7 @@
               "preferredBatchSize": 5,
               "operationSpec": {
                 "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/lambda-bagit-uploader-parse-fetch-file-mounted:v1",
+                "dockerImage": "docker.onedata.org/lambda-bagit-uploader-validate-mounted:v1",
                 "dockerExecutionOptions": {
                   "readonly": false,
                   "oneclientOptions": "-i",
@@ -262,9 +367,10 @@
                   "mountOneclient": true
                 }
               },
-              "name": "bagit-uploader-unpack-fetch",
+              "name": "bagit-uploader-validate",
               "description": "",
-              "checksum": "1a7de3be9e52aa0c3933a34504729fb8",
+              "configParameterSpecs": [],
+              "checksum": "8d24337093a1c5e67c0abbf83f9bad5c",
               "argumentSpecs": [
                 {
                   "name": "archive",
@@ -276,7 +382,79 @@
                     },
                     "type": "file"
                   }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "6757d97ae7dc250e41dbc12a863a9df6ch7526"
+        }
+      },
+      "66023f8eaf9a46881c4e8546384b16abch8247": {
+        "5": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 5,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "relayMethod": "returnValue",
+                  "name": "archiveId",
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "allowedValues": null
+                    },
+                    "type": "string"
+                  }
                 },
+                {
+                  "relayMethod": "filePipe",
+                  "name": "stats",
+                  "dataSpec": {
+                    "valueConstraints": {
+                      "specs": [
+                        {
+                          "unit": "none",
+                          "nameMatcherType": "exact",
+                          "nameMatcher": "filesArchived"
+                        },
+                        {
+                          "unit": "bytes",
+                          "nameMatcherType": "exact",
+                          "nameMatcher": "bytesArchived"
+                        }
+                      ]
+                    },
+                    "type": "timeSeriesMeasurement"
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 1,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/lambda-bagit-uploader-archive-destination-rest:v1",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "bagit-uploader-archive-destination",
+              "description": "",
+              "configParameterSpecs": [],
+              "checksum": "6f151629d402e0c6079147fbf31bd129",
+              "argumentSpecs": [
                 {
                   "name": "destinationDir",
                   "isOptional": false,
@@ -291,10 +469,10 @@
               ]
             }
           },
-          "originalAtmLambdaId": "6250dc2c0bcb1332ada2b0e9eacdcdb8ch8192"
+          "originalAtmLambdaId": "66023f8eaf9a46881c4e8546384b16abch8247"
         }
       },
-      "3563bccd9a92c77199322f6fc44f58d0chdbbc": {
+      "24e4f3c4f1c379e74f964b04ed2dbce2ched8b": {
         "8": {
           "schemaFormatVersion": 2,
           "revision": {
@@ -310,7 +488,9 @@
                   "dataSpec": {
                     "valueConstraints": {
                       "itemDataSpec": {
-                        "valueConstraints": {},
+                        "valueConstraints": {
+                          "allowedValues": null
+                        },
                         "type": "string"
                       }
                     },
@@ -368,7 +548,8 @@
               },
               "name": "bagit-uploader-unpack-data",
               "description": "",
-              "checksum": "58f0f2432ae5d794dec32bcb406143f0",
+              "configParameterSpecs": [],
+              "checksum": "1c61b373912ee6680080a5f6d68b07dd",
               "argumentSpecs": [
                 {
                   "name": "archive",
@@ -395,173 +576,7 @@
               ]
             }
           },
-          "originalAtmLambdaId": "3563bccd9a92c77199322f6fc44f58d0chdbbc"
-        }
-      },
-      "2aa9c9a84db5a39635dab3257c123f37ch3868": {
-        "5": {
-          "schemaFormatVersion": 2,
-          "revision": {
-            "schemaFormatVersion": 2,
-            "originalRevisionNumber": 5,
-            "atmLambdaRevision": {
-              "summary": "",
-              "state": "draft",
-              "resultSpecs": [
-                {
-                  "relayMethod": "returnValue",
-                  "name": "archiveId",
-                  "dataSpec": {
-                    "valueConstraints": {},
-                    "type": "string"
-                  }
-                },
-                {
-                  "relayMethod": "filePipe",
-                  "name": "stats",
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "specs": [
-                        {
-                          "unit": "none",
-                          "nameMatcherType": "exact",
-                          "nameMatcher": "filesArchived"
-                        },
-                        {
-                          "unit": "bytes",
-                          "nameMatcherType": "exact",
-                          "nameMatcher": "bytesArchived"
-                        }
-                      ]
-                    },
-                    "type": "timeSeriesMeasurement"
-                  }
-                }
-              ],
-              "resourceSpec": {
-                "memoryRequested": 104857600,
-                "memoryLimit": null,
-                "ephemeralStorageRequested": 104857600,
-                "ephemeralStorageLimit": null,
-                "cpuRequested": 0.1,
-                "cpuLimit": null
-              },
-              "preferredBatchSize": 1,
-              "operationSpec": {
-                "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/lambda-bagit-uploader-archive-destination-rest:v1",
-                "dockerExecutionOptions": {
-                  "readonly": false,
-                  "oneclientOptions": "-i",
-                  "oneclientMountPoint": "/mnt/onedata",
-                  "mountOneclient": true
-                }
-              },
-              "name": "bagit-uploader-archive-destination",
-              "description": "",
-              "checksum": "b2a99ea85ac78ea9dc8b9959fe217937",
-              "argumentSpecs": [
-                {
-                  "name": "destinationDir",
-                  "isOptional": false,
-                  "defaultValue": null,
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "fileType": "DIR"
-                    },
-                    "type": "file"
-                  }
-                }
-              ]
-            }
-          },
-          "originalAtmLambdaId": "2aa9c9a84db5a39635dab3257c123f37ch3868"
-        }
-      },
-      "2435f0b607e0576c303f24b5bb2b2d73ch9335": {
-        "5": {
-          "schemaFormatVersion": 2,
-          "revision": {
-            "schemaFormatVersion": 2,
-            "originalRevisionNumber": 5,
-            "atmLambdaRevision": {
-              "summary": "",
-              "state": "draft",
-              "resultSpecs": [
-                {
-                  "relayMethod": "returnValue",
-                  "name": "processedFilePath",
-                  "dataSpec": {
-                    "valueConstraints": {},
-                    "type": "string"
-                  }
-                },
-                {
-                  "relayMethod": "filePipe",
-                  "name": "logs",
-                  "dataSpec": {
-                    "valueConstraints": {},
-                    "type": "object"
-                  }
-                },
-                {
-                  "relayMethod": "filePipe",
-                  "name": "stats",
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "specs": [
-                        {
-                          "unit": "none",
-                          "nameMatcherType": "exact",
-                          "nameMatcher": "filesProcessed"
-                        },
-                        {
-                          "unit": "bytes",
-                          "nameMatcherType": "exact",
-                          "nameMatcher": "bytesProcessed"
-                        }
-                      ]
-                    },
-                    "type": "timeSeriesMeasurement"
-                  }
-                }
-              ],
-              "resourceSpec": {
-                "memoryRequested": 104857600,
-                "memoryLimit": null,
-                "ephemeralStorageRequested": 104857600,
-                "ephemeralStorageLimit": null,
-                "cpuRequested": 0.1,
-                "cpuLimit": null
-              },
-              "preferredBatchSize": 10,
-              "operationSpec": {
-                "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/lambda-download-file-mounted:v1",
-                "dockerExecutionOptions": {
-                  "readonly": false,
-                  "oneclientOptions": "-i",
-                  "oneclientMountPoint": "/mnt/onedata",
-                  "mountOneclient": true
-                }
-              },
-              "name": "bagit-uploader-fetch-files",
-              "description": "",
-              "checksum": "3f09fddb5c136a350a1222f838d94745",
-              "argumentSpecs": [
-                {
-                  "name": "downloadInfo",
-                  "isOptional": false,
-                  "defaultValue": null,
-                  "dataSpec": {
-                    "valueConstraints": {},
-                    "type": "object"
-                  }
-                }
-              ]
-            }
-          },
-          "originalAtmLambdaId": "2435f0b607e0576c303f24b5bb2b2d73ch9335"
+          "originalAtmLambdaId": "24e4f3c4f1c379e74f964b04ed2dbce2ched8b"
         }
       }
     },
@@ -610,7 +625,9 @@
           "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
-              "valueConstraints": {},
+              "valueConstraints": {
+                "allowedValues": null
+              },
               "type": "string"
             }
           }
@@ -652,7 +669,9 @@
           "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
-              "valueConstraints": {},
+              "valueConstraints": {
+                "allowedValues": null
+              },
               "type": "string"
             }
           }
@@ -707,7 +726,8 @@
                   "resourceSpecOverride": null,
                   "name": "bagit-uploader-validate",
                   "lambdaRevisionNumber": 8,
-                  "lambdaId": "ed55f2587be5e7b355637308719601dfchded5",
+                  "lambdaId": "6757d97ae7dc250e41dbc12a863a9df6ch7526",
+                  "lambdaConfig": {},
                   "id": "da06f5672ff64eda57f02e73d04f4bf3aff7e9",
                   "argumentMappings": [
                     {
@@ -989,7 +1009,8 @@
                   "resourceSpecOverride": null,
                   "name": "bagit-uploader-unpack-data",
                   "lambdaRevisionNumber": 8,
-                  "lambdaId": "3563bccd9a92c77199322f6fc44f58d0chdbbc",
+                  "lambdaId": "24e4f3c4f1c379e74f964b04ed2dbce2ched8b",
+                  "lambdaConfig": {},
                   "id": "7bd9b6a83786242fcb1846f3f71b309030c8e8",
                   "argumentMappings": [
                     {
@@ -1031,7 +1052,8 @@
                   "resourceSpecOverride": null,
                   "name": "bagit-uploader-unpack-fetch",
                   "lambdaRevisionNumber": 3,
-                  "lambdaId": "6250dc2c0bcb1332ada2b0e9eacdcdb8ch8192",
+                  "lambdaId": "cf06804370466e71a8c8afb2bb43cd03cha05a",
+                  "lambdaConfig": {},
                   "id": "5956ad5ac9a4499799a0512e00e0a8bcbd3b18",
                   "argumentMappings": [
                     {
@@ -1118,7 +1140,165 @@
                         }
                       ]
                     },
-                    "dashboardSpec": null
+                    "dashboardSpec": {
+                      "rootSection": {
+                        "title": {
+                          "tip": "",
+                          "content": "Task statistics"
+                        },
+                        "sections": [],
+                        "isExpandedByDefault": false,
+                        "description": "",
+                        "charts": [
+                          {
+                            "yAxes": [
+                              {
+                                "valueProvider": {
+                                  "functionName": "currentValue",
+                                  "functionArguments": {}
+                                },
+                                "unitOptions": null,
+                                "unitName": "bytesPerSec",
+                                "name": "Bytes per sec.",
+                                "minInterval": 1,
+                                "id": "bytesAxis"
+                              },
+                              {
+                                "valueProvider": {
+                                  "functionName": "currentValue",
+                                  "functionArguments": {}
+                                },
+                                "unitOptions": {
+                                  "customName": "files/s"
+                                },
+                                "unitName": "custom",
+                                "name": "Files per sec.",
+                                "minInterval": 1,
+                                "id": "filesAxis"
+                              }
+                            ],
+                            "title": {
+                              "tip": "",
+                              "content": "Processing stats"
+                            },
+                            "seriesGroupBuilders": [],
+                            "seriesBuilders": [
+                              {
+                                "builderType": "static",
+                                "builderRecipe": {
+                                  "seriesTemplate": {
+                                    "yAxisId": "bytesAxis",
+                                    "type": "line",
+                                    "name": "Bytes processed",
+                                    "id": "series1",
+                                    "groupId": null,
+                                    "dataProvider": {
+                                      "functionName": "rate",
+                                      "functionArguments": {
+                                        "timeSpanProvider": null,
+                                        "inputDataProvider": {
+                                          "functionName": "loadSeries",
+                                          "functionArguments": {
+                                            "sourceType": "external",
+                                            "sourceSpecProvider": {
+                                              "functionName": "literal",
+                                              "functionArguments": {
+                                                "data": {
+                                                  "externalSourceParameters": {
+                                                    "timeSeriesNameGenerator": "bytesProcessed",
+                                                    "timeSeriesName": "bytesProcessed",
+                                                    "metricNames": [
+                                                      "sum5s",
+                                                      "sum1m",
+                                                      "sum1h"
+                                                    ]
+                                                  },
+                                                  "externalSourceName": "store"
+                                                }
+                                              }
+                                            },
+                                            "replaceEmptyParametersProvider": {
+                                              "functionName": "literal",
+                                              "functionArguments": {
+                                                "data": {
+                                                  "fallbackValueProvider": {
+                                                    "functionName": "literal",
+                                                    "functionArguments": {
+                                                      "data": 0
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "color": null
+                                  }
+                                }
+                              },
+                              {
+                                "builderType": "static",
+                                "builderRecipe": {
+                                  "seriesTemplate": {
+                                    "yAxisId": "filesAxis",
+                                    "type": "bar",
+                                    "name": "Files processed",
+                                    "id": "series2",
+                                    "groupId": null,
+                                    "dataProvider": {
+                                      "functionName": "rate",
+                                      "functionArguments": {
+                                        "timeSpanProvider": null,
+                                        "inputDataProvider": {
+                                          "functionName": "loadSeries",
+                                          "functionArguments": {
+                                            "sourceType": "external",
+                                            "sourceSpecProvider": {
+                                              "functionName": "literal",
+                                              "functionArguments": {
+                                                "data": {
+                                                  "externalSourceParameters": {
+                                                    "timeSeriesNameGenerator": "filesProcessed",
+                                                    "timeSeriesName": "filesProcessed",
+                                                    "metricNames": [
+                                                      "sum5s",
+                                                      "sum1m",
+                                                      "sum1h"
+                                                    ]
+                                                  },
+                                                  "externalSourceName": "store"
+                                                }
+                                              }
+                                            },
+                                            "replaceEmptyParametersProvider": {
+                                              "functionName": "literal",
+                                              "functionArguments": {
+                                                "data": {
+                                                  "fallbackValueProvider": {
+                                                    "functionName": "literal",
+                                                    "functionArguments": {
+                                                      "data": 0
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "color": null
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ],
+                        "chartNavigation": "independent"
+                      }
+                    }
                   },
                   "resultMappings": [
                     {
@@ -1162,7 +1342,8 @@
                   "resourceSpecOverride": null,
                   "name": "bagit-uploader-download-files",
                   "lambdaRevisionNumber": 5,
-                  "lambdaId": "2435f0b607e0576c303f24b5bb2b2d73ch9335",
+                  "lambdaId": "9ee667fcfc4f96bd86b6ce0d3119ad45ch2cc4",
+                  "lambdaConfig": {},
                   "id": "bbaab9dee648d5faee1d7a4ce948cdcb7c90c0",
                   "argumentMappings": [
                     {
@@ -1198,7 +1379,8 @@
                   "resourceSpecOverride": null,
                   "name": "register-metadata-from-data",
                   "lambdaRevisionNumber": 3,
-                  "lambdaId": "6837298bcfc606eb2b0829c1f12338f3chb8a1",
+                  "lambdaId": "870d9c0bdb7d4b6b577051865d53d9e5ch64d9",
+                  "lambdaConfig": {},
                   "id": "7dca0b4e7babed7250761dd09b445df68e7d44",
                   "argumentMappings": [
                     {
@@ -1425,7 +1607,8 @@
                   "resourceSpecOverride": null,
                   "name": "bagit-uploader-calculate-checksum",
                   "lambdaRevisionNumber": 4,
-                  "lambdaId": "735a1e07b947ef82fd3a2671c44cceb9chb35b",
+                  "lambdaId": "be5a954ef1a92ff93b74f150651dc3a9chcd83",
+                  "lambdaConfig": {},
                   "id": "d18f39c67289b12cdb5e1697f5180596cd1383",
                   "argumentMappings": [
                     {
@@ -1698,7 +1881,8 @@
                   "resourceSpecOverride": null,
                   "name": "bagit-uploader-archive-destination",
                   "lambdaRevisionNumber": 5,
-                  "lambdaId": "2aa9c9a84db5a39635dab3257c123f37ch3868",
+                  "lambdaId": "66023f8eaf9a46881c4e8546384b16abch8247",
+                  "lambdaConfig": {},
                   "id": "e623d857aa729367db7e4565739ba2776898fe",
                   "argumentMappings": [
                     {
@@ -1721,10 +1905,631 @@
           "dashboardSpec": null
         }
       ],
-      "description": "register-metadata-removed",
-      "dashboardSpec": null
+      "description": "",
+      "dashboardSpec": {
+        "rootSection": {
+          "title": {
+            "tip": "",
+            "content": "Workflow statistics"
+          },
+          "sections": [
+            {
+              "title": {
+                "tip": "",
+                "content": "bagit-uploader-unpack-data stats"
+              },
+              "sections": [],
+              "isExpandedByDefault": false,
+              "description": "",
+              "charts": [
+                {
+                  "yAxes": [
+                    {
+                      "valueProvider": {
+                        "functionName": "currentValue",
+                        "functionArguments": {}
+                      },
+                      "unitOptions": null,
+                      "unitName": "bytesPerSec",
+                      "name": "Bytes per sec.",
+                      "minInterval": 1,
+                      "id": "bytesAxis"
+                    },
+                    {
+                      "valueProvider": {
+                        "functionName": "currentValue",
+                        "functionArguments": {}
+                      },
+                      "unitOptions": {
+                        "customName": "files/s"
+                      },
+                      "unitName": "custom",
+                      "name": "Files per sec.",
+                      "minInterval": 1,
+                      "id": "filesAxis"
+                    }
+                  ],
+                  "title": {
+                    "tip": "",
+                    "content": "Processing stats"
+                  },
+                  "seriesGroupBuilders": [],
+                  "seriesBuilders": [
+                    {
+                      "builderType": "static",
+                      "builderRecipe": {
+                        "seriesTemplate": {
+                          "yAxisId": "bytesAxis",
+                          "type": "line",
+                          "name": "Bytes unpacked",
+                          "id": "series1",
+                          "groupId": null,
+                          "dataProvider": {
+                            "functionName": "rate",
+                            "functionArguments": {
+                              "timeSpanProvider": null,
+                              "inputDataProvider": {
+                                "functionName": "loadSeries",
+                                "functionArguments": {
+                                  "sourceType": "external",
+                                  "sourceSpecProvider": {
+                                    "functionName": "literal",
+                                    "functionArguments": {
+                                      "data": {
+                                        "externalSourceParameters": {
+                                          "timeSeriesNameGenerator": "bytesUnpacked",
+                                          "timeSeriesName": "bytesUnpacked",
+                                          "metricNames": [
+                                            "sum5s",
+                                            "sum1m",
+                                            "sum1h"
+                                          ],
+                                          "collectionRef": "task-7bd9b6a83786242fcb1846f3f71b309030c8e8"
+                                        },
+                                        "externalSourceName": "store"
+                                      }
+                                    }
+                                  },
+                                  "replaceEmptyParametersProvider": {
+                                    "functionName": "literal",
+                                    "functionArguments": {
+                                      "data": {
+                                        "fallbackValueProvider": {
+                                          "functionName": "literal",
+                                          "functionArguments": {
+                                            "data": 0
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "color": null
+                        }
+                      }
+                    },
+                    {
+                      "builderType": "static",
+                      "builderRecipe": {
+                        "seriesTemplate": {
+                          "yAxisId": "filesAxis",
+                          "type": "bar",
+                          "name": "Files unpacked",
+                          "id": "series2",
+                          "groupId": null,
+                          "dataProvider": {
+                            "functionName": "rate",
+                            "functionArguments": {
+                              "timeSpanProvider": null,
+                              "inputDataProvider": {
+                                "functionName": "loadSeries",
+                                "functionArguments": {
+                                  "sourceType": "external",
+                                  "sourceSpecProvider": {
+                                    "functionName": "literal",
+                                    "functionArguments": {
+                                      "data": {
+                                        "externalSourceParameters": {
+                                          "timeSeriesNameGenerator": "filesUnpacked",
+                                          "timeSeriesName": "filesUnpacked",
+                                          "metricNames": [
+                                            "sum5s",
+                                            "sum1m",
+                                            "sum1h"
+                                          ],
+                                          "collectionRef": "task-7bd9b6a83786242fcb1846f3f71b309030c8e8"
+                                        },
+                                        "externalSourceName": "store"
+                                      }
+                                    }
+                                  },
+                                  "replaceEmptyParametersProvider": {
+                                    "functionName": "literal",
+                                    "functionArguments": {
+                                      "data": {
+                                        "fallbackValueProvider": {
+                                          "functionName": "literal",
+                                          "functionArguments": {
+                                            "data": 0
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "color": null
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "chartNavigation": "independent"
+            },
+            {
+              "title": {
+                "tip": "",
+                "content": "bagit-uploader-download-files stats"
+              },
+              "sections": [],
+              "isExpandedByDefault": false,
+              "description": "",
+              "charts": [
+                {
+                  "yAxes": [
+                    {
+                      "valueProvider": {
+                        "functionName": "currentValue",
+                        "functionArguments": {}
+                      },
+                      "unitOptions": null,
+                      "unitName": "bytesPerSec",
+                      "name": "Bytes per sec.",
+                      "minInterval": 1,
+                      "id": "bytesAxis"
+                    },
+                    {
+                      "valueProvider": {
+                        "functionName": "currentValue",
+                        "functionArguments": {}
+                      },
+                      "unitOptions": {
+                        "customName": "files/s"
+                      },
+                      "unitName": "custom",
+                      "name": "Files per sec.",
+                      "minInterval": 1,
+                      "id": "filesAxis"
+                    }
+                  ],
+                  "title": {
+                    "tip": "",
+                    "content": "Processing stats"
+                  },
+                  "seriesGroupBuilders": [],
+                  "seriesBuilders": [
+                    {
+                      "builderType": "static",
+                      "builderRecipe": {
+                        "seriesTemplate": {
+                          "yAxisId": "bytesAxis",
+                          "type": "line",
+                          "name": "Bytes processed",
+                          "id": "series1",
+                          "groupId": null,
+                          "dataProvider": {
+                            "functionName": "rate",
+                            "functionArguments": {
+                              "timeSpanProvider": null,
+                              "inputDataProvider": {
+                                "functionName": "loadSeries",
+                                "functionArguments": {
+                                  "sourceType": "external",
+                                  "sourceSpecProvider": {
+                                    "functionName": "literal",
+                                    "functionArguments": {
+                                      "data": {
+                                        "externalSourceParameters": {
+                                          "timeSeriesNameGenerator": "bytesProcessed",
+                                          "timeSeriesName": "bytesProcessed",
+                                          "metricNames": [
+                                            "sum5s",
+                                            "sum1m",
+                                            "sum1h"
+                                          ],
+                                          "collectionRef": "task-bbaab9dee648d5faee1d7a4ce948cdcb7c90c0"
+                                        },
+                                        "externalSourceName": "store"
+                                      }
+                                    }
+                                  },
+                                  "replaceEmptyParametersProvider": {
+                                    "functionName": "literal",
+                                    "functionArguments": {
+                                      "data": {
+                                        "fallbackValueProvider": {
+                                          "functionName": "literal",
+                                          "functionArguments": {
+                                            "data": 0
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "color": null
+                        }
+                      }
+                    },
+                    {
+                      "builderType": "static",
+                      "builderRecipe": {
+                        "seriesTemplate": {
+                          "yAxisId": "filesAxis",
+                          "type": "bar",
+                          "name": "Files processed",
+                          "id": "series2",
+                          "groupId": null,
+                          "dataProvider": {
+                            "functionName": "rate",
+                            "functionArguments": {
+                              "timeSpanProvider": null,
+                              "inputDataProvider": {
+                                "functionName": "loadSeries",
+                                "functionArguments": {
+                                  "sourceType": "external",
+                                  "sourceSpecProvider": {
+                                    "functionName": "literal",
+                                    "functionArguments": {
+                                      "data": {
+                                        "externalSourceParameters": {
+                                          "timeSeriesNameGenerator": "filesProcessed",
+                                          "timeSeriesName": "filesProcessed",
+                                          "metricNames": [
+                                            "sum5s",
+                                            "sum1m",
+                                            "sum1h"
+                                          ],
+                                          "collectionRef": "task-bbaab9dee648d5faee1d7a4ce948cdcb7c90c0"
+                                        },
+                                        "externalSourceName": "store"
+                                      }
+                                    }
+                                  },
+                                  "replaceEmptyParametersProvider": {
+                                    "functionName": "literal",
+                                    "functionArguments": {
+                                      "data": {
+                                        "fallbackValueProvider": {
+                                          "functionName": "literal",
+                                          "functionArguments": {
+                                            "data": 0
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "color": null
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "chartNavigation": "independent"
+            },
+            {
+              "title": {
+                "tip": "",
+                "content": "bagit-uploader-calculate-checksum stats"
+              },
+              "sections": [],
+              "isExpandedByDefault": false,
+              "description": "",
+              "charts": [
+                {
+                  "yAxes": [
+                    {
+                      "valueProvider": {
+                        "functionName": "currentValue",
+                        "functionArguments": {}
+                      },
+                      "unitOptions": null,
+                      "unitName": "bytesPerSec",
+                      "name": "Bytes per sec.",
+                      "minInterval": 1,
+                      "id": "bytesAxis"
+                    }
+                  ],
+                  "title": {
+                    "tip": "",
+                    "content": "Processing stats"
+                  },
+                  "seriesGroupBuilders": [
+                    {
+                      "builderType": "static",
+                      "builderRecipe": {
+                        "seriesGroupTemplate": {
+                          "subgroups": [],
+                          "stacked": true,
+                          "showSum": true,
+                          "name": "Total",
+                          "id": "bytesProcessedGroup"
+                        }
+                      }
+                    }
+                  ],
+                  "seriesBuilders": [
+                    {
+                      "builderType": "dynamic",
+                      "builderRecipe": {
+                        "seriesTemplate": {
+                          "yAxisIdProvider": {
+                            "functionName": "literal",
+                            "functionArguments": {
+                              "data": "bytesAxis"
+                            }
+                          },
+                          "typeProvider": {
+                            "functionName": "literal",
+                            "functionArguments": {
+                              "data": "line"
+                            }
+                          },
+                          "nameProvider": {
+                            "functionName": "getDynamicSeriesConfig",
+                            "functionArguments": {
+                              "propertyName": "name"
+                            }
+                          },
+                          "idProvider": {
+                            "functionName": "getDynamicSeriesConfig",
+                            "functionArguments": {
+                              "propertyName": "id"
+                            }
+                          },
+                          "groupIdProvider": {
+                            "functionName": "literal",
+                            "functionArguments": {
+                              "data": "bytesProcessedGroup"
+                            }
+                          },
+                          "dataProvider": {
+                            "functionName": "rate",
+                            "functionArguments": {
+                              "timeSpanProvider": null,
+                              "inputDataProvider": {
+                                "functionName": "loadSeries",
+                                "functionArguments": {
+                                  "sourceType": "external",
+                                  "sourceSpecProvider": {
+                                    "functionName": "getDynamicSeriesConfig",
+                                    "functionArguments": {
+                                      "propertyName": "loadSeriesSourceSpec"
+                                    }
+                                  },
+                                  "replaceEmptyParametersProvider": {
+                                    "functionName": "literal",
+                                    "functionArguments": {
+                                      "data": {
+                                        "fallbackValueProvider": {
+                                          "functionName": "literal",
+                                          "functionArguments": {
+                                            "data": 0
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "colorProvider": null
+                        },
+                        "dynamicSeriesConfigsSource": {
+                          "sourceType": "external",
+                          "sourceSpec": {
+                            "externalSourceParameters": {
+                              "timeSeriesNameGenerator": "bytesProcessed_",
+                              "metricNames": [
+                                "sum5s",
+                                "sum1m",
+                                "sum1h"
+                              ],
+                              "collectionRef": "task-d18f39c67289b12cdb5e1697f5180596cd1383"
+                            },
+                            "externalSourceName": "store"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "chartNavigation": "independent"
+            },
+            {
+              "title": {
+                "tip": "",
+                "content": "bagit-uploader-archive-destination stats"
+              },
+              "sections": [],
+              "isExpandedByDefault": false,
+              "description": "",
+              "charts": [
+                {
+                  "yAxes": [
+                    {
+                      "valueProvider": {
+                        "functionName": "currentValue",
+                        "functionArguments": {}
+                      },
+                      "unitOptions": null,
+                      "unitName": "bytesPerSec",
+                      "name": "Bytes per sec.",
+                      "minInterval": 1,
+                      "id": "bytesAxis"
+                    },
+                    {
+                      "valueProvider": {
+                        "functionName": "currentValue",
+                        "functionArguments": {}
+                      },
+                      "unitOptions": {
+                        "customName": "files/s"
+                      },
+                      "unitName": "custom",
+                      "name": "Files per sec.",
+                      "minInterval": 1,
+                      "id": "filesAxis"
+                    }
+                  ],
+                  "title": {
+                    "tip": "",
+                    "content": "Processing stats"
+                  },
+                  "seriesGroupBuilders": [],
+                  "seriesBuilders": [
+                    {
+                      "builderType": "static",
+                      "builderRecipe": {
+                        "seriesTemplate": {
+                          "yAxisId": "bytesAxis",
+                          "type": "line",
+                          "name": "Bytes archived",
+                          "id": "series1",
+                          "groupId": null,
+                          "dataProvider": {
+                            "functionName": "rate",
+                            "functionArguments": {
+                              "timeSpanProvider": null,
+                              "inputDataProvider": {
+                                "functionName": "loadSeries",
+                                "functionArguments": {
+                                  "sourceType": "external",
+                                  "sourceSpecProvider": {
+                                    "functionName": "literal",
+                                    "functionArguments": {
+                                      "data": {
+                                        "externalSourceParameters": {
+                                          "timeSeriesNameGenerator": "bytesArchived",
+                                          "timeSeriesName": "bytesArchived",
+                                          "metricNames": [
+                                            "sum5s",
+                                            "sum1m",
+                                            "sum1h"
+                                          ],
+                                          "collectionRef": "task-e623d857aa729367db7e4565739ba2776898fe"
+                                        },
+                                        "externalSourceName": "store"
+                                      }
+                                    }
+                                  },
+                                  "replaceEmptyParametersProvider": {
+                                    "functionName": "literal",
+                                    "functionArguments": {
+                                      "data": {
+                                        "fallbackValueProvider": {
+                                          "functionName": "literal",
+                                          "functionArguments": {
+                                            "data": 0
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "color": null
+                        }
+                      }
+                    },
+                    {
+                      "builderType": "static",
+                      "builderRecipe": {
+                        "seriesTemplate": {
+                          "yAxisId": "filesAxis",
+                          "type": "bar",
+                          "name": "Files archived",
+                          "id": "series2",
+                          "groupId": null,
+                          "dataProvider": {
+                            "functionName": "rate",
+                            "functionArguments": {
+                              "timeSpanProvider": null,
+                              "inputDataProvider": {
+                                "functionName": "loadSeries",
+                                "functionArguments": {
+                                  "sourceType": "external",
+                                  "sourceSpecProvider": {
+                                    "functionName": "literal",
+                                    "functionArguments": {
+                                      "data": {
+                                        "externalSourceParameters": {
+                                          "timeSeriesNameGenerator": "filesArchived",
+                                          "timeSeriesName": "filesArchived",
+                                          "metricNames": [
+                                            "sum5s",
+                                            "sum1m",
+                                            "sum1h"
+                                          ],
+                                          "collectionRef": "task-e623d857aa729367db7e4565739ba2776898fe"
+                                        },
+                                        "externalSourceName": "store"
+                                      }
+                                    }
+                                  },
+                                  "replaceEmptyParametersProvider": {
+                                    "functionName": "literal",
+                                    "functionArguments": {
+                                      "data": {
+                                        "fallbackValueProvider": {
+                                          "functionName": "literal",
+                                          "functionArguments": {
+                                            "data": 0
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "color": null
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "chartNavigation": "independent"
+            }
+          ],
+          "isExpandedByDefault": false,
+          "description": "",
+          "charts": [],
+          "chartNavigation": "independent"
+        }
+      }
     }
   },
-  "originalAtmWorkflowSchemaId": "8eb49d9f85371e25922c04675dc24510ch9450",
-  "name": "bagit-uploader-new-lambdas"
+  "originalAtmWorkflowSchemaId": "e0d68b54b25b9eea9caee564f5f4c73ech7b80",
+  "name": "bagit-uploader"
 }
