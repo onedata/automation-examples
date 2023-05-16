@@ -51,6 +51,8 @@ from onedata_lambda_utils.types import (
 
 DOWNLOAD_CHUNK_SIZE: Final[int] = 10 * 1024**2
 VERIFY_SSL_CERTS: Final[bool] = os.getenv("VERIFY_SSL_CERTIFICATES") != "false"
+REST_REQUEST_TIMEOUT: Final[int] = 60
+EXTENDED_REST_REQUEST_TIMEOUT: Final[int] = 120
 
 
 ##===================================================================
@@ -198,7 +200,7 @@ def get_file_data_stream(job: Job) -> Iterator[bytes]:
         headers={"x-auth-token": job.ctx["accessToken"]},
         stream=True,
         verify=VERIFY_SSL_CERTS,
-        timeout=120,
+        timeout=EXTENDED_REST_REQUEST_TIMEOUT,
     )
     response.raise_for_status()
 
@@ -231,7 +233,7 @@ def set_file_xattr(job: Job, xattr_name: str, checksum: str) -> None:
         },
         json={xattr_name: checksum},
         verify=VERIFY_SSL_CERTS,
-        timeout=60,
+        timeout=REST_REQUEST_TIMEOUT,
     )
     response.raise_for_status()
 

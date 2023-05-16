@@ -37,6 +37,7 @@ from XRootD.client.flags import OpenFlags
 MOUNT_POINT: Final[str] = "/mnt/onedata"
 
 DOWNLOAD_CHUNK_SIZE: Final[int] = 10 * 1024**2
+EXTENDED_REST_REQUEST_TIMEOUT: Final[int] = 120
 
 
 ##===================================================================
@@ -182,7 +183,7 @@ def download_http_file(job_args: JobArgs) -> None:
         job_args["downloadInfo"]["sourceUrl"],
         stream=True,
         allow_redirects=True,
-        timeout=120,
+        timeout=EXTENDED_REST_REQUEST_TIMEOUT,
     )
     request.raise_for_status()
 

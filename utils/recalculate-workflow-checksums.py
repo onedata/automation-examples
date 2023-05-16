@@ -33,12 +33,14 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import argparse
 import json
 import os
-from typing import NamedTuple
+from typing import Final, NamedTuple
 
 import requests
 import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+REST_REQUEST_TIMEOUT: Final[int] = 60
 
 
 class Args(NamedTuple):
@@ -132,6 +134,7 @@ def create_dummy_inventory(ctx: Ctx) -> str:
         headers=ctx.api_base_headers,
         data=json.dumps({"name": "__inventory_for_dumps"}),
         verify=False,
+        timeout=REST_REQUEST_TIMEOUT,
     )
     create_inventory_response.raise_for_status()
 
@@ -149,7 +152,7 @@ def remove_dummy_inventory(ctx: Ctx, inventory_id: str) -> None:
         f"{ctx.api_base_url}/user/atm_inventories/{inventory_id}",
         headers=ctx.api_base_headers,
         verify=False,
-        timeout=60,
+        timeout=REST_REQUEST_TIMEOUT,
     )
     remove_inventory_response.raise_for_status()
 
@@ -230,6 +233,7 @@ def upload_lambda_revision(ctx: Ctx, inventory_id: str, lambda_rev_dump: dict) -
         headers=ctx.api_base_headers,
         data=json.dumps(revision_to_upload),
         verify=False,
+        timeout=REST_REQUEST_TIMEOUT,
     )
     create_lambda_response.raise_for_status()
 
@@ -244,6 +248,7 @@ def dump_uploaded_lambda_revision(ctx: Ctx, lambda_id: str, lambda_rev_no: int) 
         headers=ctx.api_base_headers,
         data=json.dumps({"includeRevision": lambda_rev_no}),
         verify=False,
+        timeout=REST_REQUEST_TIMEOUT,
     )
     dump_lambda_response.raise_for_status()
 
@@ -257,6 +262,7 @@ def remove_uploaded_lambda_revision(
         f"{ctx.api_base_url}/atm_lambdas/{lambda_id}/atm_inventories/{inventory_id}",
         headers=ctx.api_base_headers,
         verify=False,
+        timeout=REST_REQUEST_TIMEOUT,
     )
     remove_lambda_response.raise_for_status()
 

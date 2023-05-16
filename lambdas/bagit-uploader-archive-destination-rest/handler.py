@@ -38,6 +38,7 @@ from onedata_lambda_utils.types import (
 
 VERIFY_SSL_CERTS: Final[bool] = os.getenv("VERIFY_SSL_CERTIFICATES") != "false"
 ARCHIVE_STATUS_CHECK_INTERVAL_SEC: Final[int] = 5
+REST_REQUEST_TIMEOUT: Final[int] = 60
 
 
 ##===================================================================
@@ -136,7 +137,7 @@ def establish_dataset(job: Job) -> str:
             {"rootFileId": job.args["destinationDir"]["file_id"], "protectionFlags": []}
         ),
         verify=VERIFY_SSL_CERTS,
-        timeout=60,
+        timeout=REST_REQUEST_TIMEOUT,
     )
 
     if resp.status_code == 201:
@@ -164,7 +165,7 @@ def get_dst_dir_dataset_id(job: Job) -> str:
         f"https://{host}/api/v3/oneprovider/data/{dst_dir_id}/dataset/summary",
         headers={"x-auth-token": job.ctx["accessToken"]},
         verify=VERIFY_SSL_CERTS,
-        timeout=60,
+        timeout=REST_REQUEST_TIMEOUT,
     )
     resp.raise_for_status()
 
@@ -188,7 +189,7 @@ def create_archive(job: Job, dataset_id: str) -> str:
             }
         ),
         verify=VERIFY_SSL_CERTS,
-        timeout=60,
+        timeout=REST_REQUEST_TIMEOUT,
     )
     resp.raise_for_status()
 
@@ -228,7 +229,7 @@ def get_archive_info(job: Job, archive_id: str) -> Dict:
         headers={"x-auth-token": job.ctx["accessToken"]},
         verify=VERIFY_SSL_CERTS,
         allow_redirects=True,
-        timeout=60,
+        timeout=REST_REQUEST_TIMEOUT,
     )
     resp.raise_for_status()
 
