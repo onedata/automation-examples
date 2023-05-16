@@ -1,5 +1,5 @@
-""""
-A lambda which unpack files from archive /data directory 
+"""
+A lambda which unpack files from archive /data directory
 and puts them under destination directory.
 """
 
@@ -260,7 +260,6 @@ def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
-
     unpacking_monitor = Thread(
         target=monitor_files_unpacking, daemon=True, args=[heartbeat_callback]
     )

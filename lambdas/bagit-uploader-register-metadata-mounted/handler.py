@@ -148,7 +148,6 @@ def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[Optional[AtmException]]:
-
     job_results = []
     for job_args in job_batch_request["argsBatch"]:
         job = Job(args=job_args, heartbeat_callback=heartbeat_callback)

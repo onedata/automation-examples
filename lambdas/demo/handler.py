@@ -43,7 +43,6 @@ def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
-
     results = []
     for job_args in job_batch_request["argsBatch"]:
         results.append(run_job(job_args))

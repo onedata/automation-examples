@@ -3,7 +3,7 @@ STATIC_ANALYSER_IMAGE := "docker.onedata.org/python_static_analyser:v5"
 
 format:
 	docker run --rm -i -v `pwd`:`pwd` -w `pwd`  $(STATIC_ANALYSER_IMAGE) isort -rc .
-	docker run --rm -i -v `pwd`:`pwd` -w `pwd`  $(STATIC_ANALYSER_IMAGE) black .
+	docker run --rm -i -v `pwd`:`pwd` -w `pwd`  $(STATIC_ANALYSER_IMAGE) black --fast . 
 
 
 black-check:
@@ -15,4 +15,4 @@ black-check:
 ##
 
 static-analysis:	
-	docker run --rm -i -v `pwd`:`pwd` -w `pwd`  $(STATIC_ANALYSER_IMAGE) pylint . --rcfile=.pylintrc --recursive=true
+	docker run --rm -i -v `pwd`:`pwd` -w `pwd`  $(STATIC_ANALYSER_IMAGE) pylint . --rcfile=.pylintrc --recursive=y

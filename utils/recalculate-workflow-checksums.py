@@ -149,6 +149,7 @@ def remove_dummy_inventory(ctx: Ctx, inventory_id: str) -> None:
         f"{ctx.api_base_url}/user/atm_inventories/{inventory_id}",
         headers=ctx.api_base_headers,
         verify=False,
+        timeout=60,
     )
     remove_inventory_response.raise_for_status()
 
@@ -159,7 +160,7 @@ def load_workflow_dump(ctx: Ctx) -> dict:
     print(f'Loading "{ctx.workflow_name}" workflow dump from file... ', end="")
 
     dump_path = get_workflow_dump_path(ctx.workflow_name)
-    with open(dump_path, encoding="UTF-8" "r") as fd:
+    with open(dump_path, "r") as fd:
         dump = json.load(fd)
 
     print("Done.")
@@ -170,7 +171,7 @@ def save_workflow_dump(ctx: Ctx, workflow_dump: dict) -> None:
     print(f'Saving modified "{ctx.workflow_name}" workflow dump to file... ', end="")
 
     dump_path = get_workflow_dump_path(ctx.workflow_name)
-    with open(dump_path, encoding="UTF-8" "w") as fd:
+    with open(dump_path, "w") as fd:
         json.dump(workflow_dump, fd, indent=2)
         print("Done.")
 

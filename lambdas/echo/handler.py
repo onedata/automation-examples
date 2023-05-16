@@ -63,7 +63,7 @@ def handle(
             results.append(None)
 
             for arg_name, arg_value in job_args.values():
-                with open(f"/out/{arg_name}", encoding="UTF-8" "a+") as f:
+                with open(f"/out/{arg_name}", "a+") as f:
                     json.dump(arg_value, f)
                     f.write("\n")
 

@@ -96,7 +96,6 @@ def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
-
     jobs_monitor = Thread(target=monitor_jobs, daemon=True, args=[heartbeat_callback])
     jobs_monitor.start()
 

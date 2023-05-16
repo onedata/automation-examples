@@ -67,7 +67,6 @@ def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
-
     job_results = []
     for job_args in job_batch_request["argsBatch"]:
         job = Job(args=job_args, heartbeat_callback=heartbeat_callback)
@@ -77,7 +76,6 @@ def handle(
 
 
 def run_job(job: Job) -> Union[AtmException, JobResults]:
-
     try:
         files_to_download = parse_fetch_file(job)
     except Exception:
@@ -101,7 +99,7 @@ def parse_fetch_file(job: Job) -> List[FileDownloadInfo]:
         return []
 
     files_to_download = []
-    with open(fetch_file_path, encoding="UTF-8" "r") as f:
+    with open(fetch_file_path, "r") as f:
         for line in f:
             files_to_download.append(parse_line(job, line))
             job.heartbeat_callback()

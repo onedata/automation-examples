@@ -287,11 +287,11 @@ def calculate_checksum(data_stream: Iterator[bytes], algorithm: str) -> str:
         for data in data_stream:
             value = zlib.adler32(data, value)
         return format(value, "x")
-    else:
-        hash_data = hashlib.new(algorithm)
-        for data in data_stream:
-            hash_data.update(data)
-        return hash_data.hexdigest()
+
+    hash_data = hashlib.new(algorithm)
+    for data in data_stream:
+        hash_data.update(data)
+    return hash_data.hexdigest()
 
 
 def validate_bagit_txt(archive: BagitArchive) -> None:

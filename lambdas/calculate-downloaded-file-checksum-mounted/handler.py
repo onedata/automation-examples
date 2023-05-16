@@ -143,7 +143,6 @@ def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, TaskConfig],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> Union[AtmJobBatchResponse[JobResults], AtmException]:
-
     algorithm = job_batch_request["ctx"]["config"]["algorithm"]
     if algorithm not in AVAILABLE_CHECKSUM_ALGORITHMS:
         return AtmException(
