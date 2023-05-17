@@ -10,6 +10,8 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import traceback
 from typing import Union
 
+from typing_extensions import TypedDict
+
 from onedata_lambda_utils.types import (
     AtmException,
     AtmFile,
@@ -18,7 +20,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmObject,
 )
-from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda interface
@@ -42,7 +43,6 @@ def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
-
     results = []
     for job_args in job_batch_request["argsBatch"]:
         results.append(run_job(job_args))

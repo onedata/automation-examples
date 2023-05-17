@@ -1,5 +1,5 @@
 """
-A lambda which unpack files from archive /data directory 
+A lambda which unpack files from archive /data directory
 and puts them under destination directory.
 """
 
@@ -22,6 +22,8 @@ from functools import lru_cache
 from threading import Event, Thread
 from typing import Dict, Final, Generator, List, NamedTuple, Optional, Union
 
+from typing_extensions import TypedDict
+
 from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
 from onedata_lambda_utils.streaming import AtmResultStreamer
 from onedata_lambda_utils.types import (
@@ -33,7 +35,6 @@ from onedata_lambda_utils.types import (
     AtmObject,
     AtmTimeSeriesMeasurement,
 )
-from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -259,7 +260,6 @@ def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
-
     unpacking_monitor = Thread(
         target=monitor_files_unpacking, daemon=True, args=[heartbeat_callback]
     )
@@ -337,10 +337,10 @@ def unpack_file(file_unpack_ctx: FileUnpackCtx) -> str:
 
 
 def build_relative_file_dst_path(file_unpack_ctx: FileUnpackCtx) -> str:
-    return ".__onedata__file_id__{dst_dir_id}/{file_rel_path}".format(
-        dst_dir_id=file_unpack_ctx.job_args["destinationDir"]["file_id"],
-        file_rel_path=file_unpack_ctx.file_data_dir_rel_path,
-    )
+    dst_dir_id = file_unpack_ctx.job_args["destinationDir"]["file_id"]
+    file_rel_path = file_unpack_ctx.file_data_dir_rel_path
+
+    return f".__onedata__file_id__{dst_dir_id}/{file_rel_path}"
 
 
 def build_archive_path(job_args: JobArgs) -> str:

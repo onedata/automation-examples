@@ -14,6 +14,8 @@ from threading import Event, Thread
 from typing import Final, Iterator, Union
 
 import requests
+from typing_extensions import TypedDict
+
 from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
 from onedata_lambda_utils.streaming import AtmResultStreamer
 from onedata_lambda_utils.types import (
@@ -24,7 +26,6 @@ from onedata_lambda_utils.types import (
     AtmObject,
     AtmTimeSeriesMeasurement,
 )
-from typing_extensions import TypedDict
 from XRootD import client
 from XRootD.client.flags import OpenFlags
 
@@ -36,6 +37,7 @@ from XRootD.client.flags import OpenFlags
 MOUNT_POINT: Final[str] = "/mnt/onedata"
 
 DOWNLOAD_CHUNK_SIZE: Final[int] = 10 * 1024**2
+EXTENDED_REST_REQUEST_TIMEOUT: Final[int] = 120
 
 
 ##===================================================================
@@ -95,7 +97,6 @@ def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
-
     jobs_monitor = Thread(target=monitor_jobs, daemon=True, args=[heartbeat_callback])
     jobs_monitor.start()
 
@@ -178,14 +179,15 @@ def download_xrootd_file(job_args: JobArgs) -> None:
 
 
 def download_http_file(job_args: JobArgs) -> None:
-    r = requests.get(
+    request = requests.get(
         job_args["downloadInfo"]["sourceUrl"],
         stream=True,
         allow_redirects=True,
+        timeout=EXTENDED_REST_REQUEST_TIMEOUT,
     )
-    r.raise_for_status()
+    request.raise_for_status()
 
-    write_file(job_args, r.iter_content(DOWNLOAD_CHUNK_SIZE))
+    write_file(job_args, request.iter_content(DOWNLOAD_CHUNK_SIZE))
 
 
 def write_file(job_args: JobArgs, data_stream: Iterator[bytes]) -> None:

@@ -12,6 +12,8 @@ import os
 import traceback
 from typing import Final, List, NamedTuple, Union
 
+from typing_extensions import TypedDict
+
 import magic
 import xattr
 from onedata_lambda_utils.types import (
@@ -22,7 +24,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmObject,
 )
-from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -70,7 +71,6 @@ def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
-
     results = []
     for job_args in job_batch_request["argsBatch"]:
         results.append(run_job(job_args))

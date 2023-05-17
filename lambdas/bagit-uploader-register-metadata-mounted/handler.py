@@ -18,6 +18,8 @@ import zipfile
 from functools import lru_cache
 from typing import IO, Final, Generator, List, NamedTuple, Optional, Set, Tuple
 
+from typing_extensions import TypedDict
+
 import xattr
 from onedata_lambda_utils.types import (
     AtmException,
@@ -27,7 +29,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmObject,
 )
-from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -147,7 +148,6 @@ def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[Optional[AtmException]]:
-
     job_results = []
     for job_args in job_batch_request["argsBatch"]:
         job = Job(args=job_args, heartbeat_callback=heartbeat_callback)

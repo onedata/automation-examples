@@ -12,6 +12,8 @@ import json
 import random
 import time
 
+from typing_extensions import TypeAlias, TypedDict
+
 from onedata_lambda_utils.types import (
     AtmException,
     AtmHeartbeatCallback,
@@ -19,7 +21,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmObject,
 )
-from typing_extensions import TypeAlias, TypedDict
 
 ##===================================================================
 ## Lambda interface

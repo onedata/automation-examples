@@ -16,6 +16,8 @@ from threading import Event, Thread
 from typing import Dict, Final, NamedTuple, Union
 
 import requests
+from typing_extensions import TypedDict
+
 from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
 from onedata_lambda_utils.streaming import AtmResultStreamer
 from onedata_lambda_utils.types import (
@@ -28,7 +30,6 @@ from onedata_lambda_utils.types import (
     AtmObject,
     AtmTimeSeriesMeasurement,
 )
-from typing_extensions import TypedDict
 
 ##===================================================================
 ## Lambda configuration
@@ -37,6 +38,7 @@ from typing_extensions import TypedDict
 
 VERIFY_SSL_CERTS: Final[bool] = os.getenv("VERIFY_SSL_CERTIFICATES") != "false"
 ARCHIVE_STATUS_CHECK_INTERVAL_SEC: Final[int] = 5
+REST_REQUEST_TIMEOUT: Final[int] = 60
 
 
 ##===================================================================
@@ -95,7 +97,6 @@ def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
-
     jobs_monitor = Thread(target=monitor_jobs, daemon=True, args=[heartbeat_callback])
     jobs_monitor.start()
 
@@ -136,6 +137,7 @@ def establish_dataset(job: Job) -> str:
             {"rootFileId": job.args["destinationDir"]["file_id"], "protectionFlags": []}
         ),
         verify=VERIFY_SSL_CERTS,
+        timeout=REST_REQUEST_TIMEOUT,
     )
 
     if resp.status_code == 201:
@@ -146,7 +148,7 @@ def establish_dataset(job: Job) -> str:
             {
                 "severity": "warning",
                 "destinationDir": job.args["destinationDir"]["file_id"],
-                "message": f"Dataset already established.",
+                "message": "Dataset already established.",
             }
         )
         return get_dst_dir_dataset_id(job)
@@ -163,6 +165,7 @@ def get_dst_dir_dataset_id(job: Job) -> str:
         f"https://{host}/api/v3/oneprovider/data/{dst_dir_id}/dataset/summary",
         headers={"x-auth-token": job.ctx["accessToken"]},
         verify=VERIFY_SSL_CERTS,
+        timeout=REST_REQUEST_TIMEOUT,
     )
     resp.raise_for_status()
 
@@ -186,6 +189,7 @@ def create_archive(job: Job, dataset_id: str) -> str:
             }
         ),
         verify=VERIFY_SSL_CERTS,
+        timeout=REST_REQUEST_TIMEOUT,
     )
     resp.raise_for_status()
 
@@ -225,6 +229,7 @@ def get_archive_info(job: Job, archive_id: str) -> Dict:
         headers={"x-auth-token": job.ctx["accessToken"]},
         verify=VERIFY_SSL_CERTS,
         allow_redirects=True,
+        timeout=REST_REQUEST_TIMEOUT,
     )
     resp.raise_for_status()
 
