@@ -194,8 +194,13 @@ def write_file(job_args: JobArgs, data_stream: Iterator[bytes]) -> None:
     file_size = 0
     with open(build_destination_path(job_args), "wb") as f:
         for chunk in data_stream:
-            f.write(chunk)
+            bytes_written = f.write(chunk)
             chunk_size = len(chunk)
+            if bytes_written != chunk_size:
+                raise JobException(
+                    f"Unable to write a data chunk to file; written {bytes_written} bytes instead of {chunk_size}."
+                )
+
             file_size += chunk_size
             _measurements_queue.put(BytesProcessed.build(value=chunk_size))
 
