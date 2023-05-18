@@ -192,7 +192,8 @@ def download_http_file(job_args: JobArgs) -> None:
 
 def write_file(job_args: JobArgs, data_stream: Iterator[bytes]) -> None:
     file_size = 0
-    with open(build_destination_path(job_args), "wb") as f:
+    destination_path = build_destination_path(job_args)
+    with open(destination_path, "wb") as f:
         for chunk in data_stream:
             bytes_written = f.write(chunk)
             chunk_size = len(chunk)
@@ -207,7 +208,13 @@ def write_file(job_args: JobArgs, data_stream: Iterator[bytes]) -> None:
     if file_size != job_args["downloadInfo"]["size"]:
         raise JobException(
             f"Mismatch between expected ({job_args['downloadInfo']['size']} B) "
-            f"and actual ({file_size} B) size of downloaded file"
+            f"and actual ({file_size} B) size of download"
+        )
+
+    if os.path.getsize(destination_path) != job_args["downloadInfo"]["size"]:
+        raise JobException(
+            f"Mismatch between expected ({job_args['downloadInfo']['size']} B) "
+            f"and actual ({os.path.getsize(destination_path)} B) size of downloaded file"
         )
 
 
