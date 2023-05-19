@@ -211,10 +211,13 @@ def write_file(job_args: JobArgs, data_stream: Iterator[bytes]) -> None:
             f"and actual ({file_size} B) size of download"
         )
 
+    # serves as a double check that the Oneclient mounted as a sidecar has
+    # coherent information about the file size after all chunks are written
     if os.path.getsize(destination_path) != job_args["downloadInfo"]["size"]:
         raise JobException(
             f"Mismatch between expected ({job_args['downloadInfo']['size']} B) "
-            f"and actual ({os.path.getsize(destination_path)} B) size of downloaded file"
+            f"and actual ({os.path.getsize(destination_path)} B) size of the file "
+            "stored in the target location."
         )
 
 
