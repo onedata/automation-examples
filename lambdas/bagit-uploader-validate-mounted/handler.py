@@ -351,7 +351,7 @@ def parse_manifest_file(
             try:
                 decoded_line = line.decode("utf-8").strip().split()
                 checksum = decoded_line[0]
-                file_path =' '.join(decoded_line[1:])
+                file_path = " ".join(decoded_line[1:])
             except Exception:
                 raise JobException(
                     f"Failed to parse line number {line_num} in {manifest_file} file"
