@@ -349,8 +349,7 @@ def parse_manifest_file(
     with archive.open_file(manifest_file) as fd:
         for line_num, line in enumerate(fd, start=1):
             try:
-                pattern = r'^(\S+)(?:\s+(.*))?$'
-                
+                pattern = r"^(\S+)(?:\s+(.*))?$"
                 decoded_line = line.decode("utf-8")
                 match = re.match(pattern, decoded_line)
                 checksum = match.group(1)
