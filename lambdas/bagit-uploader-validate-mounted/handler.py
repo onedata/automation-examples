@@ -349,9 +349,12 @@ def parse_manifest_file(
     with archive.open_file(manifest_file) as fd:
         for line_num, line in enumerate(fd, start=1):
             try:
-                decoded_line = line.decode("utf-8").strip().split()
-                checksum = decoded_line[0]
-                file_path = " ".join(decoded_line[1:])
+                pattern = r'^(\S+)(?:\s+(.*))?$'
+                
+                decoded_line = line.decode("utf-8")
+                match = re.match(pattern, decoded_line)
+                checksum = match.group(1)
+                file_path = match.group(2)
             except Exception:
                 raise JobException(
                     f"Failed to parse line number {line_num} in {manifest_file} file"
