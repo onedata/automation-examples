@@ -3,7 +3,222 @@
   "schemaFormatVersion": 2,
   "revision": {
     "supplementaryAtmLambdas": {
-      "cf06804370466e71a8c8afb2bb43cd03cha05a": {
+      "fe1e77368f35afce76d6fe10bf7ccbabchada8": {
+        "5": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 5,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "relayMethod": "returnValue",
+                  "name": "processedFilePath",
+                  "dataSpec": {
+                    "type": "string",
+                    "allowedValues": null
+                  }
+                },
+                {
+                  "relayMethod": "filePipe",
+                  "name": "logs",
+                  "dataSpec": {
+                    "type": "object"
+                  }
+                },
+                {
+                  "relayMethod": "filePipe",
+                  "name": "stats",
+                  "dataSpec": {
+                    "type": "timeSeriesMeasurement",
+                    "specs": [
+                      {
+                        "unit": "none",
+                        "nameMatcherType": "exact",
+                        "nameMatcher": "filesProcessed"
+                      },
+                      {
+                        "unit": "bytes",
+                        "nameMatcherType": "exact",
+                        "nameMatcher": "bytesProcessed"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 10,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/lambda-download-file-mounted:v1",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "bagit-uploader-fetch-files",
+              "description": "",
+              "configParameterSpecs": [],
+              "checksum": "8310f8ca983776b9693251d880e99bfe",
+              "argumentSpecs": [
+                {
+                  "name": "downloadInfo",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "type": "object"
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "fe1e77368f35afce76d6fe10bf7ccbabchada8"
+        }
+      },
+      "f888db0e557f6826368855ef53002d7ache495": {
+        "8": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 8,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "relayMethod": "returnValue",
+                  "name": "unpackedFiles",
+                  "dataSpec": {
+                    "type": "array",
+                    "itemDataSpec": {
+                      "type": "string",
+                      "allowedValues": null
+                    }
+                  }
+                },
+                {
+                  "relayMethod": "returnValue",
+                  "name": "statusLog",
+                  "dataSpec": {
+                    "type": "object"
+                  }
+                },
+                {
+                  "relayMethod": "filePipe",
+                  "name": "stats",
+                  "dataSpec": {
+                    "type": "timeSeriesMeasurement",
+                    "specs": [
+                      {
+                        "unit": "bytes",
+                        "nameMatcherType": "exact",
+                        "nameMatcher": "bytesUnpacked"
+                      },
+                      {
+                        "unit": "none",
+                        "nameMatcherType": "exact",
+                        "nameMatcher": "filesUnpacked"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 2,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/lambda-bagit-uploader-unpack-data-mounted:v1",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "bagit-uploader-unpack-data",
+              "description": "",
+              "configParameterSpecs": [],
+              "checksum": "ef3700afe5248343170bebfbe85ef655",
+              "argumentSpecs": [
+                {
+                  "name": "archive",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "type": "file",
+                    "fileType": "REG",
+                    "attributes": [
+                      "atime",
+                      "ctime",
+                      "file_id",
+                      "hardlinks_count",
+                      "index",
+                      "mode",
+                      "mtime",
+                      "name",
+                      "owner_id",
+                      "parent_id",
+                      "provider_id",
+                      "shares",
+                      "size",
+                      "storage_group_id",
+                      "storage_user_id",
+                      "type"
+                    ]
+                  }
+                },
+                {
+                  "name": "destinationDir",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "type": "file",
+                    "fileType": "DIR",
+                    "attributes": [
+                      "atime",
+                      "ctime",
+                      "file_id",
+                      "hardlinks_count",
+                      "index",
+                      "mode",
+                      "mtime",
+                      "name",
+                      "owner_id",
+                      "parent_id",
+                      "provider_id",
+                      "shares",
+                      "size",
+                      "storage_group_id",
+                      "storage_user_id",
+                      "type"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "f888db0e557f6826368855ef53002d7ache495"
+        }
+      },
+      "f855a00b4f29028cb935a2230d15e0acchb8be": {
         "3": {
           "schemaFormatVersion": 2,
           "revision": {
@@ -17,20 +232,16 @@
                   "relayMethod": "returnValue",
                   "name": "filesToDownload",
                   "dataSpec": {
-                    "valueConstraints": {
-                      "itemDataSpec": {
-                        "valueConstraints": {},
-                        "type": "object"
-                      }
-                    },
-                    "type": "array"
+                    "type": "array",
+                    "itemDataSpec": {
+                      "type": "object"
+                    }
                   }
                 },
                 {
                   "relayMethod": "returnValue",
                   "name": "statusLog",
                   "dataSpec": {
-                    "valueConstraints": {},
                     "type": "object"
                   }
                 }
@@ -57,17 +268,33 @@
               "name": "bagit-uploader-unpack-fetch",
               "description": "",
               "configParameterSpecs": [],
-              "checksum": "00b8d4e06527cd4b7b6764c82651b14c",
+              "checksum": "4fd239dd2727a7a5dfcb64fa90b0ba54",
               "argumentSpecs": [
                 {
                   "name": "archive",
                   "isOptional": false,
                   "defaultValue": null,
                   "dataSpec": {
-                    "valueConstraints": {
-                      "fileType": "REG"
-                    },
-                    "type": "file"
+                    "type": "file",
+                    "fileType": "REG",
+                    "attributes": [
+                      "atime",
+                      "ctime",
+                      "file_id",
+                      "hardlinks_count",
+                      "index",
+                      "mode",
+                      "mtime",
+                      "name",
+                      "owner_id",
+                      "parent_id",
+                      "provider_id",
+                      "shares",
+                      "size",
+                      "storage_group_id",
+                      "storage_user_id",
+                      "type"
+                    ]
                   }
                 },
                 {
@@ -75,184 +302,35 @@
                   "isOptional": false,
                   "defaultValue": null,
                   "dataSpec": {
-                    "valueConstraints": {
-                      "fileType": "DIR"
-                    },
-                    "type": "file"
+                    "type": "file",
+                    "fileType": "DIR",
+                    "attributes": [
+                      "atime",
+                      "ctime",
+                      "file_id",
+                      "hardlinks_count",
+                      "index",
+                      "mode",
+                      "mtime",
+                      "name",
+                      "owner_id",
+                      "parent_id",
+                      "provider_id",
+                      "shares",
+                      "size",
+                      "storage_group_id",
+                      "storage_user_id",
+                      "type"
+                    ]
                   }
                 }
               ]
             }
           },
-          "originalAtmLambdaId": "cf06804370466e71a8c8afb2bb43cd03cha05a"
+          "originalAtmLambdaId": "f855a00b4f29028cb935a2230d15e0acchb8be"
         }
       },
-      "be5a954ef1a92ff93b74f150651dc3a9chcd83": {
-        "4": {
-          "schemaFormatVersion": 2,
-          "revision": {
-            "schemaFormatVersion": 2,
-            "originalRevisionNumber": 4,
-            "atmLambdaRevision": {
-              "summary": "",
-              "state": "draft",
-              "resultSpecs": [
-                {
-                  "relayMethod": "returnValue",
-                  "name": "checksums",
-                  "dataSpec": {
-                    "valueConstraints": {},
-                    "type": "object"
-                  }
-                },
-                {
-                  "relayMethod": "filePipe",
-                  "name": "stats",
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "specs": [
-                        {
-                          "unit": "bytes",
-                          "nameMatcherType": "hasPrefix",
-                          "nameMatcher": "bytesProcessed_"
-                        }
-                      ]
-                    },
-                    "type": "timeSeriesMeasurement"
-                  }
-                }
-              ],
-              "resourceSpec": {
-                "memoryRequested": 104857600,
-                "memoryLimit": null,
-                "ephemeralStorageRequested": 104857600,
-                "ephemeralStorageLimit": null,
-                "cpuRequested": 0.1,
-                "cpuLimit": null
-              },
-              "preferredBatchSize": 2,
-              "operationSpec": {
-                "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/lambda-bagit-uploader-calculate-checksum:v1",
-                "dockerExecutionOptions": {
-                  "readonly": false,
-                  "oneclientOptions": "-i",
-                  "oneclientMountPoint": "/mnt/onedata",
-                  "mountOneclient": true
-                }
-              },
-              "name": "bagit-uploader-calculate-checksum",
-              "description": "",
-              "configParameterSpecs": [],
-              "checksum": "99538f27b51daf0c6383727498273993",
-              "argumentSpecs": [
-                {
-                  "name": "filePath",
-                  "isOptional": false,
-                  "defaultValue": null,
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "allowedValues": null
-                    },
-                    "type": "string"
-                  }
-                }
-              ]
-            }
-          },
-          "originalAtmLambdaId": "be5a954ef1a92ff93b74f150651dc3a9chcd83"
-        }
-      },
-      "9ee667fcfc4f96bd86b6ce0d3119ad45ch2cc4": {
-        "5": {
-          "schemaFormatVersion": 2,
-          "revision": {
-            "schemaFormatVersion": 2,
-            "originalRevisionNumber": 5,
-            "atmLambdaRevision": {
-              "summary": "",
-              "state": "draft",
-              "resultSpecs": [
-                {
-                  "relayMethod": "returnValue",
-                  "name": "processedFilePath",
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "allowedValues": null
-                    },
-                    "type": "string"
-                  }
-                },
-                {
-                  "relayMethod": "filePipe",
-                  "name": "logs",
-                  "dataSpec": {
-                    "valueConstraints": {},
-                    "type": "object"
-                  }
-                },
-                {
-                  "relayMethod": "filePipe",
-                  "name": "stats",
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "specs": [
-                        {
-                          "unit": "none",
-                          "nameMatcherType": "exact",
-                          "nameMatcher": "filesProcessed"
-                        },
-                        {
-                          "unit": "bytes",
-                          "nameMatcherType": "exact",
-                          "nameMatcher": "bytesProcessed"
-                        }
-                      ]
-                    },
-                    "type": "timeSeriesMeasurement"
-                  }
-                }
-              ],
-              "resourceSpec": {
-                "memoryRequested": 104857600,
-                "memoryLimit": null,
-                "ephemeralStorageRequested": 104857600,
-                "ephemeralStorageLimit": null,
-                "cpuRequested": 0.1,
-                "cpuLimit": null
-              },
-              "preferredBatchSize": 10,
-              "operationSpec": {
-                "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/lambda-download-file-mounted:v1",
-                "dockerExecutionOptions": {
-                  "readonly": false,
-                  "oneclientOptions": "-i",
-                  "oneclientMountPoint": "/mnt/onedata",
-                  "mountOneclient": true
-                }
-              },
-              "name": "bagit-uploader-fetch-files",
-              "description": "",
-              "configParameterSpecs": [],
-              "checksum": "b000f0e82afe817a1f6ffe11d2ce3d90",
-              "argumentSpecs": [
-                {
-                  "name": "downloadInfo",
-                  "isOptional": false,
-                  "defaultValue": null,
-                  "dataSpec": {
-                    "valueConstraints": {},
-                    "type": "object"
-                  }
-                }
-              ]
-            }
-          },
-          "originalAtmLambdaId": "9ee667fcfc4f96bd86b6ce0d3119ad45ch2cc4"
-        }
-      },
-      "870d9c0bdb7d4b6b577051865d53d9e5ch64d9": {
+      "e77c70d64f198fb3823d929c94774d1fch08b6": {
         "3": {
           "schemaFormatVersion": 2,
           "revision": {
@@ -284,17 +362,33 @@
               "name": "register-metadata-from-data",
               "description": "",
               "configParameterSpecs": [],
-              "checksum": "746e49d0262206e573128a68c8669c14",
+              "checksum": "a3b625591e5c14e36fcd35b0295ff573",
               "argumentSpecs": [
                 {
                   "name": "archive",
                   "isOptional": false,
                   "defaultValue": null,
                   "dataSpec": {
-                    "valueConstraints": {
-                      "fileType": "REG"
-                    },
-                    "type": "file"
+                    "type": "file",
+                    "fileType": "REG",
+                    "attributes": [
+                      "atime",
+                      "ctime",
+                      "file_id",
+                      "hardlinks_count",
+                      "index",
+                      "mode",
+                      "mtime",
+                      "name",
+                      "owner_id",
+                      "parent_id",
+                      "provider_id",
+                      "shares",
+                      "size",
+                      "storage_group_id",
+                      "storage_user_id",
+                      "type"
+                    ]
                   }
                 },
                 {
@@ -302,19 +396,201 @@
                   "isOptional": false,
                   "defaultValue": null,
                   "dataSpec": {
-                    "valueConstraints": {
-                      "fileType": "DIR"
-                    },
-                    "type": "file"
+                    "type": "file",
+                    "fileType": "DIR",
+                    "attributes": [
+                      "atime",
+                      "ctime",
+                      "file_id",
+                      "hardlinks_count",
+                      "index",
+                      "mode",
+                      "mtime",
+                      "name",
+                      "owner_id",
+                      "parent_id",
+                      "provider_id",
+                      "shares",
+                      "size",
+                      "storage_group_id",
+                      "storage_user_id",
+                      "type"
+                    ]
                   }
                 }
               ]
             }
           },
-          "originalAtmLambdaId": "870d9c0bdb7d4b6b577051865d53d9e5ch64d9"
+          "originalAtmLambdaId": "e77c70d64f198fb3823d929c94774d1fch08b6"
         }
       },
-      "6757d97ae7dc250e41dbc12a863a9df6ch7526": {
+      "83a25a12d7ccea0ab02e9433d35d4172ch41c8": {
+        "6": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 6,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "relayMethod": "returnValue",
+                  "name": "result",
+                  "dataSpec": {
+                    "type": "object"
+                  }
+                },
+                {
+                  "relayMethod": "filePipe",
+                  "name": "stats",
+                  "dataSpec": {
+                    "type": "timeSeriesMeasurement",
+                    "specs": [
+                      {
+                        "unit": "bytes",
+                        "nameMatcherType": "hasPrefix",
+                        "nameMatcher": "bytesProcessed_"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 2,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/lambda-bagit-uploader-calculate-checksum-mounted:v1",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "bagit-uploader-calculate-checksum",
+              "description": "",
+              "configParameterSpecs": [],
+              "checksum": "44005dba33c5dd462b43dc20b6c51027",
+              "argumentSpecs": [
+                {
+                  "name": "filePath",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "type": "string",
+                    "allowedValues": null
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "83a25a12d7ccea0ab02e9433d35d4172ch41c8"
+        }
+      },
+      "47f8f32e7148097151d742c3ae9ec085chebad": {
+        "5": {
+          "schemaFormatVersion": 2,
+          "revision": {
+            "schemaFormatVersion": 2,
+            "originalRevisionNumber": 5,
+            "atmLambdaRevision": {
+              "summary": "",
+              "state": "draft",
+              "resultSpecs": [
+                {
+                  "relayMethod": "returnValue",
+                  "name": "archiveId",
+                  "dataSpec": {
+                    "type": "string",
+                    "allowedValues": null
+                  }
+                },
+                {
+                  "relayMethod": "filePipe",
+                  "name": "stats",
+                  "dataSpec": {
+                    "type": "timeSeriesMeasurement",
+                    "specs": [
+                      {
+                        "unit": "none",
+                        "nameMatcherType": "exact",
+                        "nameMatcher": "filesArchived"
+                      },
+                      {
+                        "unit": "bytes",
+                        "nameMatcherType": "exact",
+                        "nameMatcher": "bytesArchived"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "resourceSpec": {
+                "memoryRequested": 104857600,
+                "memoryLimit": null,
+                "ephemeralStorageRequested": 104857600,
+                "ephemeralStorageLimit": null,
+                "cpuRequested": 0.1,
+                "cpuLimit": null
+              },
+              "preferredBatchSize": 1,
+              "operationSpec": {
+                "engine": "openfaas",
+                "dockerImage": "docker.onedata.org/lambda-bagit-uploader-archive-destination-rest:v1",
+                "dockerExecutionOptions": {
+                  "readonly": false,
+                  "oneclientOptions": "-i",
+                  "oneclientMountPoint": "/mnt/onedata",
+                  "mountOneclient": true
+                }
+              },
+              "name": "bagit-uploader-archive-destination",
+              "description": "",
+              "configParameterSpecs": [],
+              "checksum": "ad60b022a82dd596f8a08627fd5bf9f2",
+              "argumentSpecs": [
+                {
+                  "name": "destinationDir",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "dataSpec": {
+                    "type": "file",
+                    "fileType": "DIR",
+                    "attributes": [
+                      "atime",
+                      "ctime",
+                      "file_id",
+                      "hardlinks_count",
+                      "index",
+                      "mode",
+                      "mtime",
+                      "name",
+                      "owner_id",
+                      "parent_id",
+                      "provider_id",
+                      "shares",
+                      "size",
+                      "storage_group_id",
+                      "storage_user_id",
+                      "type"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "originalAtmLambdaId": "47f8f32e7148097151d742c3ae9ec085chebad"
+        }
+      },
+      "2e1b06b00c8460e87b9fd7f411672cc1chfecf": {
         "8": {
           "schemaFormatVersion": 2,
           "revision": {
@@ -328,22 +604,35 @@
                   "relayMethod": "returnValue",
                   "name": "validArchives",
                   "dataSpec": {
-                    "valueConstraints": {
-                      "itemDataSpec": {
-                        "valueConstraints": {
-                          "fileType": "ANY"
-                        },
-                        "type": "file"
-                      }
-                    },
-                    "type": "array"
+                    "type": "array",
+                    "itemDataSpec": {
+                      "type": "file",
+                      "fileType": "ANY",
+                      "attributes": [
+                        "atime",
+                        "ctime",
+                        "file_id",
+                        "hardlinks_count",
+                        "index",
+                        "mode",
+                        "mtime",
+                        "name",
+                        "owner_id",
+                        "parent_id",
+                        "provider_id",
+                        "shares",
+                        "size",
+                        "storage_group_id",
+                        "storage_user_id",
+                        "type"
+                      ]
+                    }
                   }
                 },
                 {
                   "relayMethod": "returnValue",
                   "name": "statusLog",
                   "dataSpec": {
-                    "valueConstraints": {},
                     "type": "object"
                   }
                 }
@@ -370,213 +659,39 @@
               "name": "bagit-uploader-validate",
               "description": "",
               "configParameterSpecs": [],
-              "checksum": "8d24337093a1c5e67c0abbf83f9bad5c",
+              "checksum": "a3e5b83898248e8f2c5b55cf1621dded",
               "argumentSpecs": [
                 {
                   "name": "archive",
                   "isOptional": false,
                   "defaultValue": null,
                   "dataSpec": {
-                    "valueConstraints": {
-                      "fileType": "REG"
-                    },
-                    "type": "file"
+                    "type": "file",
+                    "fileType": "REG",
+                    "attributes": [
+                      "atime",
+                      "ctime",
+                      "file_id",
+                      "hardlinks_count",
+                      "index",
+                      "mode",
+                      "mtime",
+                      "name",
+                      "owner_id",
+                      "parent_id",
+                      "provider_id",
+                      "shares",
+                      "size",
+                      "storage_group_id",
+                      "storage_user_id",
+                      "type"
+                    ]
                   }
                 }
               ]
             }
           },
-          "originalAtmLambdaId": "6757d97ae7dc250e41dbc12a863a9df6ch7526"
-        }
-      },
-      "66023f8eaf9a46881c4e8546384b16abch8247": {
-        "5": {
-          "schemaFormatVersion": 2,
-          "revision": {
-            "schemaFormatVersion": 2,
-            "originalRevisionNumber": 5,
-            "atmLambdaRevision": {
-              "summary": "",
-              "state": "draft",
-              "resultSpecs": [
-                {
-                  "relayMethod": "returnValue",
-                  "name": "archiveId",
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "allowedValues": null
-                    },
-                    "type": "string"
-                  }
-                },
-                {
-                  "relayMethod": "filePipe",
-                  "name": "stats",
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "specs": [
-                        {
-                          "unit": "none",
-                          "nameMatcherType": "exact",
-                          "nameMatcher": "filesArchived"
-                        },
-                        {
-                          "unit": "bytes",
-                          "nameMatcherType": "exact",
-                          "nameMatcher": "bytesArchived"
-                        }
-                      ]
-                    },
-                    "type": "timeSeriesMeasurement"
-                  }
-                }
-              ],
-              "resourceSpec": {
-                "memoryRequested": 104857600,
-                "memoryLimit": null,
-                "ephemeralStorageRequested": 104857600,
-                "ephemeralStorageLimit": null,
-                "cpuRequested": 0.1,
-                "cpuLimit": null
-              },
-              "preferredBatchSize": 1,
-              "operationSpec": {
-                "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/lambda-bagit-uploader-archive-destination-rest:v1",
-                "dockerExecutionOptions": {
-                  "readonly": false,
-                  "oneclientOptions": "-i",
-                  "oneclientMountPoint": "/mnt/onedata",
-                  "mountOneclient": true
-                }
-              },
-              "name": "bagit-uploader-archive-destination",
-              "description": "",
-              "configParameterSpecs": [],
-              "checksum": "6f151629d402e0c6079147fbf31bd129",
-              "argumentSpecs": [
-                {
-                  "name": "destinationDir",
-                  "isOptional": false,
-                  "defaultValue": null,
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "fileType": "DIR"
-                    },
-                    "type": "file"
-                  }
-                }
-              ]
-            }
-          },
-          "originalAtmLambdaId": "66023f8eaf9a46881c4e8546384b16abch8247"
-        }
-      },
-      "24e4f3c4f1c379e74f964b04ed2dbce2ched8b": {
-        "8": {
-          "schemaFormatVersion": 2,
-          "revision": {
-            "schemaFormatVersion": 2,
-            "originalRevisionNumber": 8,
-            "atmLambdaRevision": {
-              "summary": "",
-              "state": "draft",
-              "resultSpecs": [
-                {
-                  "relayMethod": "returnValue",
-                  "name": "unpackedFiles",
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "itemDataSpec": {
-                        "valueConstraints": {
-                          "allowedValues": null
-                        },
-                        "type": "string"
-                      }
-                    },
-                    "type": "array"
-                  }
-                },
-                {
-                  "relayMethod": "returnValue",
-                  "name": "statusLog",
-                  "dataSpec": {
-                    "valueConstraints": {},
-                    "type": "object"
-                  }
-                },
-                {
-                  "relayMethod": "filePipe",
-                  "name": "stats",
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "specs": [
-                        {
-                          "unit": "bytes",
-                          "nameMatcherType": "exact",
-                          "nameMatcher": "bytesUnpacked"
-                        },
-                        {
-                          "unit": "none",
-                          "nameMatcherType": "exact",
-                          "nameMatcher": "filesUnpacked"
-                        }
-                      ]
-                    },
-                    "type": "timeSeriesMeasurement"
-                  }
-                }
-              ],
-              "resourceSpec": {
-                "memoryRequested": 104857600,
-                "memoryLimit": null,
-                "ephemeralStorageRequested": 104857600,
-                "ephemeralStorageLimit": null,
-                "cpuRequested": 0.1,
-                "cpuLimit": null
-              },
-              "preferredBatchSize": 2,
-              "operationSpec": {
-                "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/lambda-bagit-uploader-unpack-data-mounted:v1",
-                "dockerExecutionOptions": {
-                  "readonly": false,
-                  "oneclientOptions": "-i",
-                  "oneclientMountPoint": "/mnt/onedata",
-                  "mountOneclient": true
-                }
-              },
-              "name": "bagit-uploader-unpack-data",
-              "description": "",
-              "configParameterSpecs": [],
-              "checksum": "1c61b373912ee6680080a5f6d68b07dd",
-              "argumentSpecs": [
-                {
-                  "name": "archive",
-                  "isOptional": false,
-                  "defaultValue": null,
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "fileType": "REG"
-                    },
-                    "type": "file"
-                  }
-                },
-                {
-                  "name": "destinationDir",
-                  "isOptional": false,
-                  "defaultValue": null,
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "fileType": "DIR"
-                    },
-                    "type": "file"
-                  }
-                }
-              ]
-            }
-          },
-          "originalAtmLambdaId": "24e4f3c4f1c379e74f964b04ed2dbce2ched8b"
+          "originalAtmLambdaId": "2e1b06b00c8460e87b9fd7f411672cc1chfecf"
         }
       }
     },
@@ -593,10 +708,26 @@
           "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
-              "valueConstraints": {
-                "fileType": "REG"
-              },
-              "type": "file"
+              "type": "file",
+              "fileType": "REG",
+              "attributes": [
+                "atime",
+                "ctime",
+                "file_id",
+                "hardlinks_count",
+                "index",
+                "mode",
+                "mtime",
+                "name",
+                "owner_id",
+                "parent_id",
+                "provider_id",
+                "shares",
+                "size",
+                "storage_group_id",
+                "storage_user_id",
+                "type"
+              ]
             }
           }
         },
@@ -609,10 +740,26 @@
           "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
-              "valueConstraints": {
-                "fileType": "DIR"
-              },
-              "type": "file"
+              "type": "file",
+              "fileType": "DIR",
+              "attributes": [
+                "atime",
+                "ctime",
+                "file_id",
+                "hardlinks_count",
+                "index",
+                "mode",
+                "mtime",
+                "name",
+                "owner_id",
+                "parent_id",
+                "provider_id",
+                "shares",
+                "size",
+                "storage_group_id",
+                "storage_user_id",
+                "type"
+              ]
             }
           }
         },
@@ -625,10 +772,8 @@
           "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
-              "valueConstraints": {
-                "allowedValues": null
-              },
-              "type": "string"
+              "type": "string",
+              "allowedValues": null
             }
           }
         },
@@ -641,7 +786,6 @@
           "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
-              "valueConstraints": {},
               "type": "object"
             }
           }
@@ -655,7 +799,6 @@
           "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
-              "valueConstraints": {},
               "type": "object"
             }
           }
@@ -669,10 +812,8 @@
           "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
-              "valueConstraints": {
-                "allowedValues": null
-              },
-              "type": "string"
+              "type": "string",
+              "allowedValues": null
             }
           }
         },
@@ -685,10 +826,26 @@
           "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
-              "valueConstraints": {
-                "fileType": "ANY"
-              },
-              "type": "file"
+              "type": "file",
+              "fileType": "ANY",
+              "attributes": [
+                "atime",
+                "ctime",
+                "file_id",
+                "hardlinks_count",
+                "index",
+                "mode",
+                "mtime",
+                "name",
+                "owner_id",
+                "parent_id",
+                "provider_id",
+                "shares",
+                "size",
+                "storage_group_id",
+                "storage_user_id",
+                "type"
+              ]
             }
           }
         }
@@ -726,7 +883,7 @@
                   "resourceSpecOverride": null,
                   "name": "bagit-uploader-validate",
                   "lambdaRevisionNumber": 8,
-                  "lambdaId": "6757d97ae7dc250e41dbc12a863a9df6ch7526",
+                  "lambdaId": "2e1b06b00c8460e87b9fd7f411672cc1chfecf",
                   "lambdaConfig": {},
                   "id": "da06f5672ff64eda57f02e73d04f4bf3aff7e9",
                   "argumentMappings": [
@@ -1009,7 +1166,7 @@
                   "resourceSpecOverride": null,
                   "name": "bagit-uploader-unpack-data",
                   "lambdaRevisionNumber": 8,
-                  "lambdaId": "24e4f3c4f1c379e74f964b04ed2dbce2ched8b",
+                  "lambdaId": "f888db0e557f6826368855ef53002d7ache495",
                   "lambdaConfig": {},
                   "id": "7bd9b6a83786242fcb1846f3f71b309030c8e8",
                   "argumentMappings": [
@@ -1052,7 +1209,7 @@
                   "resourceSpecOverride": null,
                   "name": "bagit-uploader-unpack-fetch",
                   "lambdaRevisionNumber": 3,
-                  "lambdaId": "cf06804370466e71a8c8afb2bb43cd03cha05a",
+                  "lambdaId": "f855a00b4f29028cb935a2230d15e0acchb8be",
                   "lambdaConfig": {},
                   "id": "5956ad5ac9a4499799a0512e00e0a8bcbd3b18",
                   "argumentMappings": [
@@ -1342,7 +1499,7 @@
                   "resourceSpecOverride": null,
                   "name": "bagit-uploader-download-files",
                   "lambdaRevisionNumber": 5,
-                  "lambdaId": "9ee667fcfc4f96bd86b6ce0d3119ad45ch2cc4",
+                  "lambdaId": "fe1e77368f35afce76d6fe10bf7ccbabchada8",
                   "lambdaConfig": {},
                   "id": "bbaab9dee648d5faee1d7a4ce948cdcb7c90c0",
                   "argumentMappings": [
@@ -1379,7 +1536,7 @@
                   "resourceSpecOverride": null,
                   "name": "register-metadata-from-data",
                   "lambdaRevisionNumber": 3,
-                  "lambdaId": "870d9c0bdb7d4b6b577051865d53d9e5ch64d9",
+                  "lambdaId": "e77c70d64f198fb3823d929c94774d1fch08b6",
                   "lambdaConfig": {},
                   "id": "7dca0b4e7babed7250761dd09b445df68e7d44",
                   "argumentMappings": [
@@ -1586,7 +1743,7 @@
                         "type": "listStoreContentUpdateOptions",
                         "function": "append"
                       },
-                      "resultName": "checksums"
+                      "resultName": "result"
                     },
                     {
                       "storeSchemaId": "CURRENT_TASK_TIME_SERIES",
@@ -1606,8 +1763,8 @@
                   ],
                   "resourceSpecOverride": null,
                   "name": "bagit-uploader-calculate-checksum",
-                  "lambdaRevisionNumber": 4,
-                  "lambdaId": "be5a954ef1a92ff93b74f150651dc3a9chcd83",
+                  "lambdaRevisionNumber": 6,
+                  "lambdaId": "83a25a12d7ccea0ab02e9433d35d4172ch41c8",
                   "lambdaConfig": {},
                   "id": "d18f39c67289b12cdb5e1697f5180596cd1383",
                   "argumentMappings": [
@@ -1881,7 +2038,7 @@
                   "resourceSpecOverride": null,
                   "name": "bagit-uploader-archive-destination",
                   "lambdaRevisionNumber": 5,
-                  "lambdaId": "66023f8eaf9a46881c4e8546384b16abch8247",
+                  "lambdaId": "47f8f32e7148097151d742c3ae9ec085chebad",
                   "lambdaConfig": {},
                   "id": "e623d857aa729367db7e4565739ba2776898fe",
                   "argumentMappings": [
@@ -2530,6 +2687,6 @@
       }
     }
   },
-  "originalAtmWorkflowSchemaId": "e0d68b54b25b9eea9caee564f5f4c73ech7b80",
+  "originalAtmWorkflowSchemaId": "b9b67ddaaa27eb8c040af2bc538a1ae3ch8f21",
   "name": "bagit-uploader"
 }
