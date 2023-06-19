@@ -3,7 +3,7 @@
   "schemaFormatVersion": 2,
   "revision": {
     "supplementaryAtmLambdas": {
-      "e1819c0e2ef5240915725d4060bec2bech7a57": {
+      "701dd5b89b5befd0fae4fe1203a82134cha16f": {
         "2": {
           "schemaFormatVersion": 2,
           "revision": {
@@ -71,7 +71,7 @@
               ]
             }
           },
-          "originalAtmLambdaId": "e1819c0e2ef5240915725d4060bec2bech7a57"
+          "originalAtmLambdaId": "701dd5b89b5befd0fae4fe1203a82134cha16f"
         }
       }
     },
@@ -89,7 +89,7 @@
           "config": {
             "itemDataSpec": {
               "valueConstraints": {
-                "fileType": "ANY"
+                "fileType": "REG"
               },
               "type": "file"
             }
@@ -135,7 +135,7 @@
                   "resourceSpecOverride": null,
                   "name": "detect-file-format",
                   "lambdaRevisionNumber": 2,
-                  "lambdaId": "e1819c0e2ef5240915725d4060bec2bech7a57",
+                  "lambdaId": "701dd5b89b5befd0fae4fe1203a82134cha16f",
                   "lambdaConfig": {},
                   "id": "dd0c7c0ba64e7ecd81aac190ddb2d578f46987",
                   "argumentMappings": [
@@ -170,6 +170,6 @@
       "dashboardSpec": null
     }
   },
-  "originalAtmWorkflowSchemaId": "6e812cc4e7c0ccc26656f7731d7026eech668f",
+  "originalAtmWorkflowSchemaId": "9eefb7d41748cf4cdd74818b277ead77che862",
   "name": "detect-file-formats"
 }
