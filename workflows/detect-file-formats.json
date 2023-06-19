@@ -3,7 +3,7 @@
   "schemaFormatVersion": 2,
   "revision": {
     "supplementaryAtmLambdas": {
-      "9877cd20b65501446ab957797bc788fdch952f": {
+      "701dd5b89b5befd0fae4fe1203a82134cha16f": {
         "2": {
           "schemaFormatVersion": 2,
           "revision": {
@@ -17,6 +17,7 @@
                   "relayMethod": "returnValue",
                   "name": "result",
                   "dataSpec": {
+                    "valueConstraints": {},
                     "type": "object"
                   }
                 }
@@ -43,33 +44,17 @@
               "name": "detect-file-format",
               "description": "",
               "configParameterSpecs": [],
-              "checksum": "47f044cbad46914b2ec41e397af8fd26",
+              "checksum": "07ccb0a55e48e9cd5d67aa32046eabc0",
               "argumentSpecs": [
                 {
                   "name": "file",
                   "isOptional": false,
                   "defaultValue": null,
                   "dataSpec": {
-                    "type": "file",
-                    "fileType": "REG",
-                    "attributes": [
-                      "atime",
-                      "ctime",
-                      "file_id",
-                      "hardlinks_count",
-                      "index",
-                      "mode",
-                      "mtime",
-                      "name",
-                      "owner_id",
-                      "parent_id",
-                      "provider_id",
-                      "shares",
-                      "size",
-                      "storage_group_id",
-                      "storage_user_id",
-                      "type"
-                    ]
+                    "valueConstraints": {
+                      "fileType": "REG"
+                    },
+                    "type": "file"
                   }
                 },
                 {
@@ -77,14 +62,16 @@
                   "isOptional": true,
                   "defaultValue": "",
                   "dataSpec": {
-                    "type": "string",
-                    "allowedValues": null
+                    "valueConstraints": {
+                      "allowedValues": null
+                    },
+                    "type": "string"
                   }
                 }
               ]
             }
           },
-          "originalAtmLambdaId": "9877cd20b65501446ab957797bc788fdch952f"
+          "originalAtmLambdaId": "701dd5b89b5befd0fae4fe1203a82134cha16f"
         }
       }
     },
@@ -101,26 +88,10 @@
           "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
-              "type": "file",
-              "fileType": "REG",
-              "attributes": [
-                "atime",
-                "ctime",
-                "file_id",
-                "hardlinks_count",
-                "index",
-                "mode",
-                "mtime",
-                "name",
-                "owner_id",
-                "parent_id",
-                "provider_id",
-                "shares",
-                "size",
-                "storage_group_id",
-                "storage_user_id",
-                "type"
-              ]
+              "valueConstraints": {
+                "fileType": "REG"
+              },
+              "type": "file"
             }
           }
         },
@@ -133,6 +104,7 @@
           "defaultInitialContent": null,
           "config": {
             "itemDataSpec": {
+              "valueConstraints": {},
               "type": "object"
             }
           }
@@ -163,7 +135,7 @@
                   "resourceSpecOverride": null,
                   "name": "detect-file-format",
                   "lambdaRevisionNumber": 2,
-                  "lambdaId": "9877cd20b65501446ab957797bc788fdch952f",
+                  "lambdaId": "701dd5b89b5befd0fae4fe1203a82134cha16f",
                   "lambdaConfig": {},
                   "id": "dd0c7c0ba64e7ecd81aac190ddb2d578f46987",
                   "argumentMappings": [
@@ -198,6 +170,6 @@
       "dashboardSpec": null
     }
   },
-  "originalAtmWorkflowSchemaId": "8d76620fc08f9f397d267d3550b95007ch837f",
+  "originalAtmWorkflowSchemaId": "9eefb7d41748cf4cdd74818b277ead77che862",
   "name": "detect-file-formats"
 }
