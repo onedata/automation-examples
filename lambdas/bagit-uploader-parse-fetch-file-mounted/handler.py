@@ -190,7 +190,8 @@ def parse_fetch_file(job: Job, archive: BagitArchive) -> List[FileDownloadInfo]:
 
 def parse_line(dst_dir: str, line_num: int, line: bytes) -> FileDownloadInfo:
     try:
-        url, size, rel_path = line.decode("utf-8").strip().split()
+        decoded_line = line.decode("utf-8").strip("\n")
+        url, size, rel_path = decoded_line.split(maxsplit=2)
         sanitized_size = int(size)
     except Exception:
         raise JobException(

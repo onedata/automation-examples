@@ -370,7 +370,8 @@ def parse_fetch_file(archive: BagitArchive) -> List[str]:
     files_to_download = []
     for line_num, line in enumerate(archive.open_file(fetch_file), start=1):
         try:
-            url, size, path = line.decode("utf-8").strip().split()
+            decoded_line = line.decode("utf-8").strip("\n")
+            url, size, path = decoded_line.split(maxsplit=2)
             assert size.isnumeric()
         except Exception:
             raise JobException(

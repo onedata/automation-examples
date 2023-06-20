@@ -197,7 +197,8 @@ def parse_manifest_line(
     manifest_file: str, line_num: int, line: bytes
 ) -> Tuple[str, str]:
     try:
-        checksum, file_path = line.decode("utf-8").strip().split()
+        decoded_line = line.decode("utf-8").strip("\n")
+        checksum, file_path = decoded_line.split(maxsplit=1)
         return checksum, os.path.relpath(file_path, "data/")
     except Exception:
         raise JobException(
