@@ -108,7 +108,7 @@ def parse_fetch_file(job: Job) -> List[FileDownloadInfo]:
 
 
 def parse_line(job: Job, line: str) -> FileDownloadInfo:
-    url, size, rel_path = line.strip().split()
+    url, size, rel_path = line.strip().split(maxsplit=2)
     root_dir_id = job.args["destinationDir"]["file_id"]
     rel_path = rel_path.lstrip("/")
 
