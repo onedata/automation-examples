@@ -1,0 +1,1 @@
+http://opendata.cern.ch/eos/opendata/cms/MonteCarlo2011/Summer11LegDR/BuToKstarMuMuV2_EtaPtFilter_7TeV-pythia6-evtgen/AODSIM/PU_S13_START53_LV6-v1/00000/000043B3-0E0B-E411-B2FE-0026189438E9.root	4011567937	data/000043B3-0E0B-E411-B2FE-0026189438E9.root
