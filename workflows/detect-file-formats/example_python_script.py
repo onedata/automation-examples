@@ -21,7 +21,10 @@ def heapify(argument, number, iteration):
 
     # Change root, if needed
     if largest != iteration:
-        argument[iteration], argument[largest] = argument[largest], argument[iteration]  # swap
+        argument[iteration], argument[largest] = (
+            argument[largest],
+            argument[iteration],
+        )  # swap
 
         # Heapify the root.
         heapify(argument, number, largest)
