@@ -18,6 +18,7 @@ from typing_extensions import TypedDict
 
 from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
 from onedata_lambda_utils.streaming import AtmResultStreamer
+from onedata_lambda_utils.logging import AtmLogger
 from onedata_lambda_utils.types import (
     AtmException,
     AtmHeartbeatCallback,
@@ -45,7 +46,7 @@ EXTENDED_REST_REQUEST_TIMEOUT: Final[int] = 120
 ##===================================================================
 
 
-LOGS_STREAMER: Final[AtmResultStreamer[AtmObject]] = AtmResultStreamer(
+LOGS_STREAMER: Final[AtmLogger[AtmObject]] = AtmLogger(
     result_name="logs", synchronized=True
 )
 
@@ -126,9 +127,8 @@ def run_job_insecure(job_args: JobArgs) -> None:
 
     if os.path.exists(destination_path):
         if os.stat(destination_path).st_size == job_args["downloadInfo"]["size"]:
-            LOGS_STREAMER.stream_item(
+            LOGS_STREAMER.info(
                 {
-                    "severity": "info",
                     "downloadInfo": job_args["downloadInfo"],
                     "message": (
                         "Skipping download as file with expected size "
@@ -137,9 +137,8 @@ def run_job_insecure(job_args: JobArgs) -> None:
                 }
             )
         else:
-            LOGS_STREAMER.stream_item(
+            LOGS_STREAMER.info(
                 {
-                    "severity": "info",
                     "downloadInfo": job_args["downloadInfo"],
                     "message": (
                         "Removing file existing at destination path "
