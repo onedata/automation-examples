@@ -1912,620 +1912,572 @@
             "tip": "",
             "content": "Workflow statistics"
           },
-          "sections": [
+          "charts": [
             {
+              "yAxes": [
+                {
+                  "valueProvider": {
+                    "functionName": "currentValue",
+                    "functionArguments": {}
+                  },
+                  "unitOptions": null,
+                  "unitName": "bytesPerSec",
+                  "name": "Bytes per sec.",
+                  "minInterval": 1,
+                  "id": "bytesAxis"
+                },
+                {
+                  "valueProvider": {
+                    "functionName": "currentValue",
+                    "functionArguments": {}
+                  },
+                  "unitOptions": {
+                    "customName": "files/s"
+                  },
+                  "unitName": "custom",
+                  "name": "Files per sec.",
+                  "minInterval": 1,
+                  "id": "filesAxis"
+                }
+              ],
               "title": {
                 "tip": "",
                 "content": "bagit-uploader-unpack-data stats"
               },
-              "sections": [],
-              "isExpandedByDefault": false,
-              "description": "",
-              "charts": [
+              "seriesGroupBuilders": [],
+              "seriesBuilders": [
                 {
-                  "yAxes": [
-                    {
-                      "valueProvider": {
-                        "functionName": "currentValue",
-                        "functionArguments": {}
-                      },
-                      "unitOptions": null,
-                      "unitName": "bytesPerSec",
-                      "name": "Bytes per sec.",
-                      "minInterval": 1,
-                      "id": "bytesAxis"
-                    },
-                    {
-                      "valueProvider": {
-                        "functionName": "currentValue",
-                        "functionArguments": {}
-                      },
-                      "unitOptions": {
-                        "customName": "files/s"
-                      },
-                      "unitName": "custom",
-                      "name": "Files per sec.",
-                      "minInterval": 1,
-                      "id": "filesAxis"
-                    }
-                  ],
-                  "title": {
-                    "tip": "",
-                    "content": "Processing stats"
-                  },
-                  "seriesGroupBuilders": [],
-                  "seriesBuilders": [
-                    {
-                      "builderType": "static",
-                      "builderRecipe": {
-                        "seriesTemplate": {
-                          "yAxisId": "bytesAxis",
-                          "type": "line",
-                          "name": "Bytes unpacked",
-                          "id": "series1",
-                          "groupId": null,
-                          "dataProvider": {
-                            "functionName": "rate",
+                  "builderType": "static",
+                  "builderRecipe": {
+                    "seriesTemplate": {
+                      "yAxisId": "bytesAxis",
+                      "type": "line",
+                      "name": "Bytes unpacked",
+                      "id": "series1",
+                      "groupId": null,
+                      "dataProvider": {
+                        "functionName": "rate",
+                        "functionArguments": {
+                          "timeSpanProvider": null,
+                          "inputDataProvider": {
+                            "functionName": "loadSeries",
                             "functionArguments": {
-                              "timeSpanProvider": null,
-                              "inputDataProvider": {
-                                "functionName": "loadSeries",
+                              "sourceType": "external",
+                              "sourceSpecProvider": {
+                                "functionName": "literal",
                                 "functionArguments": {
-                                  "sourceType": "external",
-                                  "sourceSpecProvider": {
-                                    "functionName": "literal",
-                                    "functionArguments": {
-                                      "data": {
-                                        "externalSourceParameters": {
-                                          "timeSeriesNameGenerator": "bytesUnpacked",
-                                          "timeSeriesName": "bytesUnpacked",
-                                          "metricNames": [
-                                            "sum5s",
-                                            "sum1m",
-                                            "sum1h"
-                                          ],
-                                          "collectionRef": "task-7bd9b6a83786242fcb1846f3f71b309030c8e8"
-                                        },
-                                        "externalSourceName": "store"
-                                      }
-                                    }
-                                  },
-                                  "replaceEmptyParametersProvider": {
-                                    "functionName": "literal",
-                                    "functionArguments": {
-                                      "data": {
-                                        "fallbackValueProvider": {
-                                          "functionName": "literal",
-                                          "functionArguments": {
-                                            "data": 0
-                                          }
-                                        }
+                                  "data": {
+                                    "externalSourceParameters": {
+                                      "timeSeriesNameGenerator": "bytesUnpacked",
+                                      "timeSeriesName": "bytesUnpacked",
+                                      "metricNames": [
+                                        "sum5s",
+                                        "sum1m",
+                                        "sum1h"
+                                      ],
+                                      "collectionRef": "task-7bd9b6a83786242fcb1846f3f71b309030c8e8"
+                                    },
+                                    "externalSourceName": "store"
+                                  }
+                                }
+                              },
+                              "replaceEmptyParametersProvider": {
+                                "functionName": "literal",
+                                "functionArguments": {
+                                  "data": {
+                                    "fallbackValueProvider": {
+                                      "functionName": "literal",
+                                      "functionArguments": {
+                                        "data": 0
                                       }
                                     }
                                   }
                                 }
                               }
                             }
-                          },
-                          "color": null
+                          }
                         }
-                      }
-                    },
-                    {
-                      "builderType": "static",
-                      "builderRecipe": {
-                        "seriesTemplate": {
-                          "yAxisId": "filesAxis",
-                          "type": "bar",
-                          "name": "Files unpacked",
-                          "id": "series2",
-                          "groupId": null,
-                          "dataProvider": {
-                            "functionName": "rate",
+                      },
+                      "color": null
+                    }
+                  }
+                },
+                {
+                  "builderType": "static",
+                  "builderRecipe": {
+                    "seriesTemplate": {
+                      "yAxisId": "filesAxis",
+                      "type": "bar",
+                      "name": "Files unpacked",
+                      "id": "series2",
+                      "groupId": null,
+                      "dataProvider": {
+                        "functionName": "rate",
+                        "functionArguments": {
+                          "timeSpanProvider": null,
+                          "inputDataProvider": {
+                            "functionName": "loadSeries",
                             "functionArguments": {
-                              "timeSpanProvider": null,
-                              "inputDataProvider": {
-                                "functionName": "loadSeries",
+                              "sourceType": "external",
+                              "sourceSpecProvider": {
+                                "functionName": "literal",
                                 "functionArguments": {
-                                  "sourceType": "external",
-                                  "sourceSpecProvider": {
-                                    "functionName": "literal",
-                                    "functionArguments": {
-                                      "data": {
-                                        "externalSourceParameters": {
-                                          "timeSeriesNameGenerator": "filesUnpacked",
-                                          "timeSeriesName": "filesUnpacked",
-                                          "metricNames": [
-                                            "sum5s",
-                                            "sum1m",
-                                            "sum1h"
-                                          ],
-                                          "collectionRef": "task-7bd9b6a83786242fcb1846f3f71b309030c8e8"
-                                        },
-                                        "externalSourceName": "store"
-                                      }
-                                    }
-                                  },
-                                  "replaceEmptyParametersProvider": {
-                                    "functionName": "literal",
-                                    "functionArguments": {
-                                      "data": {
-                                        "fallbackValueProvider": {
-                                          "functionName": "literal",
-                                          "functionArguments": {
-                                            "data": 0
-                                          }
-                                        }
+                                  "data": {
+                                    "externalSourceParameters": {
+                                      "timeSeriesNameGenerator": "filesUnpacked",
+                                      "timeSeriesName": "filesUnpacked",
+                                      "metricNames": [
+                                        "sum5s",
+                                        "sum1m",
+                                        "sum1h"
+                                      ],
+                                      "collectionRef": "task-7bd9b6a83786242fcb1846f3f71b309030c8e8"
+                                    },
+                                    "externalSourceName": "store"
+                                  }
+                                }
+                              },
+                              "replaceEmptyParametersProvider": {
+                                "functionName": "literal",
+                                "functionArguments": {
+                                  "data": {
+                                    "fallbackValueProvider": {
+                                      "functionName": "literal",
+                                      "functionArguments": {
+                                        "data": 0
                                       }
                                     }
                                   }
                                 }
                               }
                             }
-                          },
-                          "color": null
+                          }
                         }
-                      }
+                      },
+                      "color": null
                     }
-                  ]
+                  }
                 }
-              ],
-              "chartNavigation": "independent"
+              ]
             },
             {
+              "yAxes": [
+                {
+                  "valueProvider": {
+                    "functionName": "currentValue",
+                    "functionArguments": {}
+                  },
+                  "unitOptions": null,
+                  "unitName": "bytesPerSec",
+                  "name": "Bytes per sec.",
+                  "minInterval": 1,
+                  "id": "bytesAxis"
+                },
+                {
+                  "valueProvider": {
+                    "functionName": "currentValue",
+                    "functionArguments": {}
+                  },
+                  "unitOptions": {
+                    "customName": "files/s"
+                  },
+                  "unitName": "custom",
+                  "name": "Files per sec.",
+                  "minInterval": 1,
+                  "id": "filesAxis"
+                }
+              ],
               "title": {
                 "tip": "",
                 "content": "bagit-uploader-download-files stats"
               },
-              "sections": [],
-              "isExpandedByDefault": false,
-              "description": "",
-              "charts": [
+              "seriesGroupBuilders": [],
+              "seriesBuilders": [
                 {
-                  "yAxes": [
-                    {
-                      "valueProvider": {
-                        "functionName": "currentValue",
-                        "functionArguments": {}
-                      },
-                      "unitOptions": null,
-                      "unitName": "bytesPerSec",
-                      "name": "Bytes per sec.",
-                      "minInterval": 1,
-                      "id": "bytesAxis"
-                    },
-                    {
-                      "valueProvider": {
-                        "functionName": "currentValue",
-                        "functionArguments": {}
-                      },
-                      "unitOptions": {
-                        "customName": "files/s"
-                      },
-                      "unitName": "custom",
-                      "name": "Files per sec.",
-                      "minInterval": 1,
-                      "id": "filesAxis"
-                    }
-                  ],
-                  "title": {
-                    "tip": "",
-                    "content": "Processing stats"
-                  },
-                  "seriesGroupBuilders": [],
-                  "seriesBuilders": [
-                    {
-                      "builderType": "static",
-                      "builderRecipe": {
-                        "seriesTemplate": {
-                          "yAxisId": "bytesAxis",
-                          "type": "line",
-                          "name": "Bytes processed",
-                          "id": "series1",
-                          "groupId": null,
-                          "dataProvider": {
-                            "functionName": "rate",
+                  "builderType": "static",
+                  "builderRecipe": {
+                    "seriesTemplate": {
+                      "yAxisId": "bytesAxis",
+                      "type": "line",
+                      "name": "Bytes processed",
+                      "id": "series1",
+                      "groupId": null,
+                      "dataProvider": {
+                        "functionName": "rate",
+                        "functionArguments": {
+                          "timeSpanProvider": null,
+                          "inputDataProvider": {
+                            "functionName": "loadSeries",
                             "functionArguments": {
-                              "timeSpanProvider": null,
-                              "inputDataProvider": {
-                                "functionName": "loadSeries",
+                              "sourceType": "external",
+                              "sourceSpecProvider": {
+                                "functionName": "literal",
                                 "functionArguments": {
-                                  "sourceType": "external",
-                                  "sourceSpecProvider": {
-                                    "functionName": "literal",
-                                    "functionArguments": {
-                                      "data": {
-                                        "externalSourceParameters": {
-                                          "timeSeriesNameGenerator": "bytesProcessed",
-                                          "timeSeriesName": "bytesProcessed",
-                                          "metricNames": [
-                                            "sum5s",
-                                            "sum1m",
-                                            "sum1h"
-                                          ],
-                                          "collectionRef": "task-bbaab9dee648d5faee1d7a4ce948cdcb7c90c0"
-                                        },
-                                        "externalSourceName": "store"
-                                      }
-                                    }
-                                  },
-                                  "replaceEmptyParametersProvider": {
-                                    "functionName": "literal",
-                                    "functionArguments": {
-                                      "data": {
-                                        "fallbackValueProvider": {
-                                          "functionName": "literal",
-                                          "functionArguments": {
-                                            "data": 0
-                                          }
-                                        }
+                                  "data": {
+                                    "externalSourceParameters": {
+                                      "timeSeriesNameGenerator": "bytesProcessed",
+                                      "timeSeriesName": "bytesProcessed",
+                                      "metricNames": [
+                                        "sum5s",
+                                        "sum1m",
+                                        "sum1h"
+                                      ],
+                                      "collectionRef": "task-bbaab9dee648d5faee1d7a4ce948cdcb7c90c0"
+                                    },
+                                    "externalSourceName": "store"
+                                  }
+                                }
+                              },
+                              "replaceEmptyParametersProvider": {
+                                "functionName": "literal",
+                                "functionArguments": {
+                                  "data": {
+                                    "fallbackValueProvider": {
+                                      "functionName": "literal",
+                                      "functionArguments": {
+                                        "data": 0
                                       }
                                     }
                                   }
                                 }
                               }
                             }
-                          },
-                          "color": null
+                          }
                         }
-                      }
-                    },
-                    {
-                      "builderType": "static",
-                      "builderRecipe": {
-                        "seriesTemplate": {
-                          "yAxisId": "filesAxis",
-                          "type": "bar",
-                          "name": "Files processed",
-                          "id": "series2",
-                          "groupId": null,
-                          "dataProvider": {
-                            "functionName": "rate",
+                      },
+                      "color": null
+                    }
+                  }
+                },
+                {
+                  "builderType": "static",
+                  "builderRecipe": {
+                    "seriesTemplate": {
+                      "yAxisId": "filesAxis",
+                      "type": "bar",
+                      "name": "Files processed",
+                      "id": "series2",
+                      "groupId": null,
+                      "dataProvider": {
+                        "functionName": "rate",
+                        "functionArguments": {
+                          "timeSpanProvider": null,
+                          "inputDataProvider": {
+                            "functionName": "loadSeries",
                             "functionArguments": {
-                              "timeSpanProvider": null,
-                              "inputDataProvider": {
-                                "functionName": "loadSeries",
+                              "sourceType": "external",
+                              "sourceSpecProvider": {
+                                "functionName": "literal",
                                 "functionArguments": {
-                                  "sourceType": "external",
-                                  "sourceSpecProvider": {
-                                    "functionName": "literal",
-                                    "functionArguments": {
-                                      "data": {
-                                        "externalSourceParameters": {
-                                          "timeSeriesNameGenerator": "filesProcessed",
-                                          "timeSeriesName": "filesProcessed",
-                                          "metricNames": [
-                                            "sum5s",
-                                            "sum1m",
-                                            "sum1h"
-                                          ],
-                                          "collectionRef": "task-bbaab9dee648d5faee1d7a4ce948cdcb7c90c0"
-                                        },
-                                        "externalSourceName": "store"
-                                      }
-                                    }
-                                  },
-                                  "replaceEmptyParametersProvider": {
-                                    "functionName": "literal",
-                                    "functionArguments": {
-                                      "data": {
-                                        "fallbackValueProvider": {
-                                          "functionName": "literal",
-                                          "functionArguments": {
-                                            "data": 0
-                                          }
-                                        }
+                                  "data": {
+                                    "externalSourceParameters": {
+                                      "timeSeriesNameGenerator": "filesProcessed",
+                                      "timeSeriesName": "filesProcessed",
+                                      "metricNames": [
+                                        "sum5s",
+                                        "sum1m",
+                                        "sum1h"
+                                      ],
+                                      "collectionRef": "task-bbaab9dee648d5faee1d7a4ce948cdcb7c90c0"
+                                    },
+                                    "externalSourceName": "store"
+                                  }
+                                }
+                              },
+                              "replaceEmptyParametersProvider": {
+                                "functionName": "literal",
+                                "functionArguments": {
+                                  "data": {
+                                    "fallbackValueProvider": {
+                                      "functionName": "literal",
+                                      "functionArguments": {
+                                        "data": 0
                                       }
                                     }
                                   }
                                 }
                               }
                             }
-                          },
-                          "color": null
+                          }
                         }
-                      }
+                      },
+                      "color": null
                     }
-                  ]
+                  }
                 }
-              ],
-              "chartNavigation": "independent"
+              ]
             },
             {
+              "yAxes": [
+                {
+                  "valueProvider": {
+                    "functionName": "currentValue",
+                    "functionArguments": {}
+                  },
+                  "unitOptions": null,
+                  "unitName": "bytesPerSec",
+                  "name": "Bytes per sec.",
+                  "minInterval": 1,
+                  "id": "bytesAxis"
+                }
+              ],
               "title": {
                 "tip": "",
                 "content": "bagit-uploader-calculate-checksum stats"
               },
-              "sections": [],
-              "isExpandedByDefault": false,
-              "description": "",
-              "charts": [
+              "seriesGroupBuilders": [
                 {
-                  "yAxes": [
-                    {
-                      "valueProvider": {
-                        "functionName": "currentValue",
-                        "functionArguments": {}
-                      },
-                      "unitOptions": null,
-                      "unitName": "bytesPerSec",
-                      "name": "Bytes per sec.",
-                      "minInterval": 1,
-                      "id": "bytesAxis"
+                  "builderType": "static",
+                  "builderRecipe": {
+                    "seriesGroupTemplate": {
+                      "subgroups": [],
+                      "stacked": true,
+                      "showSum": true,
+                      "name": "Total",
+                      "id": "bytesProcessedGroup"
                     }
-                  ],
-                  "title": {
-                    "tip": "",
-                    "content": "Processing stats"
-                  },
-                  "seriesGroupBuilders": [
-                    {
-                      "builderType": "static",
-                      "builderRecipe": {
-                        "seriesGroupTemplate": {
-                          "subgroups": [],
-                          "stacked": true,
-                          "showSum": true,
-                          "name": "Total",
-                          "id": "bytesProcessedGroup"
+                  }
+                }
+              ],
+              "seriesBuilders": [
+                {
+                  "builderType": "dynamic",
+                  "builderRecipe": {
+                    "seriesTemplate": {
+                      "yAxisIdProvider": {
+                        "functionName": "literal",
+                        "functionArguments": {
+                          "data": "bytesAxis"
                         }
-                      }
-                    }
-                  ],
-                  "seriesBuilders": [
-                    {
-                      "builderType": "dynamic",
-                      "builderRecipe": {
-                        "seriesTemplate": {
-                          "yAxisIdProvider": {
-                            "functionName": "literal",
+                      },
+                      "typeProvider": {
+                        "functionName": "literal",
+                        "functionArguments": {
+                          "data": "line"
+                        }
+                      },
+                      "nameProvider": {
+                        "functionName": "getDynamicSeriesConfig",
+                        "functionArguments": {
+                          "propertyName": "name"
+                        }
+                      },
+                      "idProvider": {
+                        "functionName": "getDynamicSeriesConfig",
+                        "functionArguments": {
+                          "propertyName": "id"
+                        }
+                      },
+                      "groupIdProvider": {
+                        "functionName": "literal",
+                        "functionArguments": {
+                          "data": "bytesProcessedGroup"
+                        }
+                      },
+                      "dataProvider": {
+                        "functionName": "rate",
+                        "functionArguments": {
+                          "timeSpanProvider": null,
+                          "inputDataProvider": {
+                            "functionName": "loadSeries",
                             "functionArguments": {
-                              "data": "bytesAxis"
-                            }
-                          },
-                          "typeProvider": {
-                            "functionName": "literal",
-                            "functionArguments": {
-                              "data": "line"
-                            }
-                          },
-                          "nameProvider": {
-                            "functionName": "getDynamicSeriesConfig",
-                            "functionArguments": {
-                              "propertyName": "name"
-                            }
-                          },
-                          "idProvider": {
-                            "functionName": "getDynamicSeriesConfig",
-                            "functionArguments": {
-                              "propertyName": "id"
-                            }
-                          },
-                          "groupIdProvider": {
-                            "functionName": "literal",
-                            "functionArguments": {
-                              "data": "bytesProcessedGroup"
-                            }
-                          },
-                          "dataProvider": {
-                            "functionName": "rate",
-                            "functionArguments": {
-                              "timeSpanProvider": null,
-                              "inputDataProvider": {
-                                "functionName": "loadSeries",
+                              "sourceType": "external",
+                              "sourceSpecProvider": {
+                                "functionName": "getDynamicSeriesConfig",
                                 "functionArguments": {
-                                  "sourceType": "external",
-                                  "sourceSpecProvider": {
-                                    "functionName": "getDynamicSeriesConfig",
-                                    "functionArguments": {
-                                      "propertyName": "loadSeriesSourceSpec"
-                                    }
-                                  },
-                                  "replaceEmptyParametersProvider": {
-                                    "functionName": "literal",
-                                    "functionArguments": {
-                                      "data": {
-                                        "fallbackValueProvider": {
-                                          "functionName": "literal",
-                                          "functionArguments": {
-                                            "data": 0
-                                          }
-                                        }
+                                  "propertyName": "loadSeriesSourceSpec"
+                                }
+                              },
+                              "replaceEmptyParametersProvider": {
+                                "functionName": "literal",
+                                "functionArguments": {
+                                  "data": {
+                                    "fallbackValueProvider": {
+                                      "functionName": "literal",
+                                      "functionArguments": {
+                                        "data": 0
                                       }
                                     }
                                   }
                                 }
                               }
                             }
-                          },
-                          "colorProvider": null
-                        },
-                        "dynamicSeriesConfigsSource": {
-                          "sourceType": "external",
-                          "sourceSpec": {
-                            "externalSourceParameters": {
-                              "timeSeriesNameGenerator": "bytesProcessed_",
-                              "metricNames": [
-                                "sum5s",
-                                "sum1m",
-                                "sum1h"
-                              ],
-                              "collectionRef": "task-d18f39c67289b12cdb5e1697f5180596cd1383"
-                            },
-                            "externalSourceName": "store"
                           }
                         }
+                      },
+                      "colorProvider": null
+                    },
+                    "dynamicSeriesConfigsSource": {
+                      "sourceType": "external",
+                      "sourceSpec": {
+                        "externalSourceParameters": {
+                          "timeSeriesNameGenerator": "bytesProcessed_",
+                          "metricNames": [
+                            "sum5s",
+                            "sum1m",
+                            "sum1h"
+                          ],
+                          "collectionRef": "task-d18f39c67289b12cdb5e1697f5180596cd1383"
+                        },
+                        "externalSourceName": "store"
                       }
                     }
-                  ]
+                  }
                 }
-              ],
-              "chartNavigation": "independent"
+              ]
             },
             {
+              "yAxes": [
+                {
+                  "valueProvider": {
+                    "functionName": "currentValue",
+                    "functionArguments": {}
+                  },
+                  "unitOptions": null,
+                  "unitName": "bytesPerSec",
+                  "name": "Bytes per sec.",
+                  "minInterval": 1,
+                  "id": "bytesAxis"
+                },
+                {
+                  "valueProvider": {
+                    "functionName": "currentValue",
+                    "functionArguments": {}
+                  },
+                  "unitOptions": {
+                    "customName": "files/s"
+                  },
+                  "unitName": "custom",
+                  "name": "Files per sec.",
+                  "minInterval": 1,
+                  "id": "filesAxis"
+                }
+              ],
               "title": {
                 "tip": "",
                 "content": "bagit-uploader-archive-destination stats"
               },
-              "sections": [],
-              "isExpandedByDefault": false,
-              "description": "",
-              "charts": [
+              "seriesGroupBuilders": [],
+              "seriesBuilders": [
                 {
-                  "yAxes": [
-                    {
-                      "valueProvider": {
-                        "functionName": "currentValue",
-                        "functionArguments": {}
-                      },
-                      "unitOptions": null,
-                      "unitName": "bytesPerSec",
-                      "name": "Bytes per sec.",
-                      "minInterval": 1,
-                      "id": "bytesAxis"
-                    },
-                    {
-                      "valueProvider": {
-                        "functionName": "currentValue",
-                        "functionArguments": {}
-                      },
-                      "unitOptions": {
-                        "customName": "files/s"
-                      },
-                      "unitName": "custom",
-                      "name": "Files per sec.",
-                      "minInterval": 1,
-                      "id": "filesAxis"
-                    }
-                  ],
-                  "title": {
-                    "tip": "",
-                    "content": "Processing stats"
-                  },
-                  "seriesGroupBuilders": [],
-                  "seriesBuilders": [
-                    {
-                      "builderType": "static",
-                      "builderRecipe": {
-                        "seriesTemplate": {
-                          "yAxisId": "bytesAxis",
-                          "type": "line",
-                          "name": "Bytes archived",
-                          "id": "series1",
-                          "groupId": null,
-                          "dataProvider": {
-                            "functionName": "rate",
+                  "builderType": "static",
+                  "builderRecipe": {
+                    "seriesTemplate": {
+                      "yAxisId": "bytesAxis",
+                      "type": "line",
+                      "name": "Bytes archived",
+                      "id": "series1",
+                      "groupId": null,
+                      "dataProvider": {
+                        "functionName": "rate",
+                        "functionArguments": {
+                          "timeSpanProvider": null,
+                          "inputDataProvider": {
+                            "functionName": "loadSeries",
                             "functionArguments": {
-                              "timeSpanProvider": null,
-                              "inputDataProvider": {
-                                "functionName": "loadSeries",
+                              "sourceType": "external",
+                              "sourceSpecProvider": {
+                                "functionName": "literal",
                                 "functionArguments": {
-                                  "sourceType": "external",
-                                  "sourceSpecProvider": {
-                                    "functionName": "literal",
-                                    "functionArguments": {
-                                      "data": {
-                                        "externalSourceParameters": {
-                                          "timeSeriesNameGenerator": "bytesArchived",
-                                          "timeSeriesName": "bytesArchived",
-                                          "metricNames": [
-                                            "sum5s",
-                                            "sum1m",
-                                            "sum1h"
-                                          ],
-                                          "collectionRef": "task-e623d857aa729367db7e4565739ba2776898fe"
-                                        },
-                                        "externalSourceName": "store"
-                                      }
-                                    }
-                                  },
-                                  "replaceEmptyParametersProvider": {
-                                    "functionName": "literal",
-                                    "functionArguments": {
-                                      "data": {
-                                        "fallbackValueProvider": {
-                                          "functionName": "literal",
-                                          "functionArguments": {
-                                            "data": 0
-                                          }
-                                        }
+                                  "data": {
+                                    "externalSourceParameters": {
+                                      "timeSeriesNameGenerator": "bytesArchived",
+                                      "timeSeriesName": "bytesArchived",
+                                      "metricNames": [
+                                        "sum5s",
+                                        "sum1m",
+                                        "sum1h"
+                                      ],
+                                      "collectionRef": "task-e623d857aa729367db7e4565739ba2776898fe"
+                                    },
+                                    "externalSourceName": "store"
+                                  }
+                                }
+                              },
+                              "replaceEmptyParametersProvider": {
+                                "functionName": "literal",
+                                "functionArguments": {
+                                  "data": {
+                                    "fallbackValueProvider": {
+                                      "functionName": "literal",
+                                      "functionArguments": {
+                                        "data": 0
                                       }
                                     }
                                   }
                                 }
                               }
                             }
-                          },
-                          "color": null
+                          }
                         }
-                      }
-                    },
-                    {
-                      "builderType": "static",
-                      "builderRecipe": {
-                        "seriesTemplate": {
-                          "yAxisId": "filesAxis",
-                          "type": "bar",
-                          "name": "Files archived",
-                          "id": "series2",
-                          "groupId": null,
-                          "dataProvider": {
-                            "functionName": "rate",
+                      },
+                      "color": null
+                    }
+                  }
+                },
+                {
+                  "builderType": "static",
+                  "builderRecipe": {
+                    "seriesTemplate": {
+                      "yAxisId": "filesAxis",
+                      "type": "bar",
+                      "name": "Files archived",
+                      "id": "series2",
+                      "groupId": null,
+                      "dataProvider": {
+                        "functionName": "rate",
+                        "functionArguments": {
+                          "timeSpanProvider": null,
+                          "inputDataProvider": {
+                            "functionName": "loadSeries",
                             "functionArguments": {
-                              "timeSpanProvider": null,
-                              "inputDataProvider": {
-                                "functionName": "loadSeries",
+                              "sourceType": "external",
+                              "sourceSpecProvider": {
+                                "functionName": "literal",
                                 "functionArguments": {
-                                  "sourceType": "external",
-                                  "sourceSpecProvider": {
-                                    "functionName": "literal",
-                                    "functionArguments": {
-                                      "data": {
-                                        "externalSourceParameters": {
-                                          "timeSeriesNameGenerator": "filesArchived",
-                                          "timeSeriesName": "filesArchived",
-                                          "metricNames": [
-                                            "sum5s",
-                                            "sum1m",
-                                            "sum1h"
-                                          ],
-                                          "collectionRef": "task-e623d857aa729367db7e4565739ba2776898fe"
-                                        },
-                                        "externalSourceName": "store"
-                                      }
-                                    }
-                                  },
-                                  "replaceEmptyParametersProvider": {
-                                    "functionName": "literal",
-                                    "functionArguments": {
-                                      "data": {
-                                        "fallbackValueProvider": {
-                                          "functionName": "literal",
-                                          "functionArguments": {
-                                            "data": 0
-                                          }
-                                        }
+                                  "data": {
+                                    "externalSourceParameters": {
+                                      "timeSeriesNameGenerator": "filesArchived",
+                                      "timeSeriesName": "filesArchived",
+                                      "metricNames": [
+                                        "sum5s",
+                                        "sum1m",
+                                        "sum1h"
+                                      ],
+                                      "collectionRef": "task-e623d857aa729367db7e4565739ba2776898fe"
+                                    },
+                                    "externalSourceName": "store"
+                                  }
+                                }
+                              },
+                              "replaceEmptyParametersProvider": {
+                                "functionName": "literal",
+                                "functionArguments": {
+                                  "data": {
+                                    "fallbackValueProvider": {
+                                      "functionName": "literal",
+                                      "functionArguments": {
+                                        "data": 0
                                       }
                                     }
                                   }
                                 }
                               }
                             }
-                          },
-                          "color": null
+                          }
                         }
-                      }
+                      },
+                      "color": null
                     }
-                  ]
+                  }
                 }
-              ],
-              "chartNavigation": "independent"
+              ]
             }
           ],
+          "sections": [],
           "isExpandedByDefault": false,
           "description": "",
-          "charts": [],
-          "chartNavigation": "independent"
+          "chartNavigation": "sharedWithinSection"
         }
       }
     }
