@@ -75,11 +75,11 @@
         }
       },
       "a0c5824f0a3367d670f2500e679a47ecch3f21": {
-        "5": {
+        "6": {
           "schemaFormatVersion": 2,
           "revision": {
             "schemaFormatVersion": 2,
-            "originalRevisionNumber": 5,
+            "originalRevisionNumber": 6,
             "atmLambdaRevision": {
               "summary": "",
               "state": "draft",
@@ -130,7 +130,7 @@
               "preferredBatchSize": 10,
               "operationSpec": {
                 "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/lambda-download-file-mounted:v1",
+                "dockerImage": "docker.onedata.org/lambda-download-file-mounted:v2",
                 "dockerExecutionOptions": {
                   "readonly": false,
                   "oneclientOptions": "-i",
@@ -141,7 +141,7 @@
               "name": "bagit-uploader-fetch-files",
               "description": "",
               "configParameterSpecs": [],
-              "checksum": "8310f8ca983776b9693251d880e99bfe",
+              "checksum": "056d2d5d6415a2066ac078f1396818e5",
               "argumentSpecs": [
                 {
                   "name": "downloadInfo",
@@ -1498,7 +1498,7 @@
                   ],
                   "resourceSpecOverride": null,
                   "name": "bagit-uploader-download-files",
-                  "lambdaRevisionNumber": 5,
+                  "lambdaRevisionNumber": 6,
                   "lambdaId": "a0c5824f0a3367d670f2500e679a47ecch3f21",
                   "lambdaConfig": {},
                   "id": "bbaab9dee648d5faee1d7a4ce948cdcb7c90c0",

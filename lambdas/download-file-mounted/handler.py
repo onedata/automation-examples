@@ -170,10 +170,8 @@ def download_xrootd_file(job_args: JobArgs) -> None:
                 f"Failed to open xrootd file at {url} due to: {status.message}"
             )
 
-        data_stream = (
-            chunk.encode()
-            for chunk in fd.readchunks(offset=0, chunksize=DOWNLOAD_CHUNK_SIZE)
-        )
+        data_stream = fd.readchunks(offset=0, chunksize=DOWNLOAD_CHUNK_SIZE)
+
         write_file(job_args, data_stream)
 
 
