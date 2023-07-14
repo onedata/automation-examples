@@ -20,6 +20,7 @@ from typing_extensions import TypedDict
 
 from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
 from onedata_lambda_utils.streaming import AtmResultStreamer
+from onedata_lambda_utils.logging import AtmLogger
 from onedata_lambda_utils.types import (
     AtmException,
     AtmFile,
@@ -46,7 +47,7 @@ REST_REQUEST_TIMEOUT: Final[int] = 60
 ##===================================================================
 
 
-LOGS_STREAMER: Final[AtmResultStreamer[AtmObject]] = AtmResultStreamer(
+LOGS_STREAMER: Final[AtmLogger[AtmObject]] = AtmLogger(
     result_name="logs", synchronized=True
 )
 
@@ -144,9 +145,8 @@ def establish_dataset(job: Job) -> str:
         return resp.json()["datasetId"]
 
     elif resp.status_code == 409:
-        LOGS_STREAMER.stream_item(
+        LOGS_STREAMER.warning(
             {
-                "severity": "warning",
                 "destinationDir": job.args["destinationDir"]["file_id"],
                 "message": "Dataset already established.",
             }
