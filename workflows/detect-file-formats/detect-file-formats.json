@@ -3,12 +3,12 @@
   "schemaFormatVersion": 3,
   "revision": {
     "supplementaryAtmLambdas": {
-      "e94bad4492d716df95efc5c69a2b4f22chf397": {
-        "2": {
+      "0a2ab3c8a755b9efff41f887b449b123ch0d24": {
+        "3": {
           "schemaFormatVersion": 3,
           "revision": {
             "schemaFormatVersion": 3,
-            "originalRevisionNumber": 2,
+            "originalRevisionNumber": 3,
             "atmLambdaRevision": {
               "_version": 1,
               "_data": {
@@ -62,7 +62,7 @@
                 "name": "detect-file-format",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "47f044cbad46914b2ec41e397af8fd26",
+                "checksum": "2074f00c64038503a744b95d2513f14e",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -78,21 +78,8 @@
                           "_data": {
                             "fileType": "REG",
                             "attributes": [
-                              "atime",
-                              "ctime",
                               "file_id",
-                              "hardlinks_count",
-                              "index",
-                              "mode",
-                              "mtime",
                               "name",
-                              "owner_id",
-                              "parent_id",
-                              "provider_id",
-                              "shares",
-                              "size",
-                              "storage_group_id",
-                              "storage_user_id",
                               "type"
                             ]
                           }
@@ -122,7 +109,7 @@
               }
             }
           },
-          "originalAtmLambdaId": "e94bad4492d716df95efc5c69a2b4f22chf397"
+          "originalAtmLambdaId": "0a2ab3c8a755b9efff41f887b449b123ch0d24"
         }
       }
     },
@@ -243,8 +230,8 @@
                           ],
                           "resourceSpecOverride": null,
                           "name": "detect-file-format",
-                          "lambdaRevisionNumber": 2,
-                          "lambdaId": "e94bad4492d716df95efc5c69a2b4f22chf397",
+                          "lambdaRevisionNumber": 3,
+                          "lambdaId": "0a2ab3c8a755b9efff41f887b449b123ch0d24",
                           "lambdaConfig": {},
                           "id": "dd0c7c0ba64e7ecd81aac190ddb2d578f46987",
                           "argumentMappings": [
@@ -295,6 +282,6 @@
       }
     }
   },
-  "originalAtmWorkflowSchemaId": "724ca414910c4e2f2d816b43f2abdbb8chcaac",
+  "originalAtmWorkflowSchemaId": "82ed093836f95a648abaffe9babc3ccbchbd12",
   "name": "detect-file-formats"
 }

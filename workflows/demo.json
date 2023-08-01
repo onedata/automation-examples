@@ -3,12 +3,12 @@
   "schemaFormatVersion": 3,
   "revision": {
     "supplementaryAtmLambdas": {
-      "8fb236cfdd1ca2df96d1cdc56ce41290ch69f1": {
-        "1": {
+      "b803dff05fa694909a5cbdf050461725chfdb3": {
+        "2": {
           "schemaFormatVersion": 3,
           "revision": {
             "schemaFormatVersion": 3,
-            "originalRevisionNumber": 1,
+            "originalRevisionNumber": 2,
             "atmLambdaRevision": {
               "_version": 1,
               "_data": {
@@ -64,7 +64,7 @@
                 "name": "demo",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "5aeeed9bb3649364750d4ee88cd049ef",
+                "checksum": "47025f8166d7f17570b342afb7e18768",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -80,22 +80,7 @@
                           "_data": {
                             "fileType": "ANY",
                             "attributes": [
-                              "atime",
-                              "ctime",
-                              "file_id",
-                              "hardlinks_count",
-                              "index",
-                              "mode",
-                              "mtime",
-                              "name",
-                              "owner_id",
-                              "parent_id",
-                              "provider_id",
-                              "shares",
-                              "size",
-                              "storage_group_id",
-                              "storage_user_id",
-                              "type"
+                              "name"
                             ]
                           }
                         }
@@ -106,12 +91,12 @@
               }
             }
           },
-          "originalAtmLambdaId": "8fb236cfdd1ca2df96d1cdc56ce41290ch69f1"
+          "originalAtmLambdaId": "b803dff05fa694909a5cbdf050461725chfdb3"
         }
       }
     },
     "schemaFormatVersion": 3,
-    "originalRevisionNumber": 1,
+    "originalRevisionNumber": 2,
     "atmWorkflowSchemaRevision": {
       "_version": 1,
       "_data": {
@@ -229,8 +214,8 @@
                           ],
                           "resourceSpecOverride": null,
                           "name": "demo",
-                          "lambdaRevisionNumber": 1,
-                          "lambdaId": "8fb236cfdd1ca2df96d1cdc56ce41290ch69f1",
+                          "lambdaRevisionNumber": 2,
+                          "lambdaId": "b803dff05fa694909a5cbdf050461725chfdb3",
                           "lambdaConfig": {},
                           "id": "63555d39779b64ea06b79ca3784e24c214abdf",
                           "argumentMappings": [
@@ -268,6 +253,6 @@
       }
     }
   },
-  "originalAtmWorkflowSchemaId": "d6688a23bfb25015adceb048ea3b721fch6e97",
+  "originalAtmWorkflowSchemaId": "44b2772d96a0ab56e4c501b7c816a1afch71c5",
   "name": "demo"
 }

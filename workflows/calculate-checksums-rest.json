@@ -3,12 +3,12 @@
   "schemaFormatVersion": 3,
   "revision": {
     "supplementaryAtmLambdas": {
-      "0c507b00352852d06ebfe280a2aeccb9chdd67": {
-        "5": {
+      "e0d0a8f1d6eacecc31526cc7d61f486cchd569": {
+        "7": {
           "schemaFormatVersion": 3,
           "revision": {
             "schemaFormatVersion": 3,
-            "originalRevisionNumber": 5,
+            "originalRevisionNumber": 7,
             "atmLambdaRevision": {
               "_version": 1,
               "_data": {
@@ -149,7 +149,7 @@
                     }
                   }
                 ],
-                "checksum": "8e0e91c9bc877c6ddbd1bca6fd887460",
+                "checksum": "38860ad3e80f471bd84ea6e3214315f1",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -165,21 +165,7 @@
                           "_data": {
                             "fileType": "ANY",
                             "attributes": [
-                              "atime",
-                              "ctime",
                               "file_id",
-                              "hardlinks_count",
-                              "index",
-                              "mode",
-                              "mtime",
-                              "name",
-                              "owner_id",
-                              "parent_id",
-                              "provider_id",
-                              "shares",
-                              "size",
-                              "storage_group_id",
-                              "storage_user_id",
                               "type"
                             ]
                           }
@@ -191,7 +177,7 @@
               }
             }
           },
-          "originalAtmLambdaId": "0c507b00352852d06ebfe280a2aeccb9chdd67"
+          "originalAtmLambdaId": "e0d0a8f1d6eacecc31526cc7d61f486cchd569"
         }
       }
     },
@@ -685,8 +671,8 @@
                           ],
                           "resourceSpecOverride": null,
                           "name": "md5",
-                          "lambdaRevisionNumber": 5,
-                          "lambdaId": "0c507b00352852d06ebfe280a2aeccb9chdd67",
+                          "lambdaRevisionNumber": 7,
+                          "lambdaId": "e0d0a8f1d6eacecc31526cc7d61f486cchd569",
                           "lambdaConfig": {
                             "metadataKey": "md5_checksum",
                             "algorithm": "md5"
@@ -1107,8 +1093,8 @@
                           ],
                           "resourceSpecOverride": null,
                           "name": "sha256",
-                          "lambdaRevisionNumber": 5,
-                          "lambdaId": "0c507b00352852d06ebfe280a2aeccb9chdd67",
+                          "lambdaRevisionNumber": 7,
+                          "lambdaId": "e0d0a8f1d6eacecc31526cc7d61f486cchd569",
                           "lambdaConfig": {
                             "metadataKey": "sha256_checksum",
                             "algorithm": "sha256"
@@ -1149,6 +1135,6 @@
       }
     }
   },
-  "originalAtmWorkflowSchemaId": "cabaf18901bdb9978254d1674ac3a5c1ch3bfc",
+  "originalAtmWorkflowSchemaId": "7c2faa34442b1d1239b85745e50a08fach0b2b",
   "name": "calculate-checksums-rest"
 }
