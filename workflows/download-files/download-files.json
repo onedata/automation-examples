@@ -310,11 +310,11 @@
         }
       },
       "2357f2d1a241cbd3d5eaf6a50113bf08ch4577": {
-        "3": {
+        "4": {
           "schemaFormatVersion": 3,
           "revision": {
             "schemaFormatVersion": 3,
-            "originalRevisionNumber": 3,
+            "originalRevisionNumber": 4,
             "atmLambdaRevision": {
               "_version": 1,
               "_data": {
@@ -392,7 +392,7 @@
                 "name": "parse-fetch-file-mounted",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "ebc8b269cf69664da88c7a8c69f77e53",
+                "checksum": "40db578277732895c5e8d7d77a525f98",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -430,22 +430,7 @@
                           "_data": {
                             "fileType": "DIR",
                             "attributes": [
-                              "atime",
-                              "ctime",
-                              "file_id",
-                              "hardlinks_count",
-                              "index",
-                              "mode",
-                              "mtime",
-                              "name",
-                              "owner_id",
-                              "parent_id",
-                              "provider_id",
-                              "shares",
-                              "size",
-                              "storage_group_id",
-                              "storage_user_id",
-                              "type"
+                              "file_id"
                             ]
                           }
                         }
@@ -664,7 +649,7 @@
                           ],
                           "resourceSpecOverride": null,
                           "name": "parse-fetch-file-mounted",
-                          "lambdaRevisionNumber": 3,
+                          "lambdaRevisionNumber": 4,
                           "lambdaId": "2357f2d1a241cbd3d5eaf6a50113bf08ch4577",
                           "lambdaConfig": {},
                           "id": "656746a9bef5000e2b7f233cbd6fb7a085580e",

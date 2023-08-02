@@ -251,11 +251,11 @@
         }
       },
       "ccbc7b22950b5bb32ff4379de15ad4e8ch9775": {
-        "7": {
+        "8": {
           "schemaFormatVersion": 3,
           "revision": {
             "schemaFormatVersion": 3,
-            "originalRevisionNumber": 7,
+            "originalRevisionNumber": 8,
             "atmLambdaRevision": {
               "_version": 1,
               "_data": {
@@ -345,7 +345,7 @@
                 "name": "bagit-uploader-archive-destination",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "bad2817edc36a5cd2a8f36a49602acf0",
+                "checksum": "5b83c0864be876d0e5cf6c7141e7900c",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -359,7 +359,7 @@
                           "type": "file",
                           "_version": 1,
                           "_data": {
-                            "fileType": "ANY",
+                            "fileType": "DIR",
                             "attributes": [
                               "file_id"
                             ]
@@ -376,11 +376,11 @@
         }
       },
       "c598644b317cc2687bc1358275664e91ch55d0": {
-        "3": {
+        "5": {
           "schemaFormatVersion": 3,
           "revision": {
             "schemaFormatVersion": 3,
-            "originalRevisionNumber": 3,
+            "originalRevisionNumber": 5,
             "atmLambdaRevision": {
               "_version": 1,
               "_data": {
@@ -418,7 +418,7 @@
                 "name": "register-metadata-from-data",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "a3b625591e5c14e36fcd35b0295ff573",
+                "checksum": "d669d9e6fb802dc7c89d91f8310fef53",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -434,21 +434,8 @@
                           "_data": {
                             "fileType": "REG",
                             "attributes": [
-                              "atime",
-                              "ctime",
                               "file_id",
-                              "hardlinks_count",
-                              "index",
-                              "mode",
-                              "mtime",
                               "name",
-                              "owner_id",
-                              "parent_id",
-                              "provider_id",
-                              "shares",
-                              "size",
-                              "storage_group_id",
-                              "storage_user_id",
                               "type"
                             ]
                           }
@@ -470,21 +457,8 @@
                           "_data": {
                             "fileType": "DIR",
                             "attributes": [
-                              "atime",
-                              "ctime",
                               "file_id",
-                              "hardlinks_count",
-                              "index",
-                              "mode",
-                              "mtime",
                               "name",
-                              "owner_id",
-                              "parent_id",
-                              "provider_id",
-                              "shares",
-                              "size",
-                              "storage_group_id",
-                              "storage_user_id",
                               "type"
                             ]
                           }
@@ -635,11 +609,11 @@
         }
       },
       "740b91201782f0f2e7a8440966c53381cha10e": {
-        "9": {
+        "10": {
           "schemaFormatVersion": 3,
           "revision": {
             "schemaFormatVersion": 3,
-            "originalRevisionNumber": 9,
+            "originalRevisionNumber": 10,
             "atmLambdaRevision": {
               "_version": 1,
               "_data": {
@@ -753,7 +727,7 @@
                 "name": "bagit-uploader-unpack-data",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "e8575fce1c02f4c63604d54d3e13699b",
+                "checksum": "74b082baa8a4e4d18fb00768e52f5b82",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -789,7 +763,7 @@
                           "type": "file",
                           "_version": 1,
                           "_data": {
-                            "fileType": "ANY",
+                            "fileType": "DIR",
                             "attributes": [
                               "file_id"
                             ]
@@ -806,11 +780,11 @@
         }
       },
       "130e6daeb3d408448db50c6a064e9f3echa03e": {
-        "4": {
+        "5": {
           "schemaFormatVersion": 3,
           "revision": {
             "schemaFormatVersion": 3,
-            "originalRevisionNumber": 4,
+            "originalRevisionNumber": 5,
             "atmLambdaRevision": {
               "_version": 1,
               "_data": {
@@ -888,7 +862,7 @@
                 "name": "bagit-uploader-unpack-fetch",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "3d6758b41782aa2d2ffe5d3dc4691e07",
+                "checksum": "b085790f3d781aefc801cbf24afd221a",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -924,7 +898,7 @@
                           "type": "file",
                           "_version": 1,
                           "_data": {
-                            "fileType": "ANY",
+                            "fileType": "DIR",
                             "attributes": [
                               "file_id"
                             ]
@@ -1702,7 +1676,7 @@
                           ],
                           "resourceSpecOverride": null,
                           "name": "bagit-uploader-unpack-data",
-                          "lambdaRevisionNumber": 9,
+                          "lambdaRevisionNumber": 10,
                           "lambdaId": "740b91201782f0f2e7a8440966c53381cha10e",
                           "lambdaConfig": {},
                           "id": "7bd9b6a83786242fcb1846f3f71b309030c8e8",
@@ -1778,7 +1752,7 @@
                           ],
                           "resourceSpecOverride": null,
                           "name": "bagit-uploader-unpack-fetch",
-                          "lambdaRevisionNumber": 4,
+                          "lambdaRevisionNumber": 5,
                           "lambdaId": "130e6daeb3d408448db50c6a064e9f3echa03e",
                           "lambdaConfig": {},
                           "id": "5956ad5ac9a4499799a0512e00e0a8bcbd3b18",
@@ -2309,7 +2283,7 @@
                           "resultMappings": [],
                           "resourceSpecOverride": null,
                           "name": "register-metadata-from-data",
-                          "lambdaRevisionNumber": 3,
+                          "lambdaRevisionNumber": 5,
                           "lambdaId": "c598644b317cc2687bc1358275664e91ch55d0",
                           "lambdaConfig": {},
                           "id": "7dca0b4e7babed7250761dd09b445df68e7d44",
@@ -3149,7 +3123,7 @@
                           ],
                           "resourceSpecOverride": null,
                           "name": "bagit-uploader-archive-destination",
-                          "lambdaRevisionNumber": 7,
+                          "lambdaRevisionNumber": 8,
                           "lambdaId": "ccbc7b22950b5bb32ff4379de15ad4e8ch9775",
                           "lambdaConfig": {},
                           "id": "e623d857aa729367db7e4565739ba2776898fe",
