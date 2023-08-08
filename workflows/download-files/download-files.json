@@ -470,24 +470,7 @@
                       "_version": 1,
                       "_data": {
                         "fileType": "ANY",
-                        "attributes": [
-                          "atime",
-                          "ctime",
-                          "file_id",
-                          "hardlinks_count",
-                          "index",
-                          "mode",
-                          "mtime",
-                          "name",
-                          "owner_id",
-                          "parent_id",
-                          "provider_id",
-                          "shares",
-                          "size",
-                          "storage_group_id",
-                          "storage_user_id",
-                          "type"
-                        ]
+                        "attributes": null
                       }
                     }
                   }
@@ -514,24 +497,7 @@
                       "_version": 1,
                       "_data": {
                         "fileType": "DIR",
-                        "attributes": [
-                          "atime",
-                          "ctime",
-                          "file_id",
-                          "hardlinks_count",
-                          "index",
-                          "mode",
-                          "mtime",
-                          "name",
-                          "owner_id",
-                          "parent_id",
-                          "provider_id",
-                          "shares",
-                          "size",
-                          "storage_group_id",
-                          "storage_user_id",
-                          "type"
-                        ]
+                        "attributes": null
                       }
                     }
                   }
