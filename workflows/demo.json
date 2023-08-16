@@ -1,161 +1,241 @@
 {
   "summary": "",
-  "schemaFormatVersion": 2,
+  "schemaFormatVersion": 3,
   "revision": {
     "supplementaryAtmLambdas": {
-      "376b4afb616a7ca2ef4d17727597337dchbdde": {
-        "1": {
-          "schemaFormatVersion": 2,
+      "b803dff05fa694909a5cbdf050461725chfdb3": {
+        "2": {
+          "schemaFormatVersion": 3,
           "revision": {
-            "schemaFormatVersion": 2,
-            "originalRevisionNumber": 1,
+            "schemaFormatVersion": 3,
+            "originalRevisionNumber": 2,
             "atmLambdaRevision": {
-              "summary": "",
-              "state": "draft",
-              "resultSpecs": [
-                {
-                  "relayMethod": "returnValue",
-                  "name": "result",
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "allowedValues": null
-                    },
-                    "type": "string"
+              "_version": 1,
+              "_data": {
+                "summary": "",
+                "state": "draft",
+                "resultSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "relayMethod": "returnValue",
+                      "name": "result",
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
                   }
-                }
-              ],
-              "resourceSpec": {
-                "memoryRequested": 104857600,
-                "memoryLimit": null,
-                "ephemeralStorageRequested": 104857600,
-                "ephemeralStorageLimit": null,
-                "cpuRequested": 0.1,
-                "cpuLimit": null
-              },
-              "preferredBatchSize": 100,
-              "operationSpec": {
-                "engine": "openfaas",
-                "dockerImage": "docker.onedata.org/lambda-demo:v1",
-                "dockerExecutionOptions": {
-                  "readonly": false,
-                  "oneclientOptions": "",
-                  "oneclientMountPoint": "/mnt/onedata",
-                  "mountOneclient": false
-                }
-              },
-              "name": "demo",
-              "description": "",
-              "configParameterSpecs": [],
-              "checksum": "d46559697f86e4fa85e10725547e70ac",
-              "argumentSpecs": [
-                {
-                  "name": "item",
-                  "isOptional": false,
-                  "defaultValue": null,
-                  "dataSpec": {
-                    "valueConstraints": {
-                      "fileType": "ANY"
-                    },
-                    "type": "file"
+                ],
+                "resourceSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "memoryRequested": 104857600,
+                    "memoryLimit": null,
+                    "ephemeralStorageRequested": 104857600,
+                    "ephemeralStorageLimit": null,
+                    "cpuRequested": 0.1,
+                    "cpuLimit": null
                   }
-                }
-              ]
+                },
+                "preferredBatchSize": 100,
+                "operationSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "engine": "openfaas",
+                    "_version": 1,
+                    "_data": {
+                      "dockerImage": "docker.onedata.org/lambda-demo:v1",
+                      "dockerExecutionOptions": {
+                        "readonly": false,
+                        "oneclientOptions": "",
+                        "oneclientMountPoint": "/mnt/onedata",
+                        "mountOneclient": false
+                      }
+                    }
+                  }
+                },
+                "name": "demo",
+                "description": "",
+                "configParameterSpecs": [],
+                "checksum": "47025f8166d7f17570b342afb7e18768",
+                "argumentSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "item",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "file",
+                          "_version": 1,
+                          "_data": {
+                            "fileType": "ANY",
+                            "attributes": [
+                              "name"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
             }
           },
-          "originalAtmLambdaId": "376b4afb616a7ca2ef4d17727597337dchbdde"
+          "originalAtmLambdaId": "b803dff05fa694909a5cbdf050461725chfdb3"
         }
       }
     },
-    "schemaFormatVersion": 2,
-    "originalRevisionNumber": 1,
+    "schemaFormatVersion": 3,
+    "originalRevisionNumber": 2,
     "atmWorkflowSchemaRevision": {
-      "stores": [
-        {
-          "type": "treeForest",
-          "requiresInitialContent": true,
-          "name": "input_files",
-          "id": "c96c18d5bf11d6015e1f79900b3d29ece2c121",
-          "description": "",
-          "defaultInitialContent": null,
-          "config": {
-            "itemDataSpec": {
-              "valueConstraints": {
-                "fileType": "ANY"
-              },
-              "type": "file"
+      "_version": 1,
+      "_data": {
+        "stores": [
+          {
+            "_version": 1,
+            "_data": {
+              "type": "treeForest",
+              "requiresInitialContent": true,
+              "name": "input_files",
+              "id": "c96c18d5bf11d6015e1f79900b3d29ece2c121",
+              "description": "",
+              "defaultInitialContent": null,
+              "config": {
+                "_version": 1,
+                "_data": {
+                  "itemDataSpec": {
+                    "_version": 2,
+                    "_data": {
+                      "type": "file",
+                      "_version": 1,
+                      "_data": {
+                        "fileType": "ANY",
+                        "attributes": null
+                      }
+                    }
+                  }
+                }
+              }
             }
-          }
-        },
-        {
-          "type": "list",
-          "requiresInitialContent": false,
-          "name": "results",
-          "id": "b5067e35b943e8adcd4968698dc4084bd351d1",
-          "description": "",
-          "defaultInitialContent": null,
-          "config": {
-            "itemDataSpec": {
-              "valueConstraints": {
-                "allowedValues": null
-              },
-              "type": "string"
-            }
-          }
-        }
-      ],
-      "state": "draft",
-      "lanes": [
-        {
-          "storeIteratorSpec": {
-            "storeSchemaId": "c96c18d5bf11d6015e1f79900b3d29ece2c121",
-            "maxBatchSize": 100
           },
-          "parallelBoxes": [
-            {
-              "tasks": [
+          {
+            "_version": 1,
+            "_data": {
+              "type": "list",
+              "requiresInitialContent": false,
+              "name": "results",
+              "id": "b5067e35b943e8adcd4968698dc4084bd351d1",
+              "description": "",
+              "defaultInitialContent": null,
+              "config": {
+                "_version": 1,
+                "_data": {
+                  "itemDataSpec": {
+                    "_version": 2,
+                    "_data": {
+                      "type": "string",
+                      "_version": 1,
+                      "_data": {
+                        "allowedValues": null
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "state": "draft",
+        "lanes": [
+          {
+            "_version": 1,
+            "_data": {
+              "storeIteratorSpec": {
+                "_version": 1,
+                "_data": {
+                  "storeSchemaId": "c96c18d5bf11d6015e1f79900b3d29ece2c121",
+                  "maxBatchSize": 100
+                }
+              },
+              "parallelBoxes": [
                 {
-                  "timeSeriesStoreConfig": null,
-                  "resultMappings": [
-                    {
-                      "storeSchemaId": "b5067e35b943e8adcd4968698dc4084bd351d1",
-                      "storeContentUpdateOptions": {
-                        "type": "listStoreContentUpdateOptions",
-                        "function": "append"
-                      },
-                      "resultName": "result"
-                    }
-                  ],
-                  "resourceSpecOverride": null,
-                  "name": "demo",
-                  "lambdaRevisionNumber": 1,
-                  "lambdaId": "376b4afb616a7ca2ef4d17727597337dchbdde",
-                  "lambdaConfig": {},
-                  "id": "63555d39779b64ea06b79ca3784e24c214abdf",
-                  "argumentMappings": [
-                    {
-                      "valueBuilder": {
-                        "valueBuilderType": "iteratedItem",
-                        "valueBuilderRecipe": null
-                      },
-                      "argumentName": "item"
-                    }
-                  ]
+                  "_version": 1,
+                  "_data": {
+                    "tasks": [
+                      {
+                        "_version": 1,
+                        "_data": {
+                          "timeSeriesStoreConfig": null,
+                          "resultMappings": [
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "storeSchemaId": "b5067e35b943e8adcd4968698dc4084bd351d1",
+                                "storeContentUpdateOptions": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "type": "listStoreContentUpdateOptions",
+                                    "_version": 1,
+                                    "_data": {
+                                      "function": "append"
+                                    }
+                                  }
+                                },
+                                "resultName": "result"
+                              }
+                            }
+                          ],
+                          "resourceSpecOverride": null,
+                          "name": "demo",
+                          "lambdaRevisionNumber": 2,
+                          "lambdaId": "b803dff05fa694909a5cbdf050461725chfdb3",
+                          "lambdaConfig": {},
+                          "id": "63555d39779b64ea06b79ca3784e24c214abdf",
+                          "argumentMappings": [
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "iteratedItem",
+                                    "valueBuilderRecipe": null
+                                  }
+                                },
+                                "argumentName": "item"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "name": "Parallel box",
+                    "id": "d29b80f0521b10bf33708a564f315a524d1c7d"
+                  }
                 }
               ],
-              "name": "Parallel box",
-              "id": "d29b80f0521b10bf33708a564f315a524d1c7d"
+              "name": "l1",
+              "maxRetries": 0,
+              "id": "7e768485247dfec1eee8bd2ea0858f0718bd39",
+              "dashboardSpec": null
             }
-          ],
-          "name": "l1",
-          "maxRetries": 0,
-          "id": "7e768485247dfec1eee8bd2ea0858f0718bd39",
-          "dashboardSpec": null
-        }
-      ],
-      "description": "",
-      "dashboardSpec": null
+          }
+        ],
+        "description": "",
+        "dashboardSpec": null
+      }
     }
   },
-  "originalAtmWorkflowSchemaId": "41b17370a1bd5a73c0329c5a250f851dch2f37",
+  "originalAtmWorkflowSchemaId": "44b2772d96a0ab56e4c501b7c816a1afch71c5",
   "name": "demo"
 }
