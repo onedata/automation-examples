@@ -40,9 +40,9 @@ MOUNT_POINT: Final[str] = "/mnt/onedata"
 
 SUPPORTED_URL_SCHEMAS: Final[Tuple[str, ...]] = ("root:", "http:", "https:")
 
-AVAILABLE_CHECKSUM_ALGORITHMS: Final[Set[str]] = set().union(
+AVAILABLE_CHECKSUM_ALGORITHMS: Final[Set[str]] = sorted(set().union(
     {"adler32"}, hashlib.algorithms_available
-)
+))
 READ_CHUNK_SIZE: Final[int] = 10 * 1024**2
 
 
