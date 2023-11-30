@@ -18,9 +18,9 @@ from typing import Dict, Final, NamedTuple, Union
 import requests
 from typing_extensions import TypedDict
 
+from onedata_lambda_utils.logging import AtmLogger
 from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
 from onedata_lambda_utils.streaming import AtmResultStreamer
-from onedata_lambda_utils.logging import AtmLogger
 from onedata_lambda_utils.types import (
     AtmException,
     AtmFile,
