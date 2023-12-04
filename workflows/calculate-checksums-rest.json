@@ -83,7 +83,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-calculate-checksum-rest:v1",
+                      "dockerImage": "onedata/lambda-calculate-checksum-rest:v1",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",

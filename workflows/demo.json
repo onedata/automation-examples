@@ -51,7 +51,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-demo:v1",
+                      "dockerImage": "onedata/lambda-demo:v1",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
