@@ -1,4 +1,4 @@
-REPO=docker.onedata.org/create-dir
+REPO=docker.onedata.org/lambda-create-dir-structure
 TAG=v1
 
 

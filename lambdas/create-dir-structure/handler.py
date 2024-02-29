@@ -1,4 +1,5 @@
 """
+A lambda which creates directory in given path, and 3 subdirectories within it.
 """
 
 __author__ = "Wojciech Szmelich"
@@ -9,9 +10,7 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import os
 
 import requests
-import concurrent.futures
 import traceback
-from threading import Event
 from typing_extensions import TypedDict, NamedTuple
 from typing import Final, Union
 
@@ -22,7 +21,8 @@ from onedata_lambda_utils.types import (
     AtmJobBatchRequestCtx,
     AtmJobBatchRequest,
     AtmJobBatchResponse,
-    AtmObject
+    AtmObject,
+    AtmHeartbeatCallback
 )
 
 ##===================================================================
@@ -39,15 +39,9 @@ REST_REQUEST_TIMEOUT: Final[int] = 60
 ##===================================================================
 
 
-class TaskConfig(TypedDict):
-    sleepDurationSec: float
-    exceptionProbability: float  # range: [0, 1]
-    streamResults: bool
-
-
 class JobArgs(TypedDict):
-    dirName: str
-    parentDir: AtmFile
+    file: AtmFile
+    name: str
 
 
 class JobResults(TypedDict):
@@ -68,31 +62,31 @@ class Job(NamedTuple):
     args: JobArgs
 
 
-_all_jobs_processed: Event = Event()
-
-
 def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
+    heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
+
     jobs = [
-        Job(args=job_args, ctx=job_batch_request["ctx"])
+        Job(ctx=job_batch_request["ctx"], args=job_args)
         for job_args in job_batch_request["argsBatch"]
     ]
-
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        results = list(executor.map(run_job, jobs))
-
-    _all_jobs_processed.set()
+    results = []
+    for job in jobs:
+        results.append(run_job(job))
+        heartbeat_callback()
 
     return {"resultsBatch": results}
 
 
 def run_job(job: Job) -> Union[JobResults, AtmException]:
     try:
-        file_id = create_directory(job)
-        file2_id = create_item_in_directory(job, "input")
-        file3_id = create_item_in_directory(job, "results")
-        file4_id = create_item_in_directory(job, "meta")
+        file_id = job.args["file"]["file_id"]
+        file_name = job.args["name"]
+        file_id = create_dir_in_parent(job, file_id, file_name)
+        create_dir_in_parent(job, file_id, "input")
+        create_dir_in_parent(job, file_id, "results")
+        create_dir_in_parent(job, file_id, "meta")
     except (JobException, requests.RequestException) as ex:
         return AtmException(exception=str(ex))
     except Exception:
@@ -101,27 +95,12 @@ def run_job(job: Job) -> Union[JobResults, AtmException]:
         return {"fileId": file_id}
 
 
-def create_item_in_directory(job: Job, name: str) -> str:
+def create_dir_in_parent(job: Job, parent_id: str, name: str) -> str:
+    payload = {"name": name, "type": "DIR"}
     resp = requests.post(
         f'https://{job.ctx["oneproviderDomain"]}/api/v3/oneprovider/data/'
-        f'{job.args["parentId"]}/children?name={name}&type=DIR',
-        headers={
-            "x-auth-token": job.ctx["accessToken"],
-        },
-        verify=VERIFY_SSL_CERTS,
-        timeout=REST_REQUEST_TIMEOUT,
-    )
-
-    if resp.status_code == 201:
-        return resp.json()["fileId"]
-    else:
-        resp.raise_for_status()
-
-
-def create_directory(job: Job) -> str:
-    resp = requests.post(
-        f'https://{job.ctx["oneproviderDomain"]}/api/v3/oneprovider/data/'
-        f'{job.args["parentId"]}/path/{job.args["name"]}?type=DIR',
+        f'{parent_id}/children',
+        params=payload,
         headers={
             "x-auth-token": job.ctx["accessToken"],
         },
