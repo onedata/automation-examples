@@ -1,5 +1,5 @@
 """
-A lambda which creates directory in given path, and 3 subdirectories within it.
+A lambda which creates directory in given path, and subdirectories within it.
 """
 
 __author__ = "Wojciech Szmelich"
@@ -12,7 +12,7 @@ import os
 import requests
 import traceback
 from typing_extensions import TypedDict, NamedTuple
-from typing import Final, Union
+from typing import Final, Union, List
 
 
 from onedata_lambda_utils.types import (
@@ -40,12 +40,12 @@ REST_REQUEST_TIMEOUT: Final[int] = 60
 
 
 class JobArgs(TypedDict):
-    file: AtmFile
-    name: str
+    targetDir: AtmFile
+    dirPaths: List[str]
 
 
 class JobResults(TypedDict):
-    fileId: str
+    fileIds: List[str]
 
 
 ##===================================================================
@@ -80,26 +80,36 @@ def handle(
 
 
 def run_job(job: Job) -> Union[JobResults, AtmException]:
+    dirs_id = []
     try:
-        file_id = job.args["file"]["file_id"]
-        file_name = job.args["name"]
-        file_id = create_dir_in_parent(job, file_id, file_name)
-        create_dir_in_parent(job, file_id, "input")
-        create_dir_in_parent(job, file_id, "results")
-        create_dir_in_parent(job, file_id, "meta")
+        dir_paths = job.args["dirPaths"]
+        for dir_path in dir_paths:
+            assert_valid_dir_path(dir_path)
+            dirs_id.append(create_dir(job, dir_path))
+
     except (JobException, requests.RequestException) as ex:
         return AtmException(exception=str(ex))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
-        return {"fileId": file_id}
+        return {"fileIds": dirs_id}
 
 
-def create_dir_in_parent(job: Job, parent_id: str, name: str) -> str:
-    payload = {"name": name, "type": "DIR"}
-    resp = requests.post(
-        f'https://{job.ctx["oneproviderDomain"]}/api/v3/oneprovider/data/'
-        f'{parent_id}/children',
+def assert_valid_dir_path(path: str):
+    if '' in path.split("/"):
+        raise Exception(f"wrong dir path: {path}")
+    return
+
+
+def build_create_dir_url(domain: str, parent_id: str, path: str) -> str:
+    return f"https://{domain}/api/v3/oneprovider/data/{parent_id}/path/{path}"
+
+
+def create_dir(job: Job, path: str) -> str:
+    payload = {"type": "DIR", "create_parents": "true"}
+    resp = requests.put(
+        build_create_dir_url(job.ctx["oneproviderDomain"],
+                             job.args["targetDir"]["file_id"], path),
         params=payload,
         headers={
             "x-auth-token": job.ctx["accessToken"],
@@ -110,5 +120,16 @@ def create_dir_in_parent(job: Job, parent_id: str, name: str) -> str:
 
     if resp.status_code == 201:
         return resp.json()["fileId"]
+    elif resp.status_code == 400:
+        reason = resp.json()["error"]["details"]["errno"]
+        # If dir already exists
+        if reason == "eexist":
+            return " "
+        # There is a file in given path
+        elif reason == "enotdir":
+            raise Exception(
+                f"{path} path already exists and is not a directory")
+        else:
+            resp.raise_for_status()
     else:
         resp.raise_for_status()
