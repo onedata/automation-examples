@@ -8,21 +8,20 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 
 import os
+import traceback
+from typing import Final, List, Union
 
 import requests
-import traceback
-from typing_extensions import TypedDict, NamedTuple
-from typing import Final, Union, List
-
+from typing_extensions import NamedTuple, TypedDict
 
 from onedata_lambda_utils.types import (
     AtmException,
     AtmFile,
-    AtmJobBatchRequestCtx,
+    AtmHeartbeatCallback,
     AtmJobBatchRequest,
+    AtmJobBatchRequestCtx,
     AtmJobBatchResponse,
     AtmObject,
-    AtmHeartbeatCallback
 )
 
 ##===================================================================
@@ -96,9 +95,8 @@ def run_job(job: Job) -> Union[JobResults, AtmException]:
 
 
 def assert_valid_dir_path(path: str):
-    if '' in path.split("/"):
+    if "" in path.split("/"):
         raise Exception(f"wrong dir path: {path}")
-    return
 
 
 def build_create_dir_url(domain: str, parent_id: str, path: str) -> str:
@@ -108,8 +106,9 @@ def build_create_dir_url(domain: str, parent_id: str, path: str) -> str:
 def create_dir(job: Job, path: str) -> str:
     payload = {"type": "DIR", "create_parents": "true"}
     resp = requests.put(
-        build_create_dir_url(job.ctx["oneproviderDomain"],
-                             job.args["targetDir"]["file_id"], path),
+        build_create_dir_url(
+            job.ctx["oneproviderDomain"], job.args["targetDir"]["file_id"], path
+        ),
         params=payload,
         headers={
             "x-auth-token": job.ctx["accessToken"],
@@ -120,16 +119,13 @@ def create_dir(job: Job, path: str) -> str:
 
     if resp.status_code == 201:
         return resp.json()["fileId"]
-    elif resp.status_code == 400:
+    if resp.status_code == 400:
         reason = resp.json()["error"]["details"]["errno"]
         # If dir already exists
         if reason == "eexist":
             return " "
         # There is a file in given path
-        elif reason == "enotdir":
-            raise Exception(
-                f"{path} path already exists and is not a directory")
-        else:
-            resp.raise_for_status()
-    else:
-        resp.raise_for_status()
+        if reason == "enotdir":
+            raise Exception(f"{path} path already exists and is not a directory")
+        raise resp.raise_for_status()
+    raise resp.raise_for_status()
