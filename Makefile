@@ -1,4 +1,4 @@
-STATIC_ANALYSER_IMAGE := "docker.onedata.org/python_static_analyser:v5"
+STATIC_ANALYSER_IMAGE := "docker.onedata.org/python_static_analyser:v6"
 
 
 format:
@@ -16,3 +16,13 @@ black-check:
 
 static-analysis:	
 	docker run --rm -i -v `pwd`:`pwd` -w `pwd`  $(STATIC_ANALYSER_IMAGE) pylint . --rcfile=.pylintrc --recursive=y
+
+
+##
+## Type checking
+##
+
+type-check:	
+	for file in $$(find lambdas -name "handler.py"); do \
+        docker run --rm -i -v `pwd`:`pwd` -w `pwd` $(STATIC_ANALYSER_IMAGE) sh -c "pip install -qq -r $$(dirname $$file)/requirements.txt && mypy $$file --ignore-missing-imports" || exit 1; \
+    done
