@@ -1,5 +1,5 @@
 REPO=docker.onedata.org/lambda-bagit-uploader-archive-destination-rest
-TAG=v2
+TAG=v3
 
 
 .PHONY: build publish
