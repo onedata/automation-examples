@@ -1,5 +1,5 @@
 REPO=docker.onedata.org/lambda-download-file-mounted
-TAG=v2
+TAG=v3
 
 
 .PHONY: build publish
