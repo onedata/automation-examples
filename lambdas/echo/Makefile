@@ -1,5 +1,5 @@
 REPO=docker.onedata.org/lambda-echo
-TAG=v1
+TAG=v2
 
 
 .PHONY: build publish
