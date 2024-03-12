@@ -1,5 +1,5 @@
 REPO=docker.onedata.org/lambda-bagit-uploader-calculate-checksum-mounted
-TAG=v1
+TAG=v2
 
 
 .PHONY: build publish
