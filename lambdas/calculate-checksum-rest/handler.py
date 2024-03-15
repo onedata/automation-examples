@@ -116,7 +116,7 @@ class JobArgs(TypedDict):
 
 
 class FileChecksumReport(TypedDict):
-    file_id: str
+    fileId: str
     algorithm: str
     checksum: Optional[str]
 
@@ -192,7 +192,7 @@ def run_job(job: Job) -> Union[AtmException, JobResults]:
 def build_job_results(job: Job, checksum: Optional[str]) -> JobResults:
     return {
         "result": {
-            "file_id": job.args["file"]["fileId"],
+            "fileId": job.args["file"]["fileId"],
             "algorithm": job.ctx["config"]["algorithm"],
             "checksum": checksum,
         }
