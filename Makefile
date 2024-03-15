@@ -31,3 +31,17 @@ lambdas-build-public:
 
 lambdas-publish-public:
 	$(call foreach_lambda,publish REGISTRY=docker.io HUB_USER=onedata)
+
+
+##
+## Workflows
+##
+
+workflows-ensure-all-used-images-are-public:
+	@./utils/workflows.sh ensure_all_used_images_are_public
+
+workflows-assert-only-public-images-are-used:
+	@./utils/workflows.sh assert_only_public_images_are_used
+
+workflows-assert-all-used-images-are-published:
+	@./utils/workflows.sh assert_all_used_images_are_published
