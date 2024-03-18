@@ -62,7 +62,6 @@
                 "name": "detect-file-mime-format",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "6055361b4ac624cd0e334ea13cc72dfc",
                 "argumentSpecs": [
                   {
                     "_version": 1,

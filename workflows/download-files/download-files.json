@@ -113,7 +113,6 @@
                 "name": "download-file-mounted",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "946e383a2b880471d2f3cceec75f9c70",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -284,7 +283,6 @@
                     }
                   }
                 ],
-                "checksum": "4910677235b45113e3e07240827fe515",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -392,7 +390,6 @@
                 "name": "parse-fetch-file-mounted",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "40db578277732895c5e8d7d77a525f98",
                 "argumentSpecs": [
                   {
                     "_version": 1,

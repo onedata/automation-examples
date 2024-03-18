@@ -64,7 +64,6 @@
                 "name": "demo",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "47025f8166d7f17570b342afb7e18768",
                 "argumentSpecs": [
                   {
                     "_version": 1,

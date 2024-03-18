@@ -62,7 +62,6 @@
                 "name": "detect-file-format",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "2074f00c64038503a744b95d2513f14e",
                 "argumentSpecs": [
                   {
                     "_version": 1,
