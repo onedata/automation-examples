@@ -73,5 +73,4 @@ if [ "$#" -gt 0 ]; then
             echo "Unknown function: $arg"
             ;;
     esac
-    exit 0
 fi
