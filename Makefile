@@ -37,11 +37,11 @@ lambdas-publish-public:
 ## Workflows
 ##
 
-workflows-ensure-all-used-docker_images-are-public:
+workflows-ensure-all-used-docker-images-are-public:
 	@./utils/workflows.sh ensure_all_used_docker_images_are_public
 
-workflows-assert-only-public-docker_images-are-used:
+workflows-assert-only-public-docker-images-are-used:
 	@./utils/workflows.sh assert_only_public_docker_images_are_used
 
-workflows-assert-all-used-docker_images-are-published:
+workflows-assert-all-used-docker-images-are-published:
 	@./utils/workflows.sh assert_all_used_docker_images_are_published
