@@ -32,7 +32,8 @@ To create one, follow these steps:
       ```
 
    - `requirements.txt`: external Python dependencies/libraries needed to define 
-   the function. It is recommended to familiarize yourself and utilize [`onedata-lambda-utils` library](https://pypi.org/project/onedata-lambda-utils/), 
+   the function. It is recommended to familiarize yourself and utilize 
+   [`onedata-lambda-utils` library](https://pypi.org/project/onedata-lambda-utils/), 
    which provides various utilities for writing lambdas (e.g. including the `types` 
    module with documented argument and result types for use in lambdas).
 
@@ -52,7 +53,8 @@ To create one, follow these steps:
       See the `Dockerfile` in `download-file-mounted` or 
       `detect-file-format-mounted` for concrete examples.
 
-   - `Makefile`: specifies the Docker repository name (REPO_NAME) and tag (TAG), along with other useful commands:
+   - `Makefile`: specifies the Docker repository name (REPO_NAME) and tag (TAG), 
+   along with other useful commands:
       - `type-check`: performs type-checking on the lambda code using `mypy` tool.
 
       - `format`: formats the lambda code using `isort` and `black` tools.
@@ -93,3 +95,21 @@ the existing subdirectories and rework it accordingly).
 6. Publish a Docker image.
 
 Now, you can use a built image when defining automation lambda in Onezone.
+
+
+## Contributing to this repo
+
+To add a new lambda/workflow schema or modify an existing one, follow these steps:
+
+1. Develop using the dev channel (docker.onedata.org - see above), use lambda
+   images pushed to this repo for testing on bamboo (you can simply edit the
+   workflow JSON dumps to change the lambda docker image).
+2. Always update image tags when introducing any changes to a lambda,
+   especially when preparing an official image to be pushed (see below).
+3. At the end, when the code is ready to be merged, you will have to
+   make sure all the images used in workflow schemas are publicly available:
+   - all referenced images belong to the docker.io registry
+     (you can use `make workflows-ensure-all-used-docker-images-are-public`)
+   - all of the referenced images are pushed to the registry
+     (you can use `make lambdas-publish-public` - but be sure that the images
+     are properly tagged! otherwise, you may overwrite existing ones)
