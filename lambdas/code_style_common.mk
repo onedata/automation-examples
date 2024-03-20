@@ -1,4 +1,4 @@
-STATIC_ANALYSER_IMAGE := "docker.onedata.org/python_static_analyser:v6"
+STATIC_ANALYSER_IMAGE := "onedata/python_static_analyser:v6"
 
 .PHONY: format
 

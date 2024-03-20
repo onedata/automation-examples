@@ -49,7 +49,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-detect-file-mime-type-mounted:v2",
+                      "dockerImage": "onedata/lambda-detect-file-mime-type-mounted:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "-i",

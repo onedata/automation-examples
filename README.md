@@ -42,7 +42,7 @@ To create one, follow these steps:
    this is the place you can install them. To do that, switch the user to ROOT, 
    install your dependencies and lastly switch the user to APP, e.g.:
       ```
-      FROM docker.onedata.org/lambda-base-slim:v1
+      FROM onedata/lambda-base-slim:v1
 
       USER root
 

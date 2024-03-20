@@ -1,1 +1,1 @@
-FROM docker.onedata.org/lambda-base-slim:v1
+FROM onedata/lambda-base-slim:v1
