@@ -20,7 +20,7 @@ import zipfile
 from dataclasses import dataclass
 from functools import lru_cache
 from threading import Event, Thread
-from typing import Dict, Final, Generator, List, NamedTuple, Optional, Union
+from typing import Dict, Final, Generator, List, NamedTuple, Optional, Sequence, Union
 
 from typing_extensions import TypedDict
 
@@ -176,11 +176,11 @@ class BagitArchive(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def list_files(self) -> List[str]:
+    def list_files(self) -> Sequence[str]:
         pass
 
     @abc.abstractmethod
-    def list_members(self) -> List[BagitArchiveFileInfo]:
+    def list_members(self) -> Sequence[BagitArchiveFileInfo]:
         pass
 
     @abc.abstractmethod
@@ -209,7 +209,7 @@ class ZipBagitArchive(BagitArchive):
     def get_file_info(self, path: str) -> ZipBagitArchiveFileInfo:
         return ZipBagitArchiveFileInfo(self.archive.getinfo(path))
 
-    def unpack_file(self, file_info: ZipBagitArchiveFileInfo, dst_dir: str) -> None:
+    def unpack_file(self, file_info: ZipBagitArchiveFileInfo, dst_dir: str) -> None:  # type: ignore[override]
         self.archive.extract(file_info.info, dst_dir)
 
 
@@ -230,7 +230,7 @@ class TarBagitArchive(BagitArchive):
     def get_file_info(self, path: str) -> TarBagitArchiveFileInfo:
         return TarBagitArchiveFileInfo(self.archive.getmember(path))
 
-    def unpack_file(self, file_info: TarBagitArchiveFileInfo, dst_dir: str) -> None:
+    def unpack_file(self, file_info: TarBagitArchiveFileInfo, dst_dir: str) -> None:  # type: ignore[override]
         self.archive.extract(file_info.info, dst_dir)
 
 
@@ -300,9 +300,13 @@ def unpack_bagit_archive(job_args: JobArgs) -> List[str]:
         for file_info in archive.list_members():
             file_src_path = file_info.get_path()
 
-            if file_src_path.startswith(data_dir) and not file_info.is_dir():
+            if file_src_path.startswith(data_dir):
                 file_data_dir_rel_path = file_src_path[len(data_dir) :].lstrip("/")
                 file_dst_path = f"{dst_dir}/{file_data_dir_rel_path}"
+
+                if file_info.is_dir():
+                    os.makedirs(file_dst_path, exist_ok=True)
+                    continue
 
                 files_to_unpack.append(
                     FileUnpackCtx(
@@ -337,18 +341,18 @@ def unpack_file(file_unpack_ctx: FileUnpackCtx) -> str:
 
 
 def build_relative_file_dst_path(file_unpack_ctx: FileUnpackCtx) -> str:
-    dst_dir_id = file_unpack_ctx.job_args["destinationDir"]["file_id"]
+    dst_dir_id = file_unpack_ctx.job_args["destinationDir"]["fileId"]
     file_rel_path = file_unpack_ctx.file_data_dir_rel_path
 
     return f".__onedata__file_id__{dst_dir_id}/{file_rel_path}"
 
 
 def build_archive_path(job_args: JobArgs) -> str:
-    return f'{MOUNT_POINT}/.__onedata__file_id__{job_args["archive"]["file_id"]}'
+    return f'{MOUNT_POINT}/.__onedata__file_id__{job_args["archive"]["fileId"]}'
 
 
 def build_dst_dir_path(job_args: JobArgs) -> str:
-    return f'{MOUNT_POINT}/.__onedata__file_id__{job_args["destinationDir"]["file_id"]}'
+    return f'{MOUNT_POINT}/.__onedata__file_id__{job_args["destinationDir"]["fileId"]}'
 
 
 def monitor_files_unpacking(heartbeat_callback: AtmHeartbeatCallback) -> None:

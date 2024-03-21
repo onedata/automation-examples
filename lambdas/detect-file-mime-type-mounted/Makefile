@@ -1,13 +1,5 @@
-REPO=docker.onedata.org/lambda-detect-file-mime-type-mounted
-TAG=v1
+REPO_NAME = lambda-detect-file-mime-type-mounted
+TAG = v2
 
-
-.PHONY: build publish
-
-
-build:
-	docker build . -t ${REPO}:${TAG}
-
-
-publish:
-	docker push ${REPO}:${TAG}
+include ../code_style_common.mk
+include ../docker_common.mk

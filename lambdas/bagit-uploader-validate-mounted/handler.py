@@ -18,7 +18,7 @@ import traceback
 import zipfile
 import zlib
 from functools import lru_cache
-from typing import IO, Final, Generator, Iterator, List, NamedTuple, Set, Tuple
+from typing import IO, Final, Generator, Iterator, List, NamedTuple, Set, Tuple, Union
 
 from typing_extensions import TypedDict
 
@@ -40,8 +40,8 @@ MOUNT_POINT: Final[str] = "/mnt/onedata"
 
 SUPPORTED_URL_SCHEMAS: Final[Tuple[str, ...]] = ("root:", "http:", "https:")
 
-AVAILABLE_CHECKSUM_ALGORITHMS: Final[Set[str]] = sorted(
-    set().union({"adler32"}, hashlib.algorithms_available)
+AVAILABLE_CHECKSUM_ALGORITHMS: Final[Set[str]] = {"adler32"}.union(
+    hashlib.algorithms_available
 )
 READ_CHUNK_SIZE: Final[int] = 10 * 1024**2
 
@@ -186,7 +186,7 @@ def handle(
     return {"resultsBatch": results}
 
 
-def run_job(job_args: JobArgs) -> JobResults:
+def run_job(job_args: JobArgs) -> Union[AtmException, JobResults]:
     try:
         if job_args["archive"]["type"] != "REG":
             return AtmException(exception=("Not an archive file"))
@@ -223,7 +223,7 @@ def run_job(job_args: JobArgs) -> JobResults:
 
 
 def build_archive_path(job_args: JobArgs) -> str:
-    return f'{MOUNT_POINT}/.__onedata__file_id__{job_args["archive"]["file_id"]}'
+    return f'{MOUNT_POINT}/.__onedata__file_id__{job_args["archive"]["fileId"]}'
 
 
 def assert_valid_archive(archive: BagitArchive) -> None:
