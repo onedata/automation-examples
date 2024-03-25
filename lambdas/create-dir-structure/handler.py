@@ -94,15 +94,36 @@ def run_job(job: Job) -> Union[JobResults, AtmException]:
         return {"fileIds": dir_ids}
 
 
-def build_create_dir_url(domain: str, parent_id: str, path: str) -> str:
+def build_create_dir_rest_url(job: Job, path: str) -> str:
+    domain = job.ctx["oneproviderDomain"]
+    parent_id = job.args["targetDir"]["fileId"]
     return f"https://{domain}/api/v3/oneprovider/data/{parent_id}/path/{path}"
+
+
+def build_get_file_id_rest_url(job: Job, path: str) -> str:
+    domain = job.ctx["oneproviderDomain"]
+    parent_path = job.args["targetDir"]["path"]
+    absolute_path = parent_path + "/" + path
+    return f"https://{domain}/api/v3/oneprovider/lookup-file-id/{absolute_path}"
+
+
+def get_file_id(job: Job, path: str) -> str:
+    resp = requests.post(
+        build_get_file_id_rest_url(job, path),
+        headers={
+            "x-auth-token": job.ctx["accessToken"],
+        },
+        verify=VERIFY_SSL_CERTS,
+        timeout=REST_REQUEST_TIMEOUT,
+    )
+
+    resp.raise_for_status()
+    return resp.json()["fileId"]
 
 
 def create_dir(job: Job, path: str) -> str:
     resp = requests.put(
-        build_create_dir_url(
-            job.ctx["oneproviderDomain"], job.args["targetDir"]["fileId"], path
-        ),
+        build_create_dir_rest_url(job, path),
         params={"type": "DIR", "create_parents": "true"},
         headers={
             "x-auth-token": job.ctx["accessToken"],
@@ -111,14 +132,13 @@ def create_dir(job: Job, path: str) -> str:
         timeout=REST_REQUEST_TIMEOUT,
     )
 
-    if resp.status_code == 201:
-        return resp.json()["fileId"]
     if resp.status_code == 400:
         reason = resp.json()["error"]["details"]["errno"]
         # If dir already exists
         if reason == "eexist":
-            return " "
+            return get_file_id(job, path)
         # There is a file in given path
         if reason == "enotdir":
             raise Exception(f'"{path}" path already exists and is not a directory')
-    raise resp.raise_for_status()
+    resp.raise_for_status()
+    return resp.json()["fileId"]

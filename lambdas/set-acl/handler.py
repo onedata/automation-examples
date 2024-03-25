@@ -10,7 +10,7 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import json
 import os
 import traceback
-from typing import Final, NoReturn, Union
+from typing import Final, Union
 
 import requests
 from typing_extensions import NamedTuple, TypedDict
@@ -72,24 +72,31 @@ def handle(
         heartbeat_callback()
 
 
-def run_job(job: Job) -> Union[NoReturn, AtmException]:
+def run_job(job: Job) -> Union[None, AtmException]:
     try:
         set_acl(job)
     except (JobException, requests.RequestException) as ex:
         return AtmException(exception=str(ex))
     except Exception:
         return AtmException(exception=traceback.format_exc())
+    return None
 
 
-def set_acl(job: Job) -> NoReturn:
+def build_set_acl_rest_url(job: Job) -> str:
+    domain = job.ctx["oneproviderDomain"]
+    file_id = job.args["targetFileId"]["fileId"]
+    return f"https://{domain}/api/v3/oneprovider/data/{file_id}/metadata/xattrs"
+
+
+def set_acl(job: Job) -> None:
     resp = requests.put(
-        f'https://{job.ctx["oneproviderDomain"]}/api/v3/oneprovider/data/{job.args["targetFileId"]["fileId"]}/'
-        f"metadata/xattrs",
+        build_set_acl_rest_url(job),
         headers={
             "x-auth-token": job.ctx["accessToken"],
             "content-type": "application/json",
         },
-        data=json.dumps({"cdmi_acl": job.args["acl"]}),
+        data=json.dumps(
+            {"cdmi_acl": [json.loads(job.args["acl"])]}),
         verify=VERIFY_SSL_CERTS,
         timeout=REST_REQUEST_TIMEOUT,
     )
@@ -98,4 +105,4 @@ def set_acl(job: Job) -> NoReturn:
         return
     if resp.status_code == 404:
         raise Exception("file not found")
-    raise resp.raise_for_status()
+    resp.raise_for_status()

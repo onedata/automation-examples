@@ -1,4 +1,4 @@
-REPO = lambda-substitute-placeholders
+REPO_NAME = lambda-substitute-placeholders
 TAG = v1
 
 
