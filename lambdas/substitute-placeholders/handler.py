@@ -1,7 +1,5 @@
 """
-A lambda which creates a directory structure, expressed using a list of paths,
-in the target directory. It will ensure that all provided paths exist
-and each path element is a directory, or fail otherwise.
+A lambda which fulfils given placeholders using provided mappings
 """
 
 __author__ = "Wojciech Szmelich"
@@ -11,14 +9,14 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 import os
 import traceback
-from typing import Final, List, Union
+from string import Template
+from typing import Final, Mapping, Union
 
 import requests
 from typing_extensions import NamedTuple, TypedDict
 
 from onedata_lambda_utils.types import (
     AtmException,
-    AtmFile,
     AtmHeartbeatCallback,
     AtmJobBatchRequest,
     AtmJobBatchRequestCtx,
@@ -41,12 +39,12 @@ REST_REQUEST_TIMEOUT: Final[int] = 60
 
 
 class JobArgs(TypedDict):
-    targetDir: AtmFile
-    dirPaths: List[str]
+    template: str
+    mappings: Mapping[str, str]
 
 
 class JobResults(TypedDict):
-    fileIds: List[str]
+    output: str
 
 
 ##===================================================================
@@ -81,44 +79,13 @@ def handle(
 
 
 def run_job(job: Job) -> Union[JobResults, AtmException]:
-    dir_ids = []
     try:
-        for dir_path in job.args["dirPaths"]:
-            dir_ids.append(create_dir(job, dir_path))
+        template = Template(job.args["template"])
+        output = template.substitute(job.args["mappings"])
 
     except (JobException, requests.RequestException) as ex:
         return AtmException(exception=str(ex))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
-        return {"fileIds": dir_ids}
-
-
-def build_create_dir_url(domain: str, parent_id: str, path: str) -> str:
-    return f"https://{domain}/api/v3/oneprovider/data/{parent_id}/path/{path}"
-
-
-def create_dir(job: Job, path: str) -> str:
-    resp = requests.put(
-        build_create_dir_url(
-            job.ctx["oneproviderDomain"], job.args["targetDir"]["fileId"], path
-        ),
-        params={"type": "DIR", "create_parents": "true"},
-        headers={
-            "x-auth-token": job.ctx["accessToken"],
-        },
-        verify=VERIFY_SSL_CERTS,
-        timeout=REST_REQUEST_TIMEOUT,
-    )
-
-    if resp.status_code == 201:
-        return resp.json()["fileId"]
-    if resp.status_code == 400:
-        reason = resp.json()["error"]["details"]["errno"]
-        # If dir already exists
-        if reason == "eexist":
-            return " "
-        # There is a file in given path
-        if reason == "enotdir":
-            raise Exception(f'"{path}" path already exists and is not a directory')
-    raise resp.raise_for_status()
+        return {"output": output}

@@ -1,7 +1,5 @@
 """
-A lambda which creates a directory structure, expressed using a list of paths,
-in the target directory. It will ensure that all provided paths exist
-and each path element is a directory, or fail otherwise.
+A lambda which sets alc to the given file
 """
 
 __author__ = "Wojciech Szmelich"
@@ -9,9 +7,10 @@ __copyright__ = "Copyright (C) 2024 ACK CYFRONET AGH"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 
+import json
 import os
 import traceback
-from typing import Final, List, Union
+from typing import Final, NoReturn, Union
 
 import requests
 from typing_extensions import NamedTuple, TypedDict
@@ -41,12 +40,8 @@ REST_REQUEST_TIMEOUT: Final[int] = 60
 
 
 class JobArgs(TypedDict):
-    targetDir: AtmFile
-    dirPaths: List[str]
-
-
-class JobResults(TypedDict):
-    fileIds: List[str]
+    targetFileId: AtmFile
+    acl: str
 
 
 ##===================================================================
@@ -66,59 +61,42 @@ class Job(NamedTuple):
 def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
     heartbeat_callback: AtmHeartbeatCallback,
-) -> AtmJobBatchResponse[JobResults]:
+) -> None:
 
     jobs = [
         Job(ctx=job_batch_request["ctx"], args=job_args)
         for job_args in job_batch_request["argsBatch"]
     ]
-    results = []
+
     for job in jobs:
-        results.append(run_job(job))
+        run_job(job)
         heartbeat_callback()
 
-    return {"resultsBatch": results}
 
-
-def run_job(job: Job) -> Union[JobResults, AtmException]:
-    dir_ids = []
+def run_job(job: Job) -> Union[NoReturn, AtmException]:
     try:
-        for dir_path in job.args["dirPaths"]:
-            dir_ids.append(create_dir(job, dir_path))
-
+        set_acl(job)
     except (JobException, requests.RequestException) as ex:
         return AtmException(exception=str(ex))
     except Exception:
         return AtmException(exception=traceback.format_exc())
-    else:
-        return {"fileIds": dir_ids}
 
 
-def build_create_dir_url(domain: str, parent_id: str, path: str) -> str:
-    return f"https://{domain}/api/v3/oneprovider/data/{parent_id}/path/{path}"
-
-
-def create_dir(job: Job, path: str) -> str:
+def set_acl(job: Job) -> NoReturn:
     resp = requests.put(
-        build_create_dir_url(
-            job.ctx["oneproviderDomain"], job.args["targetDir"]["fileId"], path
-        ),
-        params={"type": "DIR", "create_parents": "true"},
+        f'https://{job.ctx["oneproviderDomain"]}/api/v3/oneprovider/data/{job.args["targetFileId"]["fileId"]}/'
+        f"metadata/xattrs",
         headers={
             "x-auth-token": job.ctx["accessToken"],
+            "content-type": "application/json",
         },
+        data=json.dumps({"cdmi_acl": job.args["acl"]}),
         verify=VERIFY_SSL_CERTS,
         timeout=REST_REQUEST_TIMEOUT,
     )
 
-    if resp.status_code == 201:
-        return resp.json()["fileId"]
-    if resp.status_code == 400:
-        reason = resp.json()["error"]["details"]["errno"]
-        # If dir already exists
-        if reason == "eexist":
-            return " "
-        # There is a file in given path
-        if reason == "enotdir":
-            raise Exception(f'"{path}" path already exists and is not a directory')
+    if resp.status_code == 204:
+        return
+    if resp.status_code == 404:
+        raise Exception("file not found")
     raise resp.raise_for_status()
