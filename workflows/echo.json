@@ -49,7 +49,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "onedata/lambda-echo:v1",
+                      "dockerImage": "onedata/lambda-echo:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -117,7 +117,6 @@
                     }
                   }
                 ],
-                "checksum": "44fc97221c69102ef838e22b1a7e643c",
                 "argumentSpecs": [
                   {
                     "_version": 1,

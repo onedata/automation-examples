@@ -1,5 +1,5 @@
 """
-A lambda which parses fetch.txt file (if it exists) in bagit archive and returns 
+A lambda which parses fetch.txt file (if it exists) in bagit archive and returns
 list of files to download.
 
 NOTE: fetch file is a file where every line has format: <url>\s+<size>\s+<path>
@@ -172,14 +172,14 @@ def run_job(job: Job) -> Union[AtmException, JobResults]:
 
 
 def build_archive_path(job: Job) -> str:
-    return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["archive"]["file_id"]}'
+    return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["archive"]["fileId"]}'
 
 
 def parse_fetch_file(job: Job, archive: BagitArchive) -> List[FileDownloadInfo]:
     files_to_download = []
 
     if fetch_file := archive.find_fetch_file():
-        dst_dir = f'.__onedata__file_id__{job.args["destinationDir"]["file_id"]}'
+        dst_dir = f'.__onedata__file_id__{job.args["destinationDir"]["fileId"]}'
 
         for line_num, line in enumerate(archive.open_file(fetch_file), start=1):
             files_to_download.append(parse_line(dst_dir, line_num, line))

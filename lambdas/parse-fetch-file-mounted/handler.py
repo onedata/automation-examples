@@ -92,7 +92,7 @@ def run_job(job: Job) -> Union[AtmException, JobResults]:
 
 
 def parse_fetch_file(job: Job) -> List[FileDownloadInfo]:
-    fetch_file_id = job.args["fetchFile"]["file_id"]
+    fetch_file_id = job.args["fetchFile"]["fileId"]
     fetch_file_path = f"{MOUNT_POINT}/.__onedata__file_id__{fetch_file_id}"
 
     if os.path.isdir(fetch_file_path):
@@ -109,7 +109,7 @@ def parse_fetch_file(job: Job) -> List[FileDownloadInfo]:
 
 def parse_line(job: Job, line: str) -> FileDownloadInfo:
     url, size, rel_path = line.strip().split(maxsplit=2)
-    root_dir_id = job.args["destinationDir"]["file_id"]
+    root_dir_id = job.args["destinationDir"]["fileId"]
     rel_path = rel_path.lstrip("/")
 
     return {

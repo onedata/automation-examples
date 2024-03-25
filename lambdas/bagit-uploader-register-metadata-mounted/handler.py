@@ -218,8 +218,8 @@ def append_xattr(file_path: str, xattr_name: str, xattr_value: str) -> None:
 
 
 def build_archive_path(job: Job) -> str:
-    return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["archive"]["file_id"]}'
+    return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["archive"]["fileId"]}'
 
 
 def build_destination_dir_path(job: Job) -> str:
-    return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["destinationDir"]["file_id"]}'
+    return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["destinationDir"]["fileId"]}'

@@ -1,5 +1,5 @@
 """
-A lambda created mainly for testing the automation workflows mechanism. 
+A lambda created mainly for testing the automation workflows mechanism.
 Returns its input as output and optionally throws exceptions and/or delays execution.
 """
 
@@ -11,6 +11,7 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import json
 import random
 import time
+from typing import List, Union
 
 from typing_extensions import TypeAlias, TypedDict
 
@@ -54,7 +55,7 @@ def handle(
             heartbeat_callback()
             time.sleep(0.1)
 
-    results = []
+    results: List[Union[AtmException, AtmObject, None]] = []
     for job_args in job_batch_request["argsBatch"]:
         if random.random() <= task_config["exceptionProbability"]:
             results.append(AtmException(exception="Random exception"))

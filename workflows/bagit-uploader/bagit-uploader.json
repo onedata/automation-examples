@@ -100,7 +100,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "onedata/lambda-download-file-mounted:v2",
+                      "dockerImage": "onedata/lambda-download-file-mounted:v3",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "-i",
@@ -113,7 +113,6 @@
                 "name": "bagit-uploader-fetch-files",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "056d2d5d6415a2066ac078f1396818e5",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -208,7 +207,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "onedata/lambda-bagit-uploader-parse-fetch-file-mounted:v1",
+                      "dockerImage": "onedata/lambda-bagit-uploader-parse-fetch-file-mounted:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "-i",
@@ -221,7 +220,6 @@
                 "name": "bagit-uploader-unpack-fetch",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "b085790f3d781aefc801cbf24afd221a",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -237,7 +235,7 @@
                           "_data": {
                             "fileType": "ANY",
                             "attributes": [
-                              "file_id",
+                              "fileId",
                               "name"
                             ]
                           }
@@ -259,7 +257,7 @@
                           "_data": {
                             "fileType": "DIR",
                             "attributes": [
-                              "file_id"
+                              "fileId"
                             ]
                           }
                         }
@@ -379,7 +377,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "onedata/lambda-bagit-uploader-unpack-data-mounted:v1",
+                      "dockerImage": "onedata/lambda-bagit-uploader-unpack-data-mounted:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "-i",
@@ -392,7 +390,6 @@
                 "name": "bagit-uploader-unpack-data",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "74b082baa8a4e4d18fb00768e52f5b82",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -408,7 +405,7 @@
                           "_data": {
                             "fileType": "ANY",
                             "attributes": [
-                              "file_id",
+                              "fileId",
                               "name"
                             ]
                           }
@@ -430,7 +427,7 @@
                           "_data": {
                             "fileType": "DIR",
                             "attributes": [
-                              "file_id"
+                              "fileId"
                             ]
                           }
                         }
@@ -526,7 +523,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "onedata/lambda-bagit-uploader-archive-destination-rest:v2",
+                      "dockerImage": "onedata/lambda-bagit-uploader-archive-destination-rest:v3",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "-i",
@@ -539,7 +536,6 @@
                 "name": "bagit-uploader-archive-destination",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "5b83c0864be876d0e5cf6c7141e7900c",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -555,7 +551,7 @@
                           "_data": {
                             "fileType": "DIR",
                             "attributes": [
-                              "file_id"
+                              "fileId"
                             ]
                           }
                         }
@@ -641,7 +637,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "onedata/lambda-bagit-uploader-calculate-checksum-mounted:v1",
+                      "dockerImage": "onedata/lambda-bagit-uploader-calculate-checksum-mounted:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "-i",
@@ -654,7 +650,6 @@
                 "name": "bagit-uploader-calculate-checksum",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "44005dba33c5dd462b43dc20b6c51027",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -711,7 +706,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "onedata/lambda-bagit-uploader-register-metadata-mounted:v1",
+                      "dockerImage": "onedata/lambda-bagit-uploader-register-metadata-mounted:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "-i",
@@ -724,7 +719,6 @@
                 "name": "register-metadata-from-data",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "d669d9e6fb802dc7c89d91f8310fef53",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -740,7 +734,7 @@
                           "_data": {
                             "fileType": "REG",
                             "attributes": [
-                              "file_id",
+                              "fileId",
                               "name",
                               "type"
                             ]
@@ -763,7 +757,7 @@
                           "_data": {
                             "fileType": "DIR",
                             "attributes": [
-                              "file_id",
+                              "fileId",
                               "name",
                               "type"
                             ]
@@ -852,7 +846,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "onedata/lambda-bagit-uploader-validate-mounted:v1",
+                      "dockerImage": "onedata/lambda-bagit-uploader-validate-mounted:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "-i",
@@ -865,7 +859,6 @@
                 "name": "bagit-uploader-validate",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "192d2a886bed13aa22f316a2e9d3ecf5",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -881,7 +874,7 @@
                           "_data": {
                             "fileType": "ANY",
                             "attributes": [
-                              "file_id",
+                              "fileId",
                               "name",
                               "type"
                             ]

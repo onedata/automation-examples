@@ -1,5 +1,5 @@
 """
-A lambda which calculates checksums for file, and compares them with checksums from manifests, 
+A lambda which calculates checksums for file, and compares them with checksums from manifests,
 which were previously set as custom metadata under 'checksum.<algorithm>.expected' key.
 """
 
@@ -11,24 +11,13 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import hashlib
 import queue
 import re
+import sys
 import time
 import traceback
 import zlib
 from concurrent.futures import Executor, Future, ThreadPoolExecutor
 from threading import Event, Thread
-from typing import (
-    Dict,
-    Final,
-    List,
-    Literal,
-    NamedTuple,
-    Tuple,
-    TypeAlias,
-    Union,
-    get_args,
-)
-
-from typing_extensions import TypedDict
+from typing import Dict, Final, List, Literal, NamedTuple, Tuple, Union, get_args
 
 import xattr
 from onedata_lambda_utils.streaming import AtmResultStreamer
@@ -40,6 +29,12 @@ from onedata_lambda_utils.types import (
     AtmObject,
     AtmTimeSeriesMeasurement,
 )
+
+if sys.version_info < (3, 11):
+    from typing_extensions import TypeAlias, TypedDict
+else:
+    from typing import TypeAlias, TypedDict
+
 
 ##===================================================================
 ## Lambda configuration
@@ -112,7 +107,7 @@ class JobResults(TypedDict):
 
 RE_EXP_CHECKSUM_XATTR_NAME: Final[
     str
-] = r"^checksum.(?P<algorithm>{algorithms}).expected$".format(
+] = r"^checksum.(?P<algorithm>{algorithms}).expected$".format(  # pylint: disable=consider-using-f-string
     algorithms="|".join(get_args(ChecksumAlgorithm))
 )
 
@@ -139,7 +134,7 @@ def handle(
     jobs_monitor.start()
 
     with ThreadPoolExecutor() as executor:
-        jobs_results_or_futures = []
+        jobs_results_or_futures: List[Union[JobResults, Tuple[str, List[Future]]]] = []
 
         for job_args in job_batch_request["argsBatch"]:
             file_path = build_file_path(job_args)
@@ -171,7 +166,7 @@ def schedule_file_verifications(executor: Executor, file_path: str) -> List[Futu
                 executor.submit(
                     verify_file_checksum,
                     file_path,
-                    match.group("algorithm"),
+                    match.group("algorithm"),  # type: ignore
                     file_xattrs.get(xattr_name).decode("utf8"),
                 )
             )
@@ -182,20 +177,19 @@ def schedule_file_verifications(executor: Executor, file_path: str) -> List[Futu
 def assemble_results(
     job_results_or_futures: Union[JobResults, Tuple[str, List[Future]]]
 ) -> Union[JobResults, AtmException]:
-    match job_results_or_futures:
-        case {"result": _}:
-            return job_results_or_futures
+    if isinstance(job_results_or_futures, tuple):
+        file_path, futures = job_results_or_futures
+        checksums = {}
+        for future in futures:
+            verification_result = future.result()
+            if "exception" in verification_result:
+                return verification_result
 
-        case (file_path, futures):
-            checksums = {}
-            for future in futures:
-                verification_result = future.result()
-                if "exception" in verification_result:
-                    return verification_result
+            checksums.update(verification_result)
 
-                checksums.update(verification_result)
-            else:
-                return build_job_results(file_path, checksums)
+        return build_job_results(file_path, checksums)
+
+    return job_results_or_futures
 
 
 def build_job_results(file_path: str, checksums: ChecksumReport) -> JobResults:
@@ -215,7 +209,7 @@ def verify_file_checksum(
         return AtmException(exception=traceback.format_exc())
     else:
         return {
-            algorithm: {
+            algorithm: {  # type: ignore
                 "expected": exp_checksum,
                 "calculated": checksum,
                 "status": "ok",
@@ -238,12 +232,12 @@ def calculate_checksum_insecure(file_path: str, algorithm: ChecksumAlgorithm) ->
                 value = zlib.adler32(data, value)
                 _measurements_queue.put(build_time_series_measurement(algorithm, data))
             return format(value, "x")
-        else:
-            hash = getattr(hashlib, algorithm)()
-            for data in iter(lambda: file.read(READ_CHUNK_SIZE), b""):
-                hash.update(data)
-                _measurements_queue.put(build_time_series_measurement(algorithm, data))
-            return hash.hexdigest()
+
+        data_hash = getattr(hashlib, algorithm)()
+        for data in iter(lambda: file.read(READ_CHUNK_SIZE), b""):
+            data_hash.update(data)
+            _measurements_queue.put(build_time_series_measurement(algorithm, data))
+        return data_hash.hexdigest()
 
 
 def build_time_series_measurement(

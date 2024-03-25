@@ -135,31 +135,33 @@ def establish_dataset(job: Job) -> str:
             "content-type": "application/json",
         },
         data=json.dumps(
-            {"rootFileId": job.args["destinationDir"]["file_id"], "protectionFlags": []}
+            {"rootFileId": job.args["destinationDir"]["fileId"], "protectionFlags": []}
         ),
         verify=VERIFY_SSL_CERTS,
         timeout=REST_REQUEST_TIMEOUT,
     )
 
     if resp.status_code == 201:
-        return resp.json()["datasetId"]
+        result = resp.json()["datasetId"]
 
     elif resp.status_code == 409:
         LOGS_STREAMER.warning(
             {
-                "destinationDir": job.args["destinationDir"]["file_id"],
+                "destinationDir": job.args["destinationDir"]["fileId"],
                 "message": "Dataset already established.",
             }
         )
-        return get_dst_dir_dataset_id(job)
+        result = get_dst_dir_dataset_id(job)
 
     else:
         resp.raise_for_status()
 
+    return result
+
 
 def get_dst_dir_dataset_id(job: Job) -> str:
     host = job.ctx["oneproviderDomain"]
-    dst_dir_id = job.args["destinationDir"]["file_id"]
+    dst_dir_id = job.args["destinationDir"]["fileId"]
 
     resp = requests.get(
         f"https://{host}/api/v3/oneprovider/data/{dst_dir_id}/dataset/summary",
@@ -214,7 +216,7 @@ def await_archive_preserved(job: Job, archive_id: str) -> None:
         if archive_info["state"] == "preserved":
             break
 
-        elif archive_info["state"] in ("pending", "building", "verifying"):
+        if archive_info["state"] in ("pending", "building", "verifying"):
             time.sleep(ARCHIVE_STATUS_CHECK_INTERVAL_SEC)
 
         else:

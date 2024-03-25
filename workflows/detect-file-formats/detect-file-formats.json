@@ -49,7 +49,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "onedata/lambda-detect-file-format-mounted:v1",
+                      "dockerImage": "onedata/lambda-detect-file-format-mounted:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "-i",
@@ -62,7 +62,6 @@
                 "name": "detect-file-format",
                 "description": "",
                 "configParameterSpecs": [],
-                "checksum": "2074f00c64038503a744b95d2513f14e",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -78,7 +77,7 @@
                           "_data": {
                             "fileType": "REG",
                             "attributes": [
-                              "file_id",
+                              "fileId",
                               "name",
                               "type"
                             ]

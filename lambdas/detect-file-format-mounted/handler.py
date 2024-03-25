@@ -96,7 +96,7 @@ def run_job(job_args: JobArgs) -> Union[AtmException, JobResults]:
     else:
         return {
             "result": {
-                "fileId": job_args["file"]["file_id"],
+                "fileId": job_args["file"]["fileId"],
                 "fileName": job_args["file"]["name"],
                 "formatName": file_format.format_name,
                 "mimeType": file_format.mime_type,
@@ -145,4 +145,4 @@ def set_file_format_xattrs(
 
 
 def build_file_path(job_args: JobArgs) -> str:
-    return f'{MOUNT_POINT}/.__onedata__file_id__{job_args["file"]["file_id"]}'
+    return f'{MOUNT_POINT}/.__onedata__file_id__{job_args["file"]["fileId"]}'

@@ -1,7 +1,7 @@
 """
 A lambda which calculates (and saves as metadata) file checksum using mounted Oneclient.
 
-NOTE: This lambda works on any type of file by simply returning `None` 
+NOTE: This lambda works on any type of file by simply returning `None`
 as checksum for anything but regular files.
 """
 
@@ -14,21 +14,11 @@ import concurrent.futures
 import hashlib
 import os
 import queue
+import sys
 import traceback
 import zlib
 from threading import Event, Thread
-from typing import (
-    Final,
-    FrozenSet,
-    Literal,
-    NamedTuple,
-    Optional,
-    TypeAlias,
-    Union,
-    get_args,
-)
-
-from typing_extensions import TypedDict
+from typing import Final, FrozenSet, Literal, NamedTuple, Optional, Union, get_args
 
 import xattr
 from onedata_lambda_utils.stats import AtmTimeSeriesMeasurementBuilder
@@ -42,6 +32,12 @@ from onedata_lambda_utils.types import (
     AtmJobBatchResponse,
     AtmTimeSeriesMeasurement,
 )
+
+if sys.version_info < (3, 11):
+    from typing_extensions import TypeAlias, TypedDict
+else:
+    from typing import TypeAlias, TypedDict
+
 
 ##===================================================================
 ## Lambda configuration
@@ -107,7 +103,7 @@ class JobArgs(TypedDict):
 
 
 class FileChecksumReport(TypedDict):
-    file_id: str
+    fileId: str
     algorithm: str
     checksum: Optional[str]
 
@@ -137,7 +133,7 @@ _measurements_queue: queue.Queue = queue.Queue()
 def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, TaskConfig],
     heartbeat_callback: AtmHeartbeatCallback,
-) -> AtmJobBatchResponse[JobResults]:
+) -> Union[AtmException, AtmJobBatchResponse[JobResults]]:
     algorithm = job_batch_request["ctx"]["config"]["algorithm"]
     if algorithm not in AVAILABLE_CHECKSUM_ALGORITHMS:
         return AtmException(
@@ -186,13 +182,13 @@ def run_job(job: Job) -> Union[AtmException, JobResults]:
 
 
 def build_file_path(job: Job) -> str:
-    return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["file"]["file_id"]}'
+    return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["file"]["fileId"]}'
 
 
 def build_job_results(job: Job, checksum: Optional[str]) -> JobResults:
     return {
         "result": {
-            "file_id": job.args["file"]["file_id"],
+            "fileId": job.args["file"]["fileId"],
             "algorithm": job.ctx["config"]["algorithm"],
             "checksum": checksum,
         }
@@ -209,12 +205,12 @@ def calculate_checksum(algorithm: ChecksumAlgorithm, file_path: str) -> str:
                 value = zlib.adler32(data, value)
                 _measurements_queue.put(BytesProcessed.build(value=len(data)))
             return format(value, "x")
-        else:
-            data_hash = getattr(hashlib, algorithm)()
-            for data in data_stream:
-                data_hash.update(data)
-                _measurements_queue.put(BytesProcessed.build(value=len(data)))
-            return data_hash.hexdigest()
+
+        data_hash = getattr(hashlib, algorithm)()
+        for data in data_stream:
+            data_hash.update(data)
+            _measurements_queue.put(BytesProcessed.build(value=len(data)))
+        return data_hash.hexdigest()
 
 
 def set_file_checksum_xattr(file_path: str, xattr_name: str, checksum: str) -> None:
