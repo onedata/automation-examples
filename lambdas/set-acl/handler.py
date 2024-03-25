@@ -21,7 +21,6 @@ from onedata_lambda_utils.types import (
     AtmHeartbeatCallback,
     AtmJobBatchRequest,
     AtmJobBatchRequestCtx,
-    AtmJobBatchResponse,
     AtmObject,
 )
 

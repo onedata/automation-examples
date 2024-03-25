@@ -1,13 +1,6 @@
-REPO=docker.onedata.org/lambda-create-dir-structure
-TAG=v1
+REPO = lambda-create-dir-structure
+TAG = v1
 
 
-.PHONY: build publish
-
-
-build:
-	docker build . -t ${REPO}:${TAG}
-
-
-publish:
-	docker push ${REPO}:${TAG}
+include ../code_style_common.mk
+include ../docker_common.mk
