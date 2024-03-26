@@ -12,12 +12,11 @@ import traceback
 from string import Template
 from typing import Mapping, Union
 
-from typing_extensions import NamedTuple, TypedDict
+from typing_extensions import TypedDict
 
 from onedata_lambda_utils.types import (
     AtmException,
     AtmJobBatchRequest,
-    AtmJobBatchRequestCtx,
     AtmJobBatchResponse,
     AtmObject,
 )
@@ -39,11 +38,6 @@ class JobResults(TypedDict):
 ##===================================================================
 ## Lambda implementation
 ##===================================================================
-
-
-class Job(NamedTuple):
-    ctx: AtmJobBatchRequestCtx
-    args: JobArgs
 
 
 def handle(
