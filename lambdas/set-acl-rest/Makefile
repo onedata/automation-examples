@@ -1,4 +1,4 @@
-REPO_NAME = lambda-set-acl
+REPO_NAME = lambda-set-acl-rest
 TAG = v1
 
 

@@ -39,17 +39,13 @@ REST_REQUEST_TIMEOUT: Final[int] = 60
 
 
 class JobArgs(TypedDict):
-    targetFileId: AtmFile
+    targetFile: AtmFile
     acl: str
 
 
 ##===================================================================
 ## Lambda implementation
 ##===================================================================
-
-
-class JobException(Exception):
-    exception: str
 
 
 class Job(NamedTuple):
@@ -75,17 +71,11 @@ def handle(
 def run_job(job: Job) -> Union[None, AtmException]:
     try:
         set_acl(job)
-    except (JobException, requests.RequestException) as ex:
+    except requests.RequestException as ex:
         return AtmException(exception=str(ex))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     return None
-
-
-def build_set_acl_rest_url(job: Job) -> str:
-    domain = job.ctx["oneproviderDomain"]
-    file_id = job.args["targetFileId"]["fileId"]
-    return f"https://{domain}/api/v3/oneprovider/data/{file_id}/metadata/xattrs"
 
 
 def set_acl(job: Job) -> None:
@@ -99,9 +89,10 @@ def set_acl(job: Job) -> None:
         verify=VERIFY_SSL_CERTS,
         timeout=REST_REQUEST_TIMEOUT,
     )
-
-    if resp.status_code == 204:
-        return
-    if resp.status_code == 404:
-        raise Exception("file not found")
     resp.raise_for_status()
+
+
+def build_set_acl_rest_url(job: Job) -> str:
+    domain = job.ctx["oneproviderDomain"]
+    file_id = job.args["targetFile"]["fileId"]
+    return f"https://{domain}/api/v3/oneprovider/data/{file_id}/metadata/xattrs"

@@ -1,1 +1,0 @@
-FROM docker.onedata.org/lambda-base-slim:v1

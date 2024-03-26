@@ -1,4 +1,4 @@
-REPO_NAME = lambda-create-dir-structure
+REPO_NAME = lambda-create-dir-structure-rest
 TAG = v1
 
 
