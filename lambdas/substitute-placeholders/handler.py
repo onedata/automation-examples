@@ -43,7 +43,7 @@ class JobResults(TypedDict):
 
 def handle(
     job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
-    _heartbeat_callback: AtmHeartbeatCallback
+    _heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
 
     results = [run_job(job_args) for job_args in job_batch_request["argsBatch"]]
