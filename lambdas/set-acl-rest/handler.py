@@ -58,13 +58,8 @@ def handle(
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> None:
 
-    jobs = [
-        Job(ctx=job_batch_request["ctx"], args=job_args)
-        for job_args in job_batch_request["argsBatch"]
-    ]
-
-    for job in jobs:
-        run_job(job)
+    for job_args in job_batch_request["argsBatch"]:
+        run_job(Job(ctx=job_batch_request["ctx"], args=job_args))
         heartbeat_callback()
 
 

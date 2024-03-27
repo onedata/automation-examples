@@ -16,6 +16,7 @@ from typing_extensions import TypedDict
 
 from onedata_lambda_utils.types import (
     AtmException,
+    AtmHeartbeatCallback,
     AtmJobBatchRequest,
     AtmJobBatchResponse,
     AtmObject,
@@ -41,7 +42,8 @@ class JobResults(TypedDict):
 
 
 def handle(
-    job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject]
+    job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
+    _heartbeat_callback: AtmHeartbeatCallback
 ) -> AtmJobBatchResponse[JobResults]:
 
     results = [run_job(job_args) for job_args in job_batch_request["argsBatch"]]

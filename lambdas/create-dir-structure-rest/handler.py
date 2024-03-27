@@ -69,13 +69,9 @@ def handle(
     heartbeat_callback: AtmHeartbeatCallback,
 ) -> AtmJobBatchResponse[JobResults]:
 
-    jobs = [
-        Job(ctx=job_batch_request["ctx"], args=job_args)
-        for job_args in job_batch_request["argsBatch"]
-    ]
     results = []
-    for job in jobs:
-        results.append(run_job(job))
+    for job_args in job_batch_request["argsBatch"]:
+        results.append(run_job(Job(ctx=job_batch_request["ctx"], args=job_args)))
         heartbeat_callback()
 
     return {"resultsBatch": results}
@@ -83,14 +79,14 @@ def handle(
 
 def run_job(job: Job) -> Union[JobResults, AtmException]:
     try:
-        dirIds = [create_dir(job, dir_path) for dir_path in job.args["dirPaths"]]
+        dir_ids = [create_dir(job, dir_path) for dir_path in job.args["dirPaths"]]
 
     except (JobException, requests.RequestException) as ex:
         return AtmException(exception=str(ex))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
-        return {"fileIds": dirIds}
+        return {"fileIds": dir_ids}
 
 
 def create_dir(job: Job, path: str) -> str:
@@ -108,10 +104,8 @@ def create_dir(job: Job, path: str) -> str:
         return resp.json()["fileId"]
     if resp.status_code == 400:
         reason = resp.json()["error"]["details"]["errno"]
-        # If dir already exists
         if reason == "eexist":
             return get_file_id(job, path)
-        # There is a file in given path
         if reason == "enotdir":
             raise JobException(f'"{path}" path already exists and is not a directory')
     resp.raise_for_status()

@@ -56,7 +56,7 @@
                         "readonly": false,
                         "oneclientOptions": "",
                         "oneclientMountPoint": "/mnt/onedata",
-                        "mountOneclient": true
+                        "mountOneclient": false
                       }
                     }
                   }
@@ -168,7 +168,7 @@
                         "readonly": false,
                         "oneclientOptions": "",
                         "oneclientMountPoint": "/mnt/onedata",
-                        "mountOneclient": true
+                        "mountOneclient": false
                       }
                     }
                   }
@@ -286,7 +286,7 @@
                         "readonly": false,
                         "oneclientOptions": "",
                         "oneclientMountPoint": "/mnt/onedata",
-                        "mountOneclient": true
+                        "mountOneclient": false
                       }
                     }
                   }
