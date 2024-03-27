@@ -3,224 +3,7 @@
   "schemaFormatVersion": 3,
   "revision": {
     "supplementaryAtmLambdas": {
-      "ed5a1f6bf0cf0755ab6b897ae346359fch6997": {
-        "1": {
-          "schemaFormatVersion": 3,
-          "revision": {
-            "schemaFormatVersion": 3,
-            "originalRevisionNumber": 1,
-            "atmLambdaRevision": {
-              "_version": 1,
-              "_data": {
-                "summary": "",
-                "state": "draft",
-                "resultSpecs": [],
-                "resourceSpec": {
-                  "_version": 1,
-                  "_data": {
-                    "memoryRequested": 104857600,
-                    "memoryLimit": null,
-                    "ephemeralStorageRequested": 104857600,
-                    "ephemeralStorageLimit": null,
-                    "cpuRequested": 0.1,
-                    "cpuLimit": null
-                  }
-                },
-                "preferredBatchSize": 10,
-                "operationSpec": {
-                  "_version": 1,
-                  "_data": {
-                    "engine": "openfaas",
-                    "_version": 1,
-                    "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-set-acl:v1",
-                      "dockerExecutionOptions": {
-                        "readonly": false,
-                        "oneclientOptions": "",
-                        "oneclientMountPoint": "/mnt/onedata",
-                        "mountOneclient": true
-                      }
-                    }
-                  }
-                },
-                "name": "set-acl",
-                "description": "",
-                "configParameterSpecs": [],
-                "argumentSpecs": [
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "name": "targetFileId",
-                      "isOptional": false,
-                      "defaultValue": null,
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "file",
-                          "_version": 1,
-                          "_data": {
-                            "fileType": "ANY",
-                            "attributes": [
-                              "fileId"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "name": "acl",
-                      "isOptional": false,
-                      "defaultValue": null,
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "string",
-                          "_version": 1,
-                          "_data": {
-                            "allowedValues": null
-                          }
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          "originalAtmLambdaId": "ed5a1f6bf0cf0755ab6b897ae346359fch6997"
-        }
-      },
-      "6a44a5ee084a2939c854a0814bae46b0ch1320": {
-        "1": {
-          "schemaFormatVersion": 3,
-          "revision": {
-            "schemaFormatVersion": 3,
-            "originalRevisionNumber": 1,
-            "atmLambdaRevision": {
-              "_version": 1,
-              "_data": {
-                "summary": "",
-                "state": "draft",
-                "resultSpecs": [
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "relayMethod": "returnValue",
-                      "name": "fileIds",
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "array",
-                          "_version": 1,
-                          "_data": {
-                            "itemDataSpec": {
-                              "_version": 2,
-                              "_data": {
-                                "type": "string",
-                                "_version": 1,
-                                "_data": {
-                                  "allowedValues": null
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                ],
-                "resourceSpec": {
-                  "_version": 1,
-                  "_data": {
-                    "memoryRequested": 104857600,
-                    "memoryLimit": null,
-                    "ephemeralStorageRequested": 104857600,
-                    "ephemeralStorageLimit": null,
-                    "cpuRequested": 0.1,
-                    "cpuLimit": null
-                  }
-                },
-                "preferredBatchSize": 10,
-                "operationSpec": {
-                  "_version": 1,
-                  "_data": {
-                    "engine": "openfaas",
-                    "_version": 1,
-                    "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-create-dir-structure:v1",
-                      "dockerExecutionOptions": {
-                        "readonly": false,
-                        "oneclientOptions": "",
-                        "oneclientMountPoint": "/mnt/onedata",
-                        "mountOneclient": true
-                      }
-                    }
-                  }
-                },
-                "name": "create-dir-structure",
-                "description": "",
-                "configParameterSpecs": [],
-                "argumentSpecs": [
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "name": "targetDir",
-                      "isOptional": false,
-                      "defaultValue": null,
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "file",
-                          "_version": 1,
-                          "_data": {
-                            "fileType": "DIR",
-                            "attributes": [
-                              "fileId",
-                              "path"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "name": "dirPaths",
-                      "isOptional": false,
-                      "defaultValue": null,
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "array",
-                          "_version": 1,
-                          "_data": {
-                            "itemDataSpec": {
-                              "_version": 2,
-                              "_data": {
-                                "type": "string",
-                                "_version": 1,
-                                "_data": {
-                                  "allowedValues": null
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          "originalAtmLambdaId": "6a44a5ee084a2939c854a0814bae46b0ch1320"
-        }
-      },
-      "4b78fb39699630cf0817aeb0d7a9ff6dch6680": {
+      "b2b957dc94bcf35cd1868874a0a4592ach9446": {
         "1": {
           "schemaFormatVersion": 3,
           "revision": {
@@ -320,7 +103,242 @@
               }
             }
           },
-          "originalAtmLambdaId": "4b78fb39699630cf0817aeb0d7a9ff6dch6680"
+          "originalAtmLambdaId": "b2b957dc94bcf35cd1868874a0a4592ach9446"
+        }
+      },
+      "a7486be7ad4f7bc208cb7e037b2688abch2000": {
+        "1": {
+          "schemaFormatVersion": 3,
+          "revision": {
+            "schemaFormatVersion": 3,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "_version": 1,
+              "_data": {
+                "summary": "",
+                "state": "draft",
+                "resultSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "relayMethod": "returnValue",
+                      "name": "fileIds",
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "array",
+                          "_version": 1,
+                          "_data": {
+                            "itemDataSpec": {
+                              "_version": 2,
+                              "_data": {
+                                "type": "string",
+                                "_version": 1,
+                                "_data": {
+                                  "allowedValues": null
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ],
+                "resourceSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "memoryRequested": 104857600,
+                    "memoryLimit": null,
+                    "ephemeralStorageRequested": 104857600,
+                    "ephemeralStorageLimit": null,
+                    "cpuRequested": 0.1,
+                    "cpuLimit": null
+                  }
+                },
+                "preferredBatchSize": 10,
+                "operationSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "engine": "openfaas",
+                    "_version": 1,
+                    "_data": {
+                      "dockerImage": "docker.onedata.org/lambda-create-dir-structure-rest:v1",
+                      "dockerExecutionOptions": {
+                        "readonly": false,
+                        "oneclientOptions": "",
+                        "oneclientMountPoint": "/mnt/onedata",
+                        "mountOneclient": true
+                      }
+                    }
+                  }
+                },
+                "name": "create-dir-structure-rest",
+                "description": "",
+                "configParameterSpecs": [],
+                "argumentSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "targetDir",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "file",
+                          "_version": 1,
+                          "_data": {
+                            "fileType": "DIR",
+                            "attributes": [
+                              "fileId",
+                              "path"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "dirPaths",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "array",
+                          "_version": 1,
+                          "_data": {
+                            "itemDataSpec": {
+                              "_version": 2,
+                              "_data": {
+                                "type": "string",
+                                "_version": 1,
+                                "_data": {
+                                  "allowedValues": null
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "dirName",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "originalAtmLambdaId": "a7486be7ad4f7bc208cb7e037b2688abch2000"
+        }
+      },
+      "1851804e8dbfccd7ec1e19292c1879bach02e7": {
+        "1": {
+          "schemaFormatVersion": 3,
+          "revision": {
+            "schemaFormatVersion": 3,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "_version": 1,
+              "_data": {
+                "summary": "",
+                "state": "draft",
+                "resultSpecs": [],
+                "resourceSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "memoryRequested": 104857600,
+                    "memoryLimit": null,
+                    "ephemeralStorageRequested": 104857600,
+                    "ephemeralStorageLimit": null,
+                    "cpuRequested": 0.1,
+                    "cpuLimit": null
+                  }
+                },
+                "preferredBatchSize": 10,
+                "operationSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "engine": "openfaas",
+                    "_version": 1,
+                    "_data": {
+                      "dockerImage": "docker.onedata.org/lambda-set-acl-rest:v1",
+                      "dockerExecutionOptions": {
+                        "readonly": false,
+                        "oneclientOptions": "",
+                        "oneclientMountPoint": "/mnt/onedata",
+                        "mountOneclient": true
+                      }
+                    }
+                  }
+                },
+                "name": "set-acl-rest",
+                "description": "",
+                "configParameterSpecs": [],
+                "argumentSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "targetFile",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "file",
+                          "_version": 1,
+                          "_data": {
+                            "fileType": "ANY",
+                            "attributes": [
+                              "fileId"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "acl",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "originalAtmLambdaId": "1851804e8dbfccd7ec1e19292c1879bach02e7"
         }
       }
     },
@@ -443,6 +461,32 @@
                 }
               }
             }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "type": "singleValue",
+              "requiresInitialContent": true,
+              "name": "dir-name",
+              "id": "6176b7523ffcefa34c299f91fe2c61352c8245",
+              "description": "",
+              "defaultInitialContent": null,
+              "config": {
+                "_version": 1,
+                "_data": {
+                  "itemDataSpec": {
+                    "_version": 2,
+                    "_data": {
+                      "type": "string",
+                      "_version": 1,
+                      "_data": {
+                        "allowedValues": null
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         ],
         "state": "draft",
@@ -486,11 +530,11 @@
                             }
                           ],
                           "resourceSpecOverride": null,
-                          "name": "create-dir-structure",
+                          "name": "create-dir-structure-rest",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "6a44a5ee084a2939c854a0814bae46b0ch1320",
+                          "lambdaId": "a7486be7ad4f7bc208cb7e037b2688abch2000",
                           "lambdaConfig": {},
-                          "id": "d96dbd37584025b64e2a40c1098a731cad6788",
+                          "id": "b88a3b0b9ca199c1d4dbf19512898cb5d84970",
                           "argumentMappings": [
                             {
                               "_version": 1,
@@ -513,13 +557,26 @@
                                   "_data": {
                                     "valueBuilderType": "const",
                                     "valueBuilderRecipe": [
-                                      "results",
+                                      "inputs",
                                       "outputs",
-                                      "inputs"
+                                      "results"
                                     ]
                                   }
                                 },
                                 "argumentName": "dirPaths"
+                              }
+                            },
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "singleValueStoreContent",
+                                    "valueBuilderRecipe": "6176b7523ffcefa34c299f91fe2c61352c8245"
+                                  }
+                                },
+                                "argumentName": "dirName"
                               }
                             }
                           ]
@@ -577,7 +634,7 @@
                           "resourceSpecOverride": null,
                           "name": "substitute-placeholders",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "4b78fb39699630cf0817aeb0d7a9ff6dch6680",
+                          "lambdaId": "b2b957dc94bcf35cd1868874a0a4592ach9446",
                           "lambdaConfig": {},
                           "id": "35f26cb59d1c033f1ebbb93d4d80aa93db99d1",
                           "argumentMappings": [
@@ -644,11 +701,11 @@
                           "timeSeriesStoreConfig": null,
                           "resultMappings": [],
                           "resourceSpecOverride": null,
-                          "name": "set-acl",
+                          "name": "set-acl-rest",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "ed5a1f6bf0cf0755ab6b897ae346359fch6997",
+                          "lambdaId": "1851804e8dbfccd7ec1e19292c1879bach02e7",
                           "lambdaConfig": {},
-                          "id": "3949ff93fd0c55d588947ffdbc914f2bb56c1b",
+                          "id": "e8b00353f149f235bcb44e84609c6f51556ea5",
                           "argumentMappings": [
                             {
                               "_version": 1,
@@ -660,7 +717,7 @@
                                     "valueBuilderRecipe": "09f6a6b0c377feb22d69073ee48121fa2311bf"
                                   }
                                 },
-                                "argumentName": "targetFileId"
+                                "argumentName": "targetFile"
                               }
                             },
                             {
@@ -698,6 +755,6 @@
       }
     }
   },
-  "originalAtmWorkflowSchemaId": "ebf1a7b00b0f83e65494ef7072931191ch76e2",
-  "name": "create-dir-structure-and-set-acl"
+  "originalAtmWorkflowSchemaId": "7bfebf2533a5232407eca9e44e6f3ecbch6af6",
+  "name": "create-dir-structure-with-acls"
 }
