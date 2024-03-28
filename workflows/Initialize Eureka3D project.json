@@ -1,0 +1,876 @@
+{
+  "summary": "",
+  "schemaFormatVersion": 3,
+  "revision": {
+    "supplementaryAtmLambdas": {
+      "fd77df67ce703051478bc9d308c88e47ch17d1": {
+        "1": {
+          "schemaFormatVersion": 3,
+          "revision": {
+            "schemaFormatVersion": 3,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "_version": 1,
+              "_data": {
+                "summary": "",
+                "state": "draft",
+                "resultSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "relayMethod": "returnValue",
+                      "name": "output",
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                ],
+                "resourceSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "memoryRequested": 104857600,
+                    "memoryLimit": null,
+                    "ephemeralStorageRequested": 104857600,
+                    "ephemeralStorageLimit": null,
+                    "cpuRequested": 0.1,
+                    "cpuLimit": null
+                  }
+                },
+                "preferredBatchSize": 10,
+                "operationSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "engine": "openfaas",
+                    "_version": 1,
+                    "_data": {
+                      "dockerImage": "docker.onedata.org/lambda-substitute-placeholders:v1",
+                      "dockerExecutionOptions": {
+                        "readonly": false,
+                        "oneclientOptions": "",
+                        "oneclientMountPoint": "/mnt/onedata",
+                        "mountOneclient": false
+                      }
+                    }
+                  }
+                },
+                "name": "substitute-placeholders",
+                "description": "",
+                "configParameterSpecs": [],
+                "argumentSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "template",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "mappings",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "object",
+                          "_version": 1,
+                          "_data": {}
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "originalAtmLambdaId": "fd77df67ce703051478bc9d308c88e47ch17d1"
+        }
+      },
+      "8e0ca85a93d9f3feec34541f2bc2c0a8chf2ca": {
+        "1": {
+          "schemaFormatVersion": 3,
+          "revision": {
+            "schemaFormatVersion": 3,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "_version": 1,
+              "_data": {
+                "summary": "",
+                "state": "draft",
+                "resultSpecs": [],
+                "resourceSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "memoryRequested": 104857600,
+                    "memoryLimit": null,
+                    "ephemeralStorageRequested": 104857600,
+                    "ephemeralStorageLimit": null,
+                    "cpuRequested": 0.1,
+                    "cpuLimit": null
+                  }
+                },
+                "preferredBatchSize": 10,
+                "operationSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "engine": "openfaas",
+                    "_version": 1,
+                    "_data": {
+                      "dockerImage": "docker.onedata.org/lambda-set-acl-rest:v1",
+                      "dockerExecutionOptions": {
+                        "readonly": false,
+                        "oneclientOptions": "",
+                        "oneclientMountPoint": "/mnt/onedata",
+                        "mountOneclient": false
+                      }
+                    }
+                  }
+                },
+                "name": "set-acl-rest",
+                "description": "",
+                "configParameterSpecs": [],
+                "argumentSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "targetFileId",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "acl",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "originalAtmLambdaId": "8e0ca85a93d9f3feec34541f2bc2c0a8chf2ca"
+        }
+      },
+      "88b706ef365307aba90c042faa3cb48cch093e": {
+        "1": {
+          "schemaFormatVersion": 3,
+          "revision": {
+            "schemaFormatVersion": 3,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "_version": 1,
+              "_data": {
+                "summary": "",
+                "state": "draft",
+                "resultSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "relayMethod": "returnValue",
+                      "name": "fileIds",
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "array",
+                          "_version": 1,
+                          "_data": {
+                            "itemDataSpec": {
+                              "_version": 2,
+                              "_data": {
+                                "type": "string",
+                                "_version": 1,
+                                "_data": {
+                                  "allowedValues": null
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ],
+                "resourceSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "memoryRequested": 104857600,
+                    "memoryLimit": null,
+                    "ephemeralStorageRequested": 104857600,
+                    "ephemeralStorageLimit": null,
+                    "cpuRequested": 0.1,
+                    "cpuLimit": null
+                  }
+                },
+                "preferredBatchSize": 10,
+                "operationSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "engine": "openfaas",
+                    "_version": 1,
+                    "_data": {
+                      "dockerImage": "docker.onedata.org/lambda-create-dir-structure-rest:v1",
+                      "dockerExecutionOptions": {
+                        "readonly": false,
+                        "oneclientOptions": "",
+                        "oneclientMountPoint": "/mnt/onedata",
+                        "mountOneclient": false
+                      }
+                    }
+                  }
+                },
+                "name": "create-dir-structure-rest",
+                "description": "",
+                "configParameterSpecs": [],
+                "argumentSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "targetDir",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "file",
+                          "_version": 1,
+                          "_data": {
+                            "fileType": "DIR",
+                            "attributes": [
+                              "fileId",
+                              "path"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "dirPaths",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "array",
+                          "_version": 1,
+                          "_data": {
+                            "itemDataSpec": {
+                              "_version": 2,
+                              "_data": {
+                                "type": "string",
+                                "_version": 1,
+                                "_data": {
+                                  "allowedValues": null
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "dirName",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "originalAtmLambdaId": "88b706ef365307aba90c042faa3cb48cch093e"
+        }
+      }
+    },
+    "schemaFormatVersion": 3,
+    "originalRevisionNumber": 1,
+    "atmWorkflowSchemaRevision": {
+      "_version": 1,
+      "_data": {
+        "stores": [
+          {
+            "_version": 1,
+            "_data": {
+              "type": "singleValue",
+              "requiresInitialContent": true,
+              "name": "Parent directory",
+              "id": "0fb9d0c480c2e5dbce39bc861b73ce6f53e4ca",
+              "description": "The directory in which the project structure will be initialized",
+              "defaultInitialContent": null,
+              "config": {
+                "_version": 1,
+                "_data": {
+                  "itemDataSpec": {
+                    "_version": 2,
+                    "_data": {
+                      "type": "file",
+                      "_version": 1,
+                      "_data": {
+                        "fileType": "DIR",
+                        "attributes": null
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "type": "singleValue",
+              "requiresInitialContent": true,
+              "name": "Project name",
+              "id": "cac81938bc14eb80041fe4ac51f13677abd874",
+              "description": "The name of the project, which will also be used as the name for the top directory",
+              "defaultInitialContent": null,
+              "config": {
+                "_version": 1,
+                "_data": {
+                  "itemDataSpec": {
+                    "_version": 2,
+                    "_data": {
+                      "type": "string",
+                      "_version": 1,
+                      "_data": {
+                        "allowedValues": null
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "type": "singleValue",
+              "requiresInitialContent": true,
+              "name": "Managing group ID",
+              "id": "bb5c588454d4d79792964d18f019d478e596b3",
+              "description": "The ID of the group that manages the project, which will be granted permissions to access and modify the directory",
+              "defaultInitialContent": {
+                "groupId": ""
+              },
+              "config": {
+                "_version": 1,
+                "_data": {
+                  "itemDataSpec": {
+                    "_version": 2,
+                    "_data": {
+                      "type": "object",
+                      "_version": 1,
+                      "_data": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "type": "singleValue",
+              "requiresInitialContent": false,
+              "name": "Acl",
+              "id": "117480f5e4ff6e7db6f05dcb7ba5461a7b330a",
+              "description": "",
+              "defaultInitialContent": null,
+              "config": {
+                "_version": 1,
+                "_data": {
+                  "itemDataSpec": {
+                    "_version": 2,
+                    "_data": {
+                      "type": "string",
+                      "_version": 1,
+                      "_data": {
+                        "allowedValues": null
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "type": "list",
+              "requiresInitialContent": false,
+              "name": "Root dir ID",
+              "id": "ed77ed70138bea448dd4cdb028a65f2c4f0d7e",
+              "description": "",
+              "defaultInitialContent": null,
+              "config": {
+                "_version": 1,
+                "_data": {
+                  "itemDataSpec": {
+                    "_version": 2,
+                    "_data": {
+                      "type": "string",
+                      "_version": 1,
+                      "_data": {
+                        "allowedValues": null
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "type": "list",
+              "requiresInitialContent": false,
+              "name": "Created dir IDs",
+              "id": "5c3dfbf9638824bd27e19676c6f2a60774d3de",
+              "description": "",
+              "defaultInitialContent": null,
+              "config": {
+                "_version": 1,
+                "_data": {
+                  "itemDataSpec": {
+                    "_version": 2,
+                    "_data": {
+                      "type": "string",
+                      "_version": 1,
+                      "_data": {
+                        "allowedValues": null
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "state": "draft",
+        "lanes": [
+          {
+            "_version": 1,
+            "_data": {
+              "storeIteratorSpec": {
+                "_version": 1,
+                "_data": {
+                  "storeSchemaId": "0fb9d0c480c2e5dbce39bc861b73ce6f53e4ca",
+                  "maxBatchSize": 10
+                }
+              },
+              "parallelBoxes": [
+                {
+                  "_version": 1,
+                  "_data": {
+                    "tasks": [
+                      {
+                        "_version": 1,
+                        "_data": {
+                          "timeSeriesStoreConfig": null,
+                          "resultMappings": [
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "storeSchemaId": "ed77ed70138bea448dd4cdb028a65f2c4f0d7e",
+                                "storeContentUpdateOptions": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "type": "listStoreContentUpdateOptions",
+                                    "_version": 1,
+                                    "_data": {
+                                      "function": "extend"
+                                    }
+                                  }
+                                },
+                                "resultName": "fileIds"
+                              }
+                            }
+                          ],
+                          "resourceSpecOverride": null,
+                          "name": "create-dir-structure-rest",
+                          "lambdaRevisionNumber": 1,
+                          "lambdaId": "88b706ef365307aba90c042faa3cb48cch093e",
+                          "lambdaConfig": {},
+                          "id": "b604e5491a590316a505c2a20e0d9aa97dd239",
+                          "argumentMappings": [
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "singleValueStoreContent",
+                                    "valueBuilderRecipe": "0fb9d0c480c2e5dbce39bc861b73ce6f53e4ca"
+                                  }
+                                },
+                                "argumentName": "targetDir"
+                              }
+                            },
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "const",
+                                    "valueBuilderRecipe": [
+                                      ""
+                                    ]
+                                  }
+                                },
+                                "argumentName": "dirPaths"
+                              }
+                            },
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "singleValueStoreContent",
+                                    "valueBuilderRecipe": "cac81938bc14eb80041fe4ac51f13677abd874"
+                                  }
+                                },
+                                "argumentName": "dirName"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "name": "Parallel box",
+                    "id": "fb67ebc14fa916014db6647db056b7a1336b2f"
+                  }
+                }
+              ],
+              "name": "create root directory",
+              "maxRetries": 0,
+              "instantFailureExceptionThreshold": 0.1,
+              "id": "13477811404b4df85ff802d602d645e975a78c",
+              "dashboardSpec": null
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "storeIteratorSpec": {
+                "_version": 1,
+                "_data": {
+                  "storeSchemaId": "0fb9d0c480c2e5dbce39bc861b73ce6f53e4ca",
+                  "maxBatchSize": 10
+                }
+              },
+              "parallelBoxes": [
+                {
+                  "_version": 1,
+                  "_data": {
+                    "tasks": [
+                      {
+                        "_version": 1,
+                        "_data": {
+                          "timeSeriesStoreConfig": null,
+                          "resultMappings": [
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "storeSchemaId": "5c3dfbf9638824bd27e19676c6f2a60774d3de",
+                                "storeContentUpdateOptions": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "type": "listStoreContentUpdateOptions",
+                                    "_version": 1,
+                                    "_data": {
+                                      "function": "extend"
+                                    }
+                                  }
+                                },
+                                "resultName": "fileIds"
+                              }
+                            }
+                          ],
+                          "resourceSpecOverride": null,
+                          "name": "create-dir-structure-rest",
+                          "lambdaRevisionNumber": 1,
+                          "lambdaId": "88b706ef365307aba90c042faa3cb48cch093e",
+                          "lambdaConfig": {},
+                          "id": "b95950a7dfe7a77ffe8d9abc6bff7c95cdc550",
+                          "argumentMappings": [
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "singleValueStoreContent",
+                                    "valueBuilderRecipe": "0fb9d0c480c2e5dbce39bc861b73ce6f53e4ca"
+                                  }
+                                },
+                                "argumentName": "targetDir"
+                              }
+                            },
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "const",
+                                    "valueBuilderRecipe": [
+                                      "results",
+                                      "inputs",
+                                      "outputs"
+                                    ]
+                                  }
+                                },
+                                "argumentName": "dirPaths"
+                              }
+                            },
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "singleValueStoreContent",
+                                    "valueBuilderRecipe": "cac81938bc14eb80041fe4ac51f13677abd874"
+                                  }
+                                },
+                                "argumentName": "dirName"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "name": "Parallel box",
+                    "id": "d643070c2c2aa9926747bae624d82b6de8a2eb"
+                  }
+                }
+              ],
+              "name": "create dir structure",
+              "maxRetries": 0,
+              "instantFailureExceptionThreshold": 0.1,
+              "id": "e064c2d6b9cdeb59662396305d8dadb44b5b97",
+              "dashboardSpec": null
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "storeIteratorSpec": {
+                "_version": 1,
+                "_data": {
+                  "storeSchemaId": "bb5c588454d4d79792964d18f019d478e596b3",
+                  "maxBatchSize": 10
+                }
+              },
+              "parallelBoxes": [
+                {
+                  "_version": 1,
+                  "_data": {
+                    "tasks": [
+                      {
+                        "_version": 1,
+                        "_data": {
+                          "timeSeriesStoreConfig": null,
+                          "resultMappings": [
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "storeSchemaId": "117480f5e4ff6e7db6f05dcb7ba5461a7b330a",
+                                "storeContentUpdateOptions": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "type": "singleValueStoreContentUpdateOptions",
+                                    "_version": 1,
+                                    "_data": {}
+                                  }
+                                },
+                                "resultName": "output"
+                              }
+                            }
+                          ],
+                          "resourceSpecOverride": null,
+                          "name": "substitute-placeholders",
+                          "lambdaRevisionNumber": 1,
+                          "lambdaId": "fd77df67ce703051478bc9d308c88e47ch17d1",
+                          "lambdaConfig": {},
+                          "id": "ccb78ae4e34a468a942ec7292565d042336b76",
+                          "argumentMappings": [
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "const",
+                                    "valueBuilderRecipe": "{\n        \"acetype\": \"ALLOW\",\n        \"identifier\": \"$groupId\",\n        \"aceflags\": \"IDENTIFIER_GROUP\",\n        \"acemask\": \"LIST_CONTAINER,READ_OBJECT,WRITE_OBJECT,ADD_OBJECT,ADD_SUBCONTAINER,READ_METADATA,WRITE_METADATA,TRAVERSE_CONTAINER,DELETE_OBJECT,DELETE_SUBCONTAINER,READ_ATTRIBUTES,WRITE_ATTRIBUTES,DELETE,READ_ACL,WRITE_ACL\"\n    }"
+                                  }
+                                },
+                                "argumentName": "template"
+                              }
+                            },
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "singleValueStoreContent",
+                                    "valueBuilderRecipe": "bb5c588454d4d79792964d18f019d478e596b3"
+                                  }
+                                },
+                                "argumentName": "mappings"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "name": "Parallel box",
+                    "id": "973fe4ba94d1c73924d1b43859ae244ae5266e"
+                  }
+                }
+              ],
+              "name": "substitute placeholders",
+              "maxRetries": 0,
+              "instantFailureExceptionThreshold": 0.1,
+              "id": "2502f79d71dc548d2887d920e0fda04626c9ef",
+              "dashboardSpec": null
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "storeIteratorSpec": {
+                "_version": 1,
+                "_data": {
+                  "storeSchemaId": "ed77ed70138bea448dd4cdb028a65f2c4f0d7e",
+                  "maxBatchSize": 10
+                }
+              },
+              "parallelBoxes": [
+                {
+                  "_version": 1,
+                  "_data": {
+                    "tasks": [
+                      {
+                        "_version": 1,
+                        "_data": {
+                          "timeSeriesStoreConfig": null,
+                          "resultMappings": [],
+                          "resourceSpecOverride": null,
+                          "name": "set-acl-rest",
+                          "lambdaRevisionNumber": 1,
+                          "lambdaId": "8e0ca85a93d9f3feec34541f2bc2c0a8chf2ca",
+                          "lambdaConfig": {},
+                          "id": "69bb009fb16ccfca32775be605e04ed032d2d2",
+                          "argumentMappings": [
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "iteratedItem",
+                                    "valueBuilderRecipe": null
+                                  }
+                                },
+                                "argumentName": "targetFileId"
+                              }
+                            },
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "singleValueStoreContent",
+                                    "valueBuilderRecipe": "117480f5e4ff6e7db6f05dcb7ba5461a7b330a"
+                                  }
+                                },
+                                "argumentName": "acl"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "name": "Parallel box",
+                    "id": "1e0850c4971b394cebcbcf92211ea3662e1be5"
+                  }
+                }
+              ],
+              "name": "set acl",
+              "maxRetries": 0,
+              "instantFailureExceptionThreshold": 0.1,
+              "id": "0ff2b397d8266bfbb6b7e828d49dbf1e15d686",
+              "dashboardSpec": null
+            }
+          }
+        ],
+        "description": "",
+        "dashboardSpec": null
+      }
+    }
+  },
+  "originalAtmWorkflowSchemaId": "c63cefb0266844b2be2bfe8c322e50d7chede5",
+  "name": "Initialize Eureka3D project"
+}

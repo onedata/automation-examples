@@ -17,7 +17,6 @@ from typing_extensions import NamedTuple, TypedDict
 
 from onedata_lambda_utils.types import (
     AtmException,
-    AtmFile,
     AtmHeartbeatCallback,
     AtmJobBatchRequest,
     AtmJobBatchRequestCtx,
@@ -39,7 +38,7 @@ REST_REQUEST_TIMEOUT: Final[int] = 60
 
 
 class JobArgs(TypedDict):
-    targetFile: AtmFile
+    targetFileId: str
     acl: str
 
 
@@ -89,5 +88,5 @@ def set_acl(job: Job) -> None:
 
 def build_set_acl_rest_url(job: Job) -> str:
     domain = job.ctx["oneproviderDomain"]
-    file_id = job.args["targetFile"]["fileId"]
+    file_id = job.args["targetFileId"]
     return f"https://{domain}/api/v3/oneprovider/data/{file_id}/metadata/xattrs"
