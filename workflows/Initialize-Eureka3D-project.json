@@ -3,7 +3,97 @@
   "schemaFormatVersion": 3,
   "revision": {
     "supplementaryAtmLambdas": {
-      "fd77df67ce703051478bc9d308c88e47ch17d1": {
+      "f2067248180f04829b7c110b9ff283a6che5ef": {
+        "1": {
+          "schemaFormatVersion": 3,
+          "revision": {
+            "schemaFormatVersion": 3,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "_version": 1,
+              "_data": {
+                "summary": "",
+                "state": "draft",
+                "resultSpecs": [],
+                "resourceSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "memoryRequested": 104857600,
+                    "memoryLimit": null,
+                    "ephemeralStorageRequested": 104857600,
+                    "ephemeralStorageLimit": null,
+                    "cpuRequested": 0.1,
+                    "cpuLimit": null
+                  }
+                },
+                "preferredBatchSize": 10,
+                "operationSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "engine": "openfaas",
+                    "_version": 1,
+                    "_data": {
+                      "dockerImage": "docker.onedata.org/lambda-set-acl-rest:v1",
+                      "dockerExecutionOptions": {
+                        "readonly": false,
+                        "oneclientOptions": "",
+                        "oneclientMountPoint": "/mnt/onedata",
+                        "mountOneclient": false
+                      }
+                    }
+                  }
+                },
+                "name": "set-acl-rest",
+                "description": "",
+                "configParameterSpecs": [],
+                "argumentSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "targetFile",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "file",
+                          "_version": 1,
+                          "_data": {
+                            "fileType": "ANY",
+                            "attributes": [
+                              "fileId"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "acl",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "originalAtmLambdaId": "f2067248180f04829b7c110b9ff283a6che5ef"
+        }
+      },
+      "a917a123180f960da68b8ddbeb1def2cch1bb8": {
         "1": {
           "schemaFormatVersion": 3,
           "revision": {
@@ -103,21 +193,48 @@
               }
             }
           },
-          "originalAtmLambdaId": "fd77df67ce703051478bc9d308c88e47ch17d1"
+          "originalAtmLambdaId": "a917a123180f960da68b8ddbeb1def2cch1bb8"
         }
       },
-      "8e0ca85a93d9f3feec34541f2bc2c0a8chf2ca": {
-        "1": {
+      "7be3d8a8b4b79e70dfde141cbe44d78dch0af4": {
+        "2": {
           "schemaFormatVersion": 3,
           "revision": {
             "schemaFormatVersion": 3,
-            "originalRevisionNumber": 1,
+            "originalRevisionNumber": 2,
             "atmLambdaRevision": {
               "_version": 1,
               "_data": {
                 "summary": "",
                 "state": "draft",
-                "resultSpecs": [],
+                "resultSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "relayMethod": "returnValue",
+                      "name": "value",
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "array",
+                          "_version": 1,
+                          "_data": {
+                            "itemDataSpec": {
+                              "_version": 2,
+                              "_data": {
+                                "type": "string",
+                                "_version": 1,
+                                "_data": {
+                                  "allowedValues": null
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ],
                 "resourceSpec": {
                   "_version": 1,
                   "_data": {
@@ -129,14 +246,14 @@
                     "cpuLimit": null
                   }
                 },
-                "preferredBatchSize": 10,
+                "preferredBatchSize": 100,
                 "operationSpec": {
                   "_version": 1,
                   "_data": {
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-set-acl-rest:v1",
+                      "dockerImage": "docker.onedata.org/lambda-echo:v3",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -146,22 +263,22 @@
                     }
                   }
                 },
-                "name": "set-acl-rest",
+                "name": "echo",
                 "description": "",
-                "configParameterSpecs": [],
-                "argumentSpecs": [
+                "configParameterSpecs": [
                   {
                     "_version": 1,
                     "_data": {
-                      "name": "targetFileId",
+                      "name": "sleepDurationSec",
                       "isOptional": false,
-                      "defaultValue": null,
+                      "defaultValue": 0,
                       "dataSpec": {
                         "_version": 2,
                         "_data": {
-                          "type": "string",
+                          "type": "number",
                           "_version": 1,
                           "_data": {
+                            "integersOnly": false,
                             "allowedValues": null
                           }
                         }
@@ -171,7 +288,60 @@
                   {
                     "_version": 1,
                     "_data": {
-                      "name": "acl",
+                      "name": "exceptionProbability",
+                      "isOptional": false,
+                      "defaultValue": 0,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "number",
+                          "_version": 1,
+                          "_data": {
+                            "integersOnly": false,
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "streamResults",
+                      "isOptional": false,
+                      "defaultValue": false,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "boolean",
+                          "_version": 1,
+                          "_data": {}
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "wrapResultInArray",
+                      "isOptional": false,
+                      "defaultValue": true,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "boolean",
+                          "_version": 1,
+                          "_data": {}
+                        }
+                      }
+                    }
+                  }
+                ],
+                "argumentSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "value",
                       "isOptional": false,
                       "defaultValue": null,
                       "dataSpec": {
@@ -190,10 +360,10 @@
               }
             }
           },
-          "originalAtmLambdaId": "8e0ca85a93d9f3feec34541f2bc2c0a8chf2ca"
+          "originalAtmLambdaId": "7be3d8a8b4b79e70dfde141cbe44d78dch0af4"
         }
       },
-      "88b706ef365307aba90c042faa3cb48cch093e": {
+      "3d729217cf3e4bad39969c2def4214eechcbfb": {
         "1": {
           "schemaFormatVersion": 3,
           "revision": {
@@ -209,7 +379,7 @@
                     "_version": 1,
                     "_data": {
                       "relayMethod": "returnValue",
-                      "name": "fileIds",
+                      "name": "directories",
                       "dataSpec": {
                         "_version": 2,
                         "_data": {
@@ -219,10 +389,11 @@
                             "itemDataSpec": {
                               "_version": 2,
                               "_data": {
-                                "type": "string",
+                                "type": "file",
                                 "_version": 1,
                                 "_data": {
-                                  "allowedValues": null
+                                  "fileType": "ANY",
+                                  "attributes": null
                                 }
                               }
                             }
@@ -312,30 +483,12 @@
                         }
                       }
                     }
-                  },
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "name": "dirName",
-                      "isOptional": false,
-                      "defaultValue": null,
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "string",
-                          "_version": 1,
-                          "_data": {
-                            "allowedValues": null
-                          }
-                        }
-                      }
-                    }
                   }
                 ]
               }
             }
           },
-          "originalAtmLambdaId": "88b706ef365307aba90c042faa3cb48cch093e"
+          "originalAtmLambdaId": "3d729217cf3e4bad39969c2def4214eechcbfb"
         }
       }
     },
@@ -455,8 +608,8 @@
             "_data": {
               "type": "list",
               "requiresInitialContent": false,
-              "name": "Root dir ID",
-              "id": "ed77ed70138bea448dd4cdb028a65f2c4f0d7e",
+              "name": "Project root dirs",
+              "id": "de2476ba7de6e4968e5d8aaf62298179df1af8",
               "description": "",
               "defaultInitialContent": null,
               "config": {
@@ -465,10 +618,11 @@
                   "itemDataSpec": {
                     "_version": 2,
                     "_data": {
-                      "type": "string",
+                      "type": "file",
                       "_version": 1,
                       "_data": {
-                        "allowedValues": null
+                        "fileType": "ANY",
+                        "attributes": null
                       }
                     }
                   }
@@ -481,8 +635,8 @@
             "_data": {
               "type": "list",
               "requiresInitialContent": false,
-              "name": "Created dir IDs",
-              "id": "5c3dfbf9638824bd27e19676c6f2a60774d3de",
+              "name": "Project names",
+              "id": "6ee77fc1003fb8f19641a3d97f3dd1445197a8",
               "description": "",
               "defaultInitialContent": null,
               "config": {
@@ -491,10 +645,46 @@
                   "itemDataSpec": {
                     "_version": 2,
                     "_data": {
-                      "type": "string",
+                      "type": "array",
                       "_version": 1,
                       "_data": {
-                        "allowedValues": null
+                        "itemDataSpec": {
+                          "_version": 2,
+                          "_data": {
+                            "type": "string",
+                            "_version": 1,
+                            "_data": {
+                              "allowedValues": null
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "type": "list",
+              "requiresInitialContent": false,
+              "name": "Project dirs",
+              "id": "ed41913435ea988c312fe45d3fb1c90e9c98f2",
+              "description": "",
+              "defaultInitialContent": null,
+              "config": {
+                "_version": 1,
+                "_data": {
+                  "itemDataSpec": {
+                    "_version": 2,
+                    "_data": {
+                      "type": "file",
+                      "_version": 1,
+                      "_data": {
+                        "fileType": "ANY",
+                        "attributes": null
                       }
                     }
                   }
@@ -511,7 +701,7 @@
               "storeIteratorSpec": {
                 "_version": 1,
                 "_data": {
-                  "storeSchemaId": "0fb9d0c480c2e5dbce39bc861b73ce6f53e4ca",
+                  "storeSchemaId": "cac81938bc14eb80041fe4ac51f13677abd874",
                   "maxBatchSize": 10
                 }
               },
@@ -528,7 +718,81 @@
                             {
                               "_version": 1,
                               "_data": {
-                                "storeSchemaId": "ed77ed70138bea448dd4cdb028a65f2c4f0d7e",
+                                "storeSchemaId": "6ee77fc1003fb8f19641a3d97f3dd1445197a8",
+                                "storeContentUpdateOptions": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "type": "listStoreContentUpdateOptions",
+                                    "_version": 1,
+                                    "_data": {
+                                      "function": "append"
+                                    }
+                                  }
+                                },
+                                "resultName": "value"
+                              }
+                            }
+                          ],
+                          "resourceSpecOverride": null,
+                          "name": "echo",
+                          "lambdaRevisionNumber": 2,
+                          "lambdaId": "7be3d8a8b4b79e70dfde141cbe44d78dch0af4",
+                          "lambdaConfig": {},
+                          "id": "d736a548095c743380023e0a458eb2a1f65721",
+                          "argumentMappings": [
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "iteratedItem",
+                                    "valueBuilderRecipe": null
+                                  }
+                                },
+                                "argumentName": "value"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "name": "Parallel box",
+                    "id": "86d4af2ce536518da2a97cf160732c22b7f290"
+                  }
+                }
+              ],
+              "name": "map project name to list",
+              "maxRetries": 0,
+              "instantFailureExceptionThreshold": 0.1,
+              "id": "485b0738cc88f26fb66b820612398263d74683",
+              "dashboardSpec": null
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "storeIteratorSpec": {
+                "_version": 1,
+                "_data": {
+                  "storeSchemaId": "6ee77fc1003fb8f19641a3d97f3dd1445197a8",
+                  "maxBatchSize": 10
+                }
+              },
+              "parallelBoxes": [
+                {
+                  "_version": 1,
+                  "_data": {
+                    "tasks": [
+                      {
+                        "_version": 1,
+                        "_data": {
+                          "timeSeriesStoreConfig": null,
+                          "resultMappings": [
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "storeSchemaId": "de2476ba7de6e4968e5d8aaf62298179df1af8",
                                 "storeContentUpdateOptions": {
                                   "_version": 1,
                                   "_data": {
@@ -539,16 +803,16 @@
                                     }
                                   }
                                 },
-                                "resultName": "fileIds"
+                                "resultName": "directories"
                               }
                             }
                           ],
                           "resourceSpecOverride": null,
                           "name": "create-dir-structure-rest",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "88b706ef365307aba90c042faa3cb48cch093e",
+                          "lambdaId": "3d729217cf3e4bad39969c2def4214eechcbfb",
                           "lambdaConfig": {},
-                          "id": "b604e5491a590316a505c2a20e0d9aa97dd239",
+                          "id": "819d9c416d36d51cb8ea8796619a6a1f8de290",
                           "argumentMappings": [
                             {
                               "_version": 1,
@@ -569,26 +833,11 @@
                                 "valueBuilder": {
                                   "_version": 1,
                                   "_data": {
-                                    "valueBuilderType": "const",
-                                    "valueBuilderRecipe": [
-                                      ""
-                                    ]
+                                    "valueBuilderType": "iteratedItem",
+                                    "valueBuilderRecipe": null
                                   }
                                 },
                                 "argumentName": "dirPaths"
-                              }
-                            },
-                            {
-                              "_version": 1,
-                              "_data": {
-                                "valueBuilder": {
-                                  "_version": 1,
-                                  "_data": {
-                                    "valueBuilderType": "singleValueStoreContent",
-                                    "valueBuilderRecipe": "cac81938bc14eb80041fe4ac51f13677abd874"
-                                  }
-                                },
-                                "argumentName": "dirName"
                               }
                             }
                           ]
@@ -596,7 +845,7 @@
                       }
                     ],
                     "name": "Parallel box",
-                    "id": "fb67ebc14fa916014db6647db056b7a1336b2f"
+                    "id": "18f86749168f345d4c03fa47ec5af35dff46b5"
                   }
                 }
               ],
@@ -613,7 +862,7 @@
               "storeIteratorSpec": {
                 "_version": 1,
                 "_data": {
-                  "storeSchemaId": "0fb9d0c480c2e5dbce39bc861b73ce6f53e4ca",
+                  "storeSchemaId": "de2476ba7de6e4968e5d8aaf62298179df1af8",
                   "maxBatchSize": 10
                 }
               },
@@ -630,7 +879,7 @@
                             {
                               "_version": 1,
                               "_data": {
-                                "storeSchemaId": "5c3dfbf9638824bd27e19676c6f2a60774d3de",
+                                "storeSchemaId": "ed41913435ea988c312fe45d3fb1c90e9c98f2",
                                 "storeContentUpdateOptions": {
                                   "_version": 1,
                                   "_data": {
@@ -641,16 +890,16 @@
                                     }
                                   }
                                 },
-                                "resultName": "fileIds"
+                                "resultName": "directories"
                               }
                             }
                           ],
                           "resourceSpecOverride": null,
                           "name": "create-dir-structure-rest",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "88b706ef365307aba90c042faa3cb48cch093e",
+                          "lambdaId": "3d729217cf3e4bad39969c2def4214eechcbfb",
                           "lambdaConfig": {},
-                          "id": "b95950a7dfe7a77ffe8d9abc6bff7c95cdc550",
+                          "id": "7bf5a79d2e747403da71c88d5569b897b404c5",
                           "argumentMappings": [
                             {
                               "_version": 1,
@@ -658,8 +907,8 @@
                                 "valueBuilder": {
                                   "_version": 1,
                                   "_data": {
-                                    "valueBuilderType": "singleValueStoreContent",
-                                    "valueBuilderRecipe": "0fb9d0c480c2e5dbce39bc861b73ce6f53e4ca"
+                                    "valueBuilderType": "iteratedItem",
+                                    "valueBuilderRecipe": null
                                   }
                                 },
                                 "argumentName": "targetDir"
@@ -673,26 +922,13 @@
                                   "_data": {
                                     "valueBuilderType": "const",
                                     "valueBuilderRecipe": [
-                                      "results",
                                       "inputs",
-                                      "outputs"
+                                      "outputs",
+                                      "results"
                                     ]
                                   }
                                 },
                                 "argumentName": "dirPaths"
-                              }
-                            },
-                            {
-                              "_version": 1,
-                              "_data": {
-                                "valueBuilder": {
-                                  "_version": 1,
-                                  "_data": {
-                                    "valueBuilderType": "singleValueStoreContent",
-                                    "valueBuilderRecipe": "cac81938bc14eb80041fe4ac51f13677abd874"
-                                  }
-                                },
-                                "argumentName": "dirName"
                               }
                             }
                           ]
@@ -700,7 +936,7 @@
                       }
                     ],
                     "name": "Parallel box",
-                    "id": "d643070c2c2aa9926747bae624d82b6de8a2eb"
+                    "id": "66181ab4ec89a39f31a11ccacf088df26226f0"
                   }
                 }
               ],
@@ -750,7 +986,7 @@
                           "resourceSpecOverride": null,
                           "name": "substitute-placeholders",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "fd77df67ce703051478bc9d308c88e47ch17d1",
+                          "lambdaId": "a917a123180f960da68b8ddbeb1def2cch1bb8",
                           "lambdaConfig": {},
                           "id": "ccb78ae4e34a468a942ec7292565d042336b76",
                           "argumentMappings": [
@@ -802,7 +1038,7 @@
               "storeIteratorSpec": {
                 "_version": 1,
                 "_data": {
-                  "storeSchemaId": "ed77ed70138bea448dd4cdb028a65f2c4f0d7e",
+                  "storeSchemaId": "de2476ba7de6e4968e5d8aaf62298179df1af8",
                   "maxBatchSize": 10
                 }
               },
@@ -819,9 +1055,9 @@
                           "resourceSpecOverride": null,
                           "name": "set-acl-rest",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "8e0ca85a93d9f3feec34541f2bc2c0a8chf2ca",
+                          "lambdaId": "f2067248180f04829b7c110b9ff283a6che5ef",
                           "lambdaConfig": {},
-                          "id": "69bb009fb16ccfca32775be605e04ed032d2d2",
+                          "id": "f359182536bbe1575ee7b9160dd31e808a479d",
                           "argumentMappings": [
                             {
                               "_version": 1,
@@ -833,7 +1069,7 @@
                                     "valueBuilderRecipe": null
                                   }
                                 },
-                                "argumentName": "targetFileId"
+                                "argumentName": "targetFile"
                               }
                             },
                             {
@@ -854,7 +1090,7 @@
                       }
                     ],
                     "name": "Parallel box",
-                    "id": "1e0850c4971b394cebcbcf92211ea3662e1be5"
+                    "id": "9bdf627a81e87e802259e1ff7a279f8f81e7fc"
                   }
                 }
               ],
@@ -871,6 +1107,6 @@
       }
     }
   },
-  "originalAtmWorkflowSchemaId": "c63cefb0266844b2be2bfe8c322e50d7chede5",
+  "originalAtmWorkflowSchemaId": "213c53c614055c6be34b62fa73ffed0bch1fb0",
   "name": "Initialize Eureka3D project"
 }

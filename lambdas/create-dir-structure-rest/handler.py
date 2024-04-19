@@ -43,11 +43,10 @@ REST_REQUEST_TIMEOUT: Final[int] = 60
 class JobArgs(TypedDict):
     targetDir: AtmFile
     dirPaths: List[str]
-    dirName: str
 
 
 class JobResults(TypedDict):
-    fileIds: List[str]
+    directories: List[AtmFile]
 
 
 ##===================================================================
@@ -86,7 +85,7 @@ def run_job(job: Job) -> Union[JobResults, AtmException]:
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
-        return {"fileIds": dir_ids}
+        return {"directories": [{"fileId": file_id} for file_id in dir_ids]}
 
 
 def create_dir(job: Job, path: str) -> str:
@@ -115,8 +114,7 @@ def create_dir(job: Job, path: str) -> str:
 def build_create_dir_rest_url(job: Job, path: str) -> str:
     domain = job.ctx["oneproviderDomain"]
     parent_id = job.args["targetDir"]["fileId"]
-    all_path = job.args["dirName"] + "/" + path
-    return f"https://{domain}/api/v3/oneprovider/data/{parent_id}/path/{all_path}"
+    return f"https://{domain}/api/v3/oneprovider/data/{parent_id}/path/{path}"
 
 
 def get_file_id(job: Job, path: str) -> str:
@@ -136,5 +134,5 @@ def get_file_id(job: Job, path: str) -> str:
 def build_get_file_id_rest_url(job: Job, path: str) -> str:
     domain = job.ctx["oneproviderDomain"]
     parent_path = job.args["targetDir"]["path"]
-    absolute_path = parent_path + "/" + job.args["dirName"] + "/" + path
+    absolute_path = parent_path + "/" + path
     return f"https://{domain}/api/v3/oneprovider/lookup-file-id/{absolute_path}"
