@@ -11,7 +11,7 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import json
 import random
 import time
-from typing import List, Union, Optional
+from typing import List, Optional, Union
 
 from typing_extensions import TypeAlias, TypedDict
 
@@ -71,8 +71,9 @@ def handle(
 
         else:
             if task_config["wrapResultInArray"]:
-                results.append(dict(zip(job_args.keys(),
-                                        map(lambda x: [x], job_args.values()))))
+                results.append(
+                    dict(zip(job_args.keys(), map(lambda x: [x], job_args.values())))
+                )
             else:
                 results.append(job_args)
     return {"resultsBatch": results}
