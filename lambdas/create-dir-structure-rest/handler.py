@@ -78,14 +78,16 @@ def handle(
 
 def run_job(job: Job) -> Union[JobResults, AtmException]:
     try:
-        dir_ids = [create_dir(job, dir_path) for dir_path in job.args["dirPaths"]]
+        dir_ids = [
+            {"fileId": create_dir(job, dir_path)} for dir_path in job.args["dirPaths"]
+        ]
 
     except (JobException, requests.RequestException) as ex:
         return AtmException(exception=str(ex))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
-        return {"directories": [{"fileId": file_id} for file_id in dir_ids]}
+        return {"directories": dir_ids}
 
 
 def create_dir(job: Job, path: str) -> str:

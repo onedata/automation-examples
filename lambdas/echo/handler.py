@@ -58,22 +58,22 @@ def handle(
 
     results: List[Union[AtmException, AtmObject, None]] = []
     for job_args in job_batch_request["argsBatch"]:
+
+        if "wrapResultInArray" in task_config and task_config["wrapResultInArray"]:
+            job_args = dict(zip(job_args.keys(), map(lambda x: [x], job_args.values())))
+
         if random.random() <= task_config["exceptionProbability"]:
             results.append(AtmException(exception="Random exception"))
 
         elif task_config["streamResults"]:
             results.append(None)
 
-            for arg_name, arg_value in job_args.values():
+            for arg_name, arg_value in job_args.items():
                 with open(f"/out/{arg_name}", "a+") as f:
                     json.dump(arg_value, f)
                     f.write("\n")
 
         else:
-            if task_config["wrapResultInArray"]:
-                results.append(
-                    dict(zip(job_args.keys(), map(lambda x: [x], job_args.values())))
-                )
-            else:
-                results.append(job_args)
+            results.append(job_args)
+
     return {"resultsBatch": results}
