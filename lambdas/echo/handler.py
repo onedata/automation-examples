@@ -60,7 +60,7 @@ def handle(
     for job_args in job_batch_request["argsBatch"]:
 
         if "wrapResultInArray" in task_config and task_config["wrapResultInArray"]:
-            job_args = dict(zip(job_args.keys(), map(lambda x: [x], job_args.values())))
+            job_args = {arg_name: [arg_value] for arg_name, arg_value in job_args.items()}
 
         if random.random() <= task_config["exceptionProbability"]:
             results.append(AtmException(exception="Random exception"))
