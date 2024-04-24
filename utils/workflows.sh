@@ -45,6 +45,32 @@ assert_all_used_docker_images_are_published() {
     echo "All used docker images are published."
 }
 
+assert_all_lambda_images_are_used_in_workflows() {
+    local all_images_used_in_workflows=("$@")
+    local all_lambda_images=()
+    local all_lambda_images_are_used=true
+
+    LAMBDA_DUMPS=$(find lambdas -type f -name '*.json')
+    for lambda_dump in $LAMBDA_DUMPS; do
+        docker_images=$(extract_docker_images_from_dump "$lambda_dump")
+        all_lambda_images+=($docker_images)
+    done
+
+    for image in "${all_lambda_images[@]}"; do
+        if [[ ! $(echo "${all_images_used_in_workflows[@]}" | fgrep -w $image) ]]
+        then
+          print_error "image $image is not used"
+          all_lambda_images_are_used=false
+        fi
+    done
+    if [[  $all_lambda_images_are_used == true  ]]; then
+      echo "all lambda images are used"
+      return 0
+    fi
+    return 1
+}
+
+
 WORKFLOW_DUMPS=$(find workflows -type f -name '*.json')
 
 ALL_USED_DOCKER_IMAGES=()
@@ -66,6 +92,9 @@ if [ "$#" -gt 0 ]; then
             ;;
         assert_all_used_docker_images_are_published)
             assert_all_used_docker_images_are_published "${ALL_USED_DOCKER_IMAGES[@]}"
+            ;;
+        assert_all_lambda_images_are_used_in_workflows)
+            assert_all_lambda_images_are_used_in_workflows "${ALL_USED_DOCKER_IMAGES[@]}"
             ;;
         *)
             echo "Unknown function: $1"

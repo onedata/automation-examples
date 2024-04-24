@@ -45,3 +45,6 @@ workflows-assert-only-public-docker-images-are-used:
 
 workflows-assert-all-used-docker-images-are-published:
 	@./utils/workflows.sh assert_all_used_docker_images_are_published
+
+workflows-assert_all_lambda_images_are_used_in_workflows:
+	@./utils/workflows.sh assert_all_lambda_images_are_used_in_workflows
