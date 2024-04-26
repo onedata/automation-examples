@@ -11,7 +11,7 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 import os
 import traceback
-from typing import Final, List, Union
+from typing import Final, List, Union, cast
 
 import requests
 from typing_extensions import NamedTuple, TypedDict
@@ -87,7 +87,7 @@ def run_job(job: Job) -> Union[JobResults, AtmException]:
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
-        return {"directories": dir_objects}
+        return {"directories": cast(List[AtmFile], dir_objects)}
 
 
 def create_dir(job: Job, path: str) -> str:
