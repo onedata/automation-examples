@@ -77,7 +77,7 @@
             }
           }
         },
-        "name": "bagit-uploader-unpack-fetch",
+        "name": "bagit-uploader-parse-fetch-file-mounted",
         "description": "",
         "configParameterSpecs": [],
         "argumentSpecs": [

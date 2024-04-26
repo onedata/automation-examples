@@ -13,33 +13,7 @@
             "_version": 1,
             "_data": {
               "relayMethod": "returnValue",
-              "name": "unpackedFiles",
-              "dataSpec": {
-                "_version": 2,
-                "_data": {
-                  "type": "array",
-                  "_version": 1,
-                  "_data": {
-                    "itemDataSpec": {
-                      "_version": 2,
-                      "_data": {
-                        "type": "string",
-                        "_version": 1,
-                        "_data": {
-                          "allowedValues": null
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          {
-            "_version": 1,
-            "_data": {
-              "relayMethod": "returnValue",
-              "name": "statusLog",
+              "name": "result",
               "dataSpec": {
                 "_version": 2,
                 "_data": {
@@ -66,16 +40,8 @@
                         "_version": 1,
                         "_data": {
                           "unit": "bytes",
-                          "nameMatcherType": "exact",
-                          "nameMatcher": "bytesUnpacked"
-                        }
-                      },
-                      {
-                        "_version": 1,
-                        "_data": {
-                          "unit": "none",
-                          "nameMatcherType": "exact",
-                          "nameMatcher": "filesUnpacked"
+                          "nameMatcherType": "hasPrefix",
+                          "nameMatcher": "bytesProcessed_"
                         }
                       }
                     ]
@@ -103,7 +69,7 @@
             "engine": "openfaas",
             "_version": 1,
             "_data": {
-              "dockerImage": "onedata/lambda-bagit-uploader-unpack-data-mounted:v2",
+              "dockerImage": "onedata/lambda-bagit-uploader-calculate-checksum-mounted:v2",
               "dockerExecutionOptions": {
                 "readonly": false,
                 "oneclientOptions": "-i",
@@ -113,48 +79,23 @@
             }
           }
         },
-        "name": "bagit-uploader-unpack-data",
+        "name": "bagit-uploader-calculate-checksum-mounted",
         "description": "",
         "configParameterSpecs": [],
         "argumentSpecs": [
           {
             "_version": 1,
             "_data": {
-              "name": "archive",
+              "name": "filePath",
               "isOptional": false,
               "defaultValue": null,
               "dataSpec": {
                 "_version": 2,
                 "_data": {
-                  "type": "file",
+                  "type": "string",
                   "_version": 1,
                   "_data": {
-                    "fileType": "ANY",
-                    "attributes": [
-                      "fileId",
-                      "name"
-                    ]
-                  }
-                }
-              }
-            }
-          },
-          {
-            "_version": 1,
-            "_data": {
-              "name": "destinationDir",
-              "isOptional": false,
-              "defaultValue": null,
-              "dataSpec": {
-                "_version": 2,
-                "_data": {
-                  "type": "file",
-                  "_version": 1,
-                  "_data": {
-                    "fileType": "DIR",
-                    "attributes": [
-                      "fileId"
-                    ]
+                    "allowedValues": null
                   }
                 }
               }
@@ -164,5 +105,5 @@
       }
     }
   },
-  "originalAtmLambdaId": "bdfee063c3be646a2dc0d01500f2b431cha66e"
+  "originalAtmLambdaId": "2dd30be5511e9ebe75ab153ff5ae9463ch834d"
 }

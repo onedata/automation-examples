@@ -13,15 +13,39 @@
             "_version": 1,
             "_data": {
               "relayMethod": "returnValue",
-              "name": "archiveId",
+              "name": "unpackedFiles",
               "dataSpec": {
                 "_version": 2,
                 "_data": {
-                  "type": "string",
+                  "type": "array",
                   "_version": 1,
                   "_data": {
-                    "allowedValues": null
+                    "itemDataSpec": {
+                      "_version": 2,
+                      "_data": {
+                        "type": "string",
+                        "_version": 1,
+                        "_data": {
+                          "allowedValues": null
+                        }
+                      }
+                    }
                   }
+                }
+              }
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "relayMethod": "returnValue",
+              "name": "statusLog",
+              "dataSpec": {
+                "_version": 2,
+                "_data": {
+                  "type": "object",
+                  "_version": 1,
+                  "_data": {}
                 }
               }
             }
@@ -41,17 +65,17 @@
                       {
                         "_version": 1,
                         "_data": {
-                          "unit": "none",
+                          "unit": "bytes",
                           "nameMatcherType": "exact",
-                          "nameMatcher": "filesArchived"
+                          "nameMatcher": "bytesUnpacked"
                         }
                       },
                       {
                         "_version": 1,
                         "_data": {
-                          "unit": "bytes",
+                          "unit": "none",
                           "nameMatcherType": "exact",
-                          "nameMatcher": "bytesArchived"
+                          "nameMatcher": "filesUnpacked"
                         }
                       }
                     ]
@@ -72,27 +96,49 @@
             "cpuLimit": null
           }
         },
-        "preferredBatchSize": 1,
+        "preferredBatchSize": 2,
         "operationSpec": {
           "_version": 1,
           "_data": {
             "engine": "openfaas",
             "_version": 1,
             "_data": {
-              "dockerImage": "onedata/lambda-bagit-uploader-archive-destination-rest:v3",
+              "dockerImage": "onedata/lambda-bagit-uploader-unpack-data-mounted:v2",
               "dockerExecutionOptions": {
                 "readonly": false,
-                "oneclientOptions": "",
+                "oneclientOptions": "-i",
                 "oneclientMountPoint": "/mnt/onedata",
-                "mountOneclient": false
+                "mountOneclient": true
               }
             }
           }
         },
-        "name": "bagit-uploader-archive-destination",
+        "name": "bagit-uploader-unpack-data-mounted",
         "description": "",
         "configParameterSpecs": [],
         "argumentSpecs": [
+          {
+            "_version": 1,
+            "_data": {
+              "name": "archive",
+              "isOptional": false,
+              "defaultValue": null,
+              "dataSpec": {
+                "_version": 2,
+                "_data": {
+                  "type": "file",
+                  "_version": 1,
+                  "_data": {
+                    "fileType": "ANY",
+                    "attributes": [
+                      "fileId",
+                      "name"
+                    ]
+                  }
+                }
+              }
+            }
+          },
           {
             "_version": 1,
             "_data": {
@@ -118,5 +164,5 @@
       }
     }
   },
-  "originalAtmLambdaId": "7ee6f7f2f6a89eb0a4f0144fbe2dfe7fch411e"
+  "originalAtmLambdaId": "bdfee063c3be646a2dc0d01500f2b431cha66e"
 }

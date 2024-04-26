@@ -9,6 +9,13 @@ extract_docker_images_from_dump() {
     jq -r '.. | objects | select(has("dockerImage")) | .dockerImage' "$file" | sort | uniq
 }
 
+extract_docker_image_from_makefile() {
+    local file="$1"
+    version=$(grep -m 1 TAG "$file" | sed 's/^.*= //g')
+    image=$(grep -m 1 REPO_NAME "$file" | sed 's/^.*= //g')
+    echo "$image":"$version"
+}
+
 ensure_all_used_docker_images_are_public() {
     local workflow_dump="$1"
     local dev_prefix="${2:-docker.onedata.org}"
@@ -45,25 +52,44 @@ assert_all_used_docker_images_are_published() {
     echo "All used docker images are published."
 }
 
+assert_lambda_image_is_used_in_lambda_dump() {
+    local file="$1"
+    local lambda_image="$2"
+    print_error "fdsfds"
+    image_in_dump=$(extract_docker_images_from_dump "$file")
+    if [[ "$image_in_dump" == onedata/"$lambda_image" ]]; then
+      echo 0
+    else
+      print_error "image in lambda dump $image_in_dump differs from image in Makefile onedata/$lambda_image" >&2
+      echo 1
+    fi
+}
+
 assert_all_lambda_images_are_used_in_workflows() {
     local all_images_used_in_workflows=("$@")
     local all_lambda_images=()
-    local all_lambda_images_are_used=true
+    local all_lambda_images_are_used_in_workflows=true
+    local all_lambda_images_are_used_in_dumps=true
 
-    LAMBDA_DUMPS=$(find lambdas -type f -name '*.json')
-    for lambda_dump in $LAMBDA_DUMPS; do
-        docker_images=$(extract_docker_images_from_dump "$lambda_dump")
-        all_lambda_images+=($docker_images)
+    LAMBDA_NAMES=$(find lambdas -maxdepth 1 -type d | cut -d '/' -f 2 -s)
+
+    for lambda_name in $LAMBDA_NAMES; do
+        docker_image=$(extract_docker_image_from_makefile lambdas/"$lambda_name"/docker/Makefile)
+        is_used_in_lambda_dump=$(assert_lambda_image_is_used_in_lambda_dump lambdas/"$lambda_name"/"$lambda_name".json "$docker_image")
+        if [[ "$is_used_in_lambda_dump" == 1 ]]; then
+          all_lambda_images_are_used_in_dumps=false
+        fi
+        all_lambda_images+=($docker_image)
     done
 
     for image in "${all_lambda_images[@]}"; do
         if [[ ! $(echo "${all_images_used_in_workflows[@]}" | fgrep -w $image) ]]
         then
-          print_error "image $image is not used"
-          all_lambda_images_are_used=false
+          print_error "image $image is not used in any workflow"
+          all_lambda_images_are_used_in_workflows=false
         fi
     done
-    if [[  $all_lambda_images_are_used == true  ]]; then
+    if [[ $all_lambda_images_are_used_in_workflows == true && $all_lambda_images_are_used_in_dumps == true ]]; then
       echo "all lambda images are used"
       return 0
     fi
