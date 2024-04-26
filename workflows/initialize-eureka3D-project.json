@@ -922,10 +922,10 @@
                                   "_data": {
                                     "valueBuilderType": "const",
                                     "valueBuilderRecipe": [
-                                      "Detailed",
-                                      "Paradata",
-                                      "Preliminary",
-                                      "Reconnaissance"
+                                      "0-Reconnaissance",
+                                      "1-Preliminary",
+                                      "2-Detailed",
+                                      "Paradata"
                                     ]
                                   }
                                 },
@@ -1108,6 +1108,6 @@
       }
     }
   },
-  "originalAtmWorkflowSchemaId": "3f98fa621d8ca1a1909a2274144ea66fchb5e4",
+  "originalAtmWorkflowSchemaId": "e968d18554f9d491451d87fc61d788f2ch3db8",
   "name": "Initialize Eureka3D project"
 }
