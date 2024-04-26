@@ -55,7 +55,6 @@ assert_all_used_docker_images_are_published() {
 assert_lambda_image_is_used_in_lambda_dump() {
     local file="$1"
     local lambda_image="$2"
-    print_error "fdsfds"
     image_in_dump=$(extract_docker_images_from_dump "$file")
     if [[ "$image_in_dump" == onedata/"$lambda_image" ]]; then
       echo 0
