@@ -3,7 +3,7 @@
   "schemaFormatVersion": 3,
   "revision": {
     "supplementaryAtmLambdas": {
-      "f2067248180f04829b7c110b9ff283a6che5ef": {
+      "bb8e409e3ea1891d03411fface788294ch3f79": {
         "1": {
           "schemaFormatVersion": 3,
           "revision": {
@@ -90,10 +90,10 @@
               }
             }
           },
-          "originalAtmLambdaId": "f2067248180f04829b7c110b9ff283a6che5ef"
+          "originalAtmLambdaId": "bb8e409e3ea1891d03411fface788294ch3f79"
         }
       },
-      "a917a123180f960da68b8ddbeb1def2cch1bb8": {
+      "86429debbc30a995c6c37c246c893f77chc12d": {
         "1": {
           "schemaFormatVersion": 3,
           "revision": {
@@ -193,10 +193,10 @@
               }
             }
           },
-          "originalAtmLambdaId": "a917a123180f960da68b8ddbeb1def2cch1bb8"
+          "originalAtmLambdaId": "86429debbc30a995c6c37c246c893f77chc12d"
         }
       },
-      "7be3d8a8b4b79e70dfde141cbe44d78dch0af4": {
+      "5a481422b6eb9e3b39adcd09cd9615ecch44b1": {
         "2": {
           "schemaFormatVersion": 3,
           "revision": {
@@ -360,10 +360,10 @@
               }
             }
           },
-          "originalAtmLambdaId": "7be3d8a8b4b79e70dfde141cbe44d78dch0af4"
+          "originalAtmLambdaId": "5a481422b6eb9e3b39adcd09cd9615ecch44b1"
         }
       },
-      "3d729217cf3e4bad39969c2def4214eechcbfb": {
+      "0b05070cf380f0fdd8dc958f53bece90ch65eb": {
         "1": {
           "schemaFormatVersion": 3,
           "revision": {
@@ -488,7 +488,7 @@
               }
             }
           },
-          "originalAtmLambdaId": "3d729217cf3e4bad39969c2def4214eechcbfb"
+          "originalAtmLambdaId": "0b05070cf380f0fdd8dc958f53bece90ch65eb"
         }
       }
     },
@@ -736,7 +736,7 @@
                           "resourceSpecOverride": null,
                           "name": "echo",
                           "lambdaRevisionNumber": 2,
-                          "lambdaId": "7be3d8a8b4b79e70dfde141cbe44d78dch0af4",
+                          "lambdaId": "5a481422b6eb9e3b39adcd09cd9615ecch44b1",
                           "lambdaConfig": {},
                           "id": "d736a548095c743380023e0a458eb2a1f65721",
                           "argumentMappings": [
@@ -810,7 +810,7 @@
                           "resourceSpecOverride": null,
                           "name": "create-dir-structure-rest",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "3d729217cf3e4bad39969c2def4214eechcbfb",
+                          "lambdaId": "0b05070cf380f0fdd8dc958f53bece90ch65eb",
                           "lambdaConfig": {},
                           "id": "819d9c416d36d51cb8ea8796619a6a1f8de290",
                           "argumentMappings": [
@@ -897,7 +897,7 @@
                           "resourceSpecOverride": null,
                           "name": "create-dir-structure-rest",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "3d729217cf3e4bad39969c2def4214eechcbfb",
+                          "lambdaId": "0b05070cf380f0fdd8dc958f53bece90ch65eb",
                           "lambdaConfig": {},
                           "id": "7bf5a79d2e747403da71c88d5569b897b404c5",
                           "argumentMappings": [
@@ -922,9 +922,10 @@
                                   "_data": {
                                     "valueBuilderType": "const",
                                     "valueBuilderRecipe": [
-                                      "inputs",
-                                      "outputs",
-                                      "results"
+                                      "Detailed",
+                                      "Paradata",
+                                      "Preliminary",
+                                      "Reconnaissance"
                                     ]
                                   }
                                 },
@@ -986,7 +987,7 @@
                           "resourceSpecOverride": null,
                           "name": "substitute-placeholders",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "a917a123180f960da68b8ddbeb1def2cch1bb8",
+                          "lambdaId": "86429debbc30a995c6c37c246c893f77chc12d",
                           "lambdaConfig": {},
                           "id": "ccb78ae4e34a468a942ec7292565d042336b76",
                           "argumentMappings": [
@@ -1055,7 +1056,7 @@
                           "resourceSpecOverride": null,
                           "name": "set-acl-rest",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "f2067248180f04829b7c110b9ff283a6che5ef",
+                          "lambdaId": "bb8e409e3ea1891d03411fface788294ch3f79",
                           "lambdaConfig": {},
                           "id": "f359182536bbe1575ee7b9160dd31e808a479d",
                           "argumentMappings": [
@@ -1107,6 +1108,6 @@
       }
     }
   },
-  "originalAtmWorkflowSchemaId": "213c53c614055c6be34b62fa73ffed0bch1fb0",
+  "originalAtmWorkflowSchemaId": "3f98fa621d8ca1a1909a2274144ea66fchb5e4",
   "name": "Initialize Eureka3D project"
 }

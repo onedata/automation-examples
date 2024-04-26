@@ -78,7 +78,7 @@ def handle(
 
 def run_job(job: Job) -> Union[JobResults, AtmException]:
     try:
-        dir_ids = [
+        dir_objects = [
             {"fileId": create_dir(job, dir_path)} for dir_path in job.args["dirPaths"]
         ]
 
@@ -87,7 +87,7 @@ def run_job(job: Job) -> Union[JobResults, AtmException]:
     except Exception:
         return AtmException(exception=traceback.format_exc())
     else:
-        return {"directories": dir_ids}
+        return {"directories": dir_objects}
 
 
 def create_dir(job: Job, path: str) -> str:
