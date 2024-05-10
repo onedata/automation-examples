@@ -3,200 +3,7 @@
   "schemaFormatVersion": 3,
   "revision": {
     "supplementaryAtmLambdas": {
-      "bb8e409e3ea1891d03411fface788294ch3f79": {
-        "1": {
-          "schemaFormatVersion": 3,
-          "revision": {
-            "schemaFormatVersion": 3,
-            "originalRevisionNumber": 1,
-            "atmLambdaRevision": {
-              "_version": 1,
-              "_data": {
-                "summary": "",
-                "state": "draft",
-                "resultSpecs": [],
-                "resourceSpec": {
-                  "_version": 1,
-                  "_data": {
-                    "memoryRequested": 104857600,
-                    "memoryLimit": null,
-                    "ephemeralStorageRequested": 104857600,
-                    "ephemeralStorageLimit": null,
-                    "cpuRequested": 0.1,
-                    "cpuLimit": null
-                  }
-                },
-                "preferredBatchSize": 10,
-                "operationSpec": {
-                  "_version": 1,
-                  "_data": {
-                    "engine": "openfaas",
-                    "_version": 1,
-                    "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-set-acl-rest:v1",
-                      "dockerExecutionOptions": {
-                        "readonly": false,
-                        "oneclientOptions": "",
-                        "oneclientMountPoint": "/mnt/onedata",
-                        "mountOneclient": false
-                      }
-                    }
-                  }
-                },
-                "name": "set-acl-rest",
-                "description": "",
-                "configParameterSpecs": [],
-                "argumentSpecs": [
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "name": "targetFile",
-                      "isOptional": false,
-                      "defaultValue": null,
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "file",
-                          "_version": 1,
-                          "_data": {
-                            "fileType": "ANY",
-                            "attributes": [
-                              "fileId"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "name": "acl",
-                      "isOptional": false,
-                      "defaultValue": null,
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "string",
-                          "_version": 1,
-                          "_data": {
-                            "allowedValues": null
-                          }
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          "originalAtmLambdaId": "bb8e409e3ea1891d03411fface788294ch3f79"
-        }
-      },
-      "86429debbc30a995c6c37c246c893f77chc12d": {
-        "1": {
-          "schemaFormatVersion": 3,
-          "revision": {
-            "schemaFormatVersion": 3,
-            "originalRevisionNumber": 1,
-            "atmLambdaRevision": {
-              "_version": 1,
-              "_data": {
-                "summary": "",
-                "state": "draft",
-                "resultSpecs": [
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "relayMethod": "returnValue",
-                      "name": "output",
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "string",
-                          "_version": 1,
-                          "_data": {
-                            "allowedValues": null
-                          }
-                        }
-                      }
-                    }
-                  }
-                ],
-                "resourceSpec": {
-                  "_version": 1,
-                  "_data": {
-                    "memoryRequested": 104857600,
-                    "memoryLimit": null,
-                    "ephemeralStorageRequested": 104857600,
-                    "ephemeralStorageLimit": null,
-                    "cpuRequested": 0.1,
-                    "cpuLimit": null
-                  }
-                },
-                "preferredBatchSize": 10,
-                "operationSpec": {
-                  "_version": 1,
-                  "_data": {
-                    "engine": "openfaas",
-                    "_version": 1,
-                    "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-substitute-placeholders:v1",
-                      "dockerExecutionOptions": {
-                        "readonly": false,
-                        "oneclientOptions": "",
-                        "oneclientMountPoint": "/mnt/onedata",
-                        "mountOneclient": false
-                      }
-                    }
-                  }
-                },
-                "name": "substitute-placeholders",
-                "description": "",
-                "configParameterSpecs": [],
-                "argumentSpecs": [
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "name": "template",
-                      "isOptional": false,
-                      "defaultValue": null,
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "string",
-                          "_version": 1,
-                          "_data": {
-                            "allowedValues": null
-                          }
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "name": "mappings",
-                      "isOptional": false,
-                      "defaultValue": null,
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "object",
-                          "_version": 1,
-                          "_data": {}
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          "originalAtmLambdaId": "86429debbc30a995c6c37c246c893f77chc12d"
-        }
-      },
-      "5a481422b6eb9e3b39adcd09cd9615ecch44b1": {
+      "788d1e3da4530db870c62418186f9b52ch8763": {
         "2": {
           "schemaFormatVersion": 3,
           "revision": {
@@ -360,10 +167,113 @@
               }
             }
           },
-          "originalAtmLambdaId": "5a481422b6eb9e3b39adcd09cd9615ecch44b1"
+          "originalAtmLambdaId": "788d1e3da4530db870c62418186f9b52ch8763"
         }
       },
-      "0b05070cf380f0fdd8dc958f53bece90ch65eb": {
+      "6e216f11ddd7095bd1f34e7d21da69f1ch2ce0": {
+        "1": {
+          "schemaFormatVersion": 3,
+          "revision": {
+            "schemaFormatVersion": 3,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "_version": 1,
+              "_data": {
+                "summary": "",
+                "state": "draft",
+                "resultSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "relayMethod": "returnValue",
+                      "name": "output",
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                ],
+                "resourceSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "memoryRequested": 104857600,
+                    "memoryLimit": null,
+                    "ephemeralStorageRequested": 104857600,
+                    "ephemeralStorageLimit": null,
+                    "cpuRequested": 0.1,
+                    "cpuLimit": null
+                  }
+                },
+                "preferredBatchSize": 10,
+                "operationSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "engine": "openfaas",
+                    "_version": 1,
+                    "_data": {
+                      "dockerImage": "docker.onedata.org/lambda-substitute-placeholders:v1",
+                      "dockerExecutionOptions": {
+                        "readonly": false,
+                        "oneclientOptions": "",
+                        "oneclientMountPoint": "/mnt/onedata",
+                        "mountOneclient": false
+                      }
+                    }
+                  }
+                },
+                "name": "substitute-placeholders",
+                "description": "",
+                "configParameterSpecs": [],
+                "argumentSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "template",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "mappings",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "object",
+                          "_version": 1,
+                          "_data": {}
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "originalAtmLambdaId": "6e216f11ddd7095bd1f34e7d21da69f1ch2ce0"
+        }
+      },
+      "3d3f69e028d88f18b2e58104190e8083ch0142": {
         "1": {
           "schemaFormatVersion": 3,
           "revision": {
@@ -488,7 +398,97 @@
               }
             }
           },
-          "originalAtmLambdaId": "0b05070cf380f0fdd8dc958f53bece90ch65eb"
+          "originalAtmLambdaId": "3d3f69e028d88f18b2e58104190e8083ch0142"
+        }
+      },
+      "2b9c61edd8624d7f9848af761fc65143chbc34": {
+        "1": {
+          "schemaFormatVersion": 3,
+          "revision": {
+            "schemaFormatVersion": 3,
+            "originalRevisionNumber": 1,
+            "atmLambdaRevision": {
+              "_version": 1,
+              "_data": {
+                "summary": "",
+                "state": "draft",
+                "resultSpecs": [],
+                "resourceSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "memoryRequested": 104857600,
+                    "memoryLimit": null,
+                    "ephemeralStorageRequested": 104857600,
+                    "ephemeralStorageLimit": null,
+                    "cpuRequested": 0.1,
+                    "cpuLimit": null
+                  }
+                },
+                "preferredBatchSize": 10,
+                "operationSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "engine": "openfaas",
+                    "_version": 1,
+                    "_data": {
+                      "dockerImage": "docker.onedata.org/lambda-set-acl-rest:v1",
+                      "dockerExecutionOptions": {
+                        "readonly": false,
+                        "oneclientOptions": "",
+                        "oneclientMountPoint": "/mnt/onedata",
+                        "mountOneclient": false
+                      }
+                    }
+                  }
+                },
+                "name": "set-acl-rest",
+                "description": "",
+                "configParameterSpecs": [],
+                "argumentSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "targetFile",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "file",
+                          "_version": 1,
+                          "_data": {
+                            "fileType": "ANY",
+                            "attributes": [
+                              "fileId"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "acl",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "originalAtmLambdaId": "2b9c61edd8624d7f9848af761fc65143chbc34"
         }
       }
     },
@@ -559,18 +559,18 @@
               "name": "Managing group ID",
               "id": "bb5c588454d4d79792964d18f019d478e596b3",
               "description": "The ID of the group that manages the project, which will be granted permissions to access and modify the directory",
-              "defaultInitialContent": {
-                "groupId": ""
-              },
+              "defaultInitialContent": null,
               "config": {
                 "_version": 1,
                 "_data": {
                   "itemDataSpec": {
                     "_version": 2,
                     "_data": {
-                      "type": "object",
+                      "type": "group",
                       "_version": 1,
-                      "_data": {}
+                      "_data": {
+                        "attributes": null
+                      }
                     }
                   }
                 }
@@ -736,7 +736,7 @@
                           "resourceSpecOverride": null,
                           "name": "echo",
                           "lambdaRevisionNumber": 2,
-                          "lambdaId": "5a481422b6eb9e3b39adcd09cd9615ecch44b1",
+                          "lambdaId": "788d1e3da4530db870c62418186f9b52ch8763",
                           "lambdaConfig": {},
                           "id": "d736a548095c743380023e0a458eb2a1f65721",
                           "argumentMappings": [
@@ -810,7 +810,7 @@
                           "resourceSpecOverride": null,
                           "name": "create-dir-structure-rest",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "0b05070cf380f0fdd8dc958f53bece90ch65eb",
+                          "lambdaId": "3d3f69e028d88f18b2e58104190e8083ch0142",
                           "lambdaConfig": {},
                           "id": "819d9c416d36d51cb8ea8796619a6a1f8de290",
                           "argumentMappings": [
@@ -897,7 +897,7 @@
                           "resourceSpecOverride": null,
                           "name": "create-dir-structure-rest",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "0b05070cf380f0fdd8dc958f53bece90ch65eb",
+                          "lambdaId": "3d3f69e028d88f18b2e58104190e8083ch0142",
                           "lambdaConfig": {},
                           "id": "7bf5a79d2e747403da71c88d5569b897b404c5",
                           "argumentMappings": [
@@ -987,7 +987,7 @@
                           "resourceSpecOverride": null,
                           "name": "substitute-placeholders",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "86429debbc30a995c6c37c246c893f77chc12d",
+                          "lambdaId": "6e216f11ddd7095bd1f34e7d21da69f1ch2ce0",
                           "lambdaConfig": {},
                           "id": "ccb78ae4e34a468a942ec7292565d042336b76",
                           "argumentMappings": [
@@ -1056,7 +1056,7 @@
                           "resourceSpecOverride": null,
                           "name": "set-acl-rest",
                           "lambdaRevisionNumber": 1,
-                          "lambdaId": "bb8e409e3ea1891d03411fface788294ch3f79",
+                          "lambdaId": "2b9c61edd8624d7f9848af761fc65143chbc34",
                           "lambdaConfig": {},
                           "id": "f359182536bbe1575ee7b9160dd31e808a479d",
                           "argumentMappings": [
@@ -1108,6 +1108,6 @@
       }
     }
   },
-  "originalAtmWorkflowSchemaId": "e968d18554f9d491451d87fc61d788f2ch3db8",
+  "originalAtmWorkflowSchemaId": "28d216fdafc39b4e49c717d55dc5920ach82fd",
   "name": "Initialize Eureka3D project"
 }
