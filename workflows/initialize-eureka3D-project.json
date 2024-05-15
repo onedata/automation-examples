@@ -396,11 +396,11 @@
         }
       },
       "1aabf12795abd3b7ff793862763434f2ch327a": {
-        "1": {
+        "3": {
           "schemaFormatVersion": 3,
           "revision": {
             "schemaFormatVersion": 3,
-            "originalRevisionNumber": 1,
+            "originalRevisionNumber": 3,
             "atmLambdaRevision": {
               "_version": 1,
               "_data": {
@@ -502,10 +502,35 @@
                       "dataSpec": {
                         "_version": 2,
                         "_data": {
-                          "type": "string",
+                          "type": "array",
                           "_version": 1,
                           "_data": {
-                            "allowedValues": null
+                            "itemDataSpec": {
+                              "_version": 2,
+                              "_data": {
+                                "type": "string",
+                                "_version": 1,
+                                "_data": {
+                                  "allowedValues": [
+                                    "LIST_CONTAINER",
+                                    "READ_OBJECT",
+                                    "WRITE_OBJECT",
+                                    "ADD_OBJECT",
+                                    "ADD_SUBCONTAINER",
+                                    "READ_METADATA",
+                                    "WRITE_METADATA",
+                                    "TRAVERSE_CONTAINER",
+                                    "DELETE_OBJECT",
+                                    "DELETE_SUBCONTAINER",
+                                    "READ_ATTRIBUTES",
+                                    "WRITE_ATTRIBUTES",
+                                    "DELETE",
+                                    "READ_ACL",
+                                    "WRITE_ACL"
+                                  ]
+                                }
+                              }
+                            }
                           }
                         }
                       }
@@ -1029,7 +1054,7 @@
                           ],
                           "resourceSpecOverride": null,
                           "name": "build-allowing-acl",
-                          "lambdaRevisionNumber": 1,
+                          "lambdaRevisionNumber": 3,
                           "lambdaId": "1aabf12795abd3b7ff793862763434f2ch327a",
                           "lambdaConfig": {},
                           "id": "0698ccca261d4eea0a4c586c6e2e16e70d18dc",
@@ -1054,7 +1079,23 @@
                                   "_version": 1,
                                   "_data": {
                                     "valueBuilderType": "const",
-                                    "valueBuilderRecipe": "LIST_CONTAINER,READ_OBJECT,WRITE_OBJECT,ADD_OBJECT,ADD_SUBCONTAINER,READ_METADATA,WRITE_METADATA,TRAVERSE_CONTAINER,DELETE_OBJECT,DELETE_SUBCONTAINER,READ_ATTRIBUTES,WRITE_ATTRIBUTES,DELETE,READ_ACL,WRITE_ACL"
+                                    "valueBuilderRecipe": [
+                                      "LIST_CONTAINER",
+                                      "READ_OBJECT",
+                                      "WRITE_OBJECT",
+                                      "ADD_OBJECT",
+                                      "ADD_SUBCONTAINER",
+                                      "READ_METADATA",
+                                      "WRITE_METADATA",
+                                      "TRAVERSE_CONTAINER",
+                                      "DELETE_OBJECT",
+                                      "DELETE_SUBCONTAINER",
+                                      "READ_ATTRIBUTES",
+                                      "WRITE_ATTRIBUTES",
+                                      "DELETE",
+                                      "READ_ACL",
+                                      "WRITE_ACL"
+                                    ]
                                   }
                                 },
                                 "argumentName": "mask"

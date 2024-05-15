@@ -31,7 +31,7 @@ from onedata_lambda_utils.types import (
 class JobArgs(TypedDict):
     groups: List[AtmGroup]
     # users: TODO
-    mask: str
+    mask: List[str]
 
 
 class JobResults(TypedDict):
@@ -61,7 +61,7 @@ def run_job(job_args: JobArgs) -> Union[JobResults, AtmException]:
                     "acetype": "ALLOW",
                     "identifier": group["groupId"],
                     "aceflags": "IDENTIFIER_GROUP",
-                    "acemask": job_args["mask"],
+                    "acemask": ",".join(job_args["mask"]),
                 }
             )
     except Exception:
