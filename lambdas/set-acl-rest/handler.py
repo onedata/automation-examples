@@ -22,6 +22,7 @@ from onedata_lambda_utils.types import (
     AtmJobBatchRequest,
     AtmJobBatchRequestCtx,
     AtmObject,
+    List,
 )
 
 ##===================================================================
@@ -40,7 +41,7 @@ REST_REQUEST_TIMEOUT: Final[int] = 60
 
 class JobArgs(TypedDict):
     targetFile: AtmFile
-    acl: str
+    acl: List[AtmObject]
 
 
 ##===================================================================
@@ -80,7 +81,7 @@ def set_acl(job: Job) -> None:
             "x-auth-token": job.ctx["accessToken"],
             "content-type": "application/json",
         },
-        data=json.dumps({"cdmi_acl": [json.loads(job.args["acl"])]}),
+        data=json.dumps({"cdmi_acl": job.args["acl"]}),
         verify=VERIFY_SSL_CERTS,
         timeout=REST_REQUEST_TIMEOUT,
     )
