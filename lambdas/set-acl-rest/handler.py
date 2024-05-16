@@ -10,7 +10,7 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import json
 import os
 import traceback
-from typing import Final, Union
+from typing import Final, List, Union
 
 import requests
 from typing_extensions import NamedTuple, TypedDict
@@ -22,7 +22,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchRequest,
     AtmJobBatchRequestCtx,
     AtmObject,
-    List,
 )
 
 ##===================================================================

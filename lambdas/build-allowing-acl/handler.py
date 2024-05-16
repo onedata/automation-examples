@@ -8,8 +8,7 @@ __copyright__ = "Copyright (C) 2024 ACK CYFRONET AGH"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 
-import traceback
-from typing import Union
+from typing import List, Union
 
 from typing_extensions import TypedDict
 
@@ -20,7 +19,6 @@ from onedata_lambda_utils.types import (
     AtmJobBatchRequest,
     AtmJobBatchResponse,
     AtmObject,
-    List,
 )
 
 ##===================================================================
@@ -30,7 +28,7 @@ from onedata_lambda_utils.types import (
 
 class JobArgs(TypedDict):
     groups: List[AtmGroup]
-    # users: TODO
+    # users: TODO VFS-12008 implement section responsible for building acl granting permissions to users
     mask: List[str]
 
 
@@ -53,18 +51,12 @@ def handle(
 
 
 def run_job(job_args: JobArgs) -> Union[JobResults, AtmException]:
-    try:
-        acl = []
-        for group in job_args["groups"]:
-            acl.append(
-                {
-                    "acetype": "ALLOW",
-                    "identifier": group["groupId"],
-                    "aceflags": "IDENTIFIER_GROUP",
-                    "acemask": ",".join(job_args["mask"]),
-                }
-            )
-    except Exception:
-        return AtmException(exception=traceback.format_exc())
-    else:
-        return {"acl": acl}
+    ace_common = {
+        "acetype": "ALLOW",
+        "aceflags": "IDENTIFIER_GROUP",
+        "acemask": ",".join(job_args["mask"]),
+    }
+    acl = [
+        {**ace_common, "identifier": group["groupId"]} for group in job_args["groups"]
+    ]
+    return {"acl": acl}

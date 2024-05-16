@@ -608,9 +608,9 @@
             "_data": {
               "type": "singleValue",
               "requiresInitialContent": true,
-              "name": "Managing groups IDs",
+              "name": "Managing groups",
               "id": "bb5c588454d4d79792964d18f019d478e596b3",
-              "description": "The ID of the group that manages the project, which will be granted permissions to access and modify the directory",
+              "description": "Groups that manage the project, which will be granted permissions to access and modify the directory",
               "defaultInitialContent": null,
               "config": {
                 "_version": 1,
