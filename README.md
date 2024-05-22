@@ -1,13 +1,13 @@
 # Automation examples
 
-Examples of automation lambdas and workflow schemes that can be used in Onedata.
+Examples of automation lambdas and workflow schemas that can be used in Onedata.
 
 This repository serves two purposes:
 
 1. Provides examples to easily get started with creating your lambdas and workflows.
-2. Provides ready-to-use JSON dumps of workflow schemes that can be loaded
+2. Provides ready-to-use JSON dumps of workflow schemas that can be loaded
    into an automation inventory; just download a JSON of the desired workflow
-   scheme onto your disk and use the "Upload JSON" action in the workflows tab.
+   schema onto your disk and use the "Upload JSON" action in the workflows tab.
 
 
 ## Creating lambda Docker image
@@ -20,7 +20,9 @@ To create one, follow these steps:
 1. Navigate to the `lambdas/` directory where subdirectories define sample lambda
    functions.
 2. Explore specific lambda examples in the `lambdas/` directory to understand how 
-   different lambdas are structured and defined - each directory contains:
+   different lambdas are structured and defined. Each lambda include its dump, 
+   that is a json file downloaded from automation inventory of default lamda 
+   implementation in GUI and `docker/` subdirectory containing:
    - `handler.py`: the definition of the function executed by the lambda. 
    It MUST define the `handle` function:
       ```
