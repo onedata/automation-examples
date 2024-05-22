@@ -4,7 +4,7 @@
 
 include lambdas/code_style_common.mk
 
-LAMBDA_DIRS := $(foreach dir,$(wildcard lambdas/*),$(if $(wildcard $(dir)/handler.py),$(dir)))
+LAMBDA_DIRS := $(foreach dir,$(wildcard lambdas/*),$(if $(wildcard $(dir)/docker/handler.py),$(dir)/docker))
 
 define foreach_lambda
 	for lambda_dir in $(LAMBDA_DIRS); do \
@@ -45,3 +45,6 @@ workflows-assert-only-public-docker-images-are-used:
 
 workflows-assert-all-used-docker-images-are-published:
 	@./utils/workflows.sh assert_all_used_docker_images_are_published
+
+workflows-assert-all-lambda-images-are-used-in-workflows:
+	@./utils/workflows.sh assert_all_lambda_images_are_used_in_workflows
