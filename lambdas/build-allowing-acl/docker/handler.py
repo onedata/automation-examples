@@ -29,7 +29,7 @@ from onedata_lambda_utils.types import (
 class JobArgs(TypedDict):
     groups: List[AtmGroup]
     # users: TODO VFS-12008 implement section responsible for building acl granting permissions to users
-    mask: List[str]
+    grantedAccessRights: List[str]  # list of flags used to build the ACE mask, eg. ["ADD_OBJECT", "READ_OBJECT", "DELETE"]
 
 
 class JobResults(TypedDict):
@@ -54,7 +54,7 @@ def run_job(job_args: JobArgs) -> Union[JobResults, AtmException]:
     ace_common = {
         "acetype": "ALLOW",
         "aceflags": "IDENTIFIER_GROUP",
-        "acemask": ",".join(job_args["mask"]),
+        "acemask": ",".join(job_args["grantedAccessRights"]),
     }
     acl = [
         {**ace_common, "identifier": group["groupId"]} for group in job_args["groups"]
