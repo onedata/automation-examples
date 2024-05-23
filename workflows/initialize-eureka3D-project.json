@@ -496,7 +496,7 @@
                   {
                     "_version": 1,
                     "_data": {
-                      "name": "mask",
+                      "name": "grantedAccessRights",
                       "isOptional": false,
                       "defaultValue": null,
                       "dataSpec": {
@@ -1098,7 +1098,7 @@
                                     ]
                                   }
                                 },
-                                "argumentName": "mask"
+                                "argumentName": "grantedAccessRights"
                               }
                             }
                           ]
