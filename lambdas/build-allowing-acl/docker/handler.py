@@ -29,9 +29,8 @@ from onedata_lambda_utils.types import (
 class JobArgs(TypedDict):
     groups: List[AtmGroup]
     # users: TODO VFS-12008 implement section responsible for building acl granting permissions to users
-    grantedAccessRights: List[
-        str
-    ]  # list of flags used to build the ACE mask, eg. ["ADD_OBJECT", "READ_OBJECT", "DELETE"]
+    # list of flags used to build the ACE mask, eg. ["ADD_OBJECT", "READ_OBJECT", "DELETE"]
+    grantedAccessRights: List[str]
 
 
 class JobResults(TypedDict):
