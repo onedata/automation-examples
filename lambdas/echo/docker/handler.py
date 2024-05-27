@@ -11,7 +11,7 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import json
 import random
 import time
-from typing import List, Union
+from typing import List, Optional, Union
 
 from typing_extensions import TypeAlias, TypedDict
 
@@ -32,6 +32,7 @@ class TaskConfig(TypedDict):
     sleepDurationSec: float
     exceptionProbability: float  # range: [0, 1]
     streamResults: bool
+    wrapResultInArray: Optional[bool]
 
 
 JobArgs: TypeAlias = AtmObject
@@ -57,13 +58,19 @@ def handle(
 
     results: List[Union[AtmException, AtmObject, None]] = []
     for job_args in job_batch_request["argsBatch"]:
+
+        if "wrapResultInArray" in task_config and task_config["wrapResultInArray"]:
+            job_args = {
+                arg_name: [arg_value] for arg_name, arg_value in job_args.items()
+            }
+
         if random.random() <= task_config["exceptionProbability"]:
             results.append(AtmException(exception="Random exception"))
 
         elif task_config["streamResults"]:
             results.append(None)
 
-            for arg_name, arg_value in job_args.values():
+            for arg_name, arg_value in job_args.items():
                 with open(f"/out/{arg_name}", "a+") as f:
                     json.dump(arg_value, f)
                     f.write("\n")

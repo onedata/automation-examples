@@ -1,0 +1,264 @@
+{
+  "summary": "",
+  "schemaFormatVersion": 3,
+  "revision": {
+    "supplementaryAtmLambdas": {
+      "4f90f9b31eff557e49ddd67c01b93c50ch80a6": {
+        "2": {
+          "schemaFormatVersion": 3,
+          "revision": {
+            "schemaFormatVersion": 3,
+            "originalRevisionNumber": 2,
+            "atmLambdaRevision": {
+              "_version": 1,
+              "_data": {
+                "summary": "",
+                "state": "draft",
+                "resultSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "relayMethod": "returnValue",
+                      "name": "output",
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                ],
+                "resourceSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "memoryRequested": 104857600,
+                    "memoryLimit": null,
+                    "ephemeralStorageRequested": 104857600,
+                    "ephemeralStorageLimit": null,
+                    "cpuRequested": 0.1,
+                    "cpuLimit": null
+                  }
+                },
+                "preferredBatchSize": 10,
+                "operationSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "engine": "openfaas",
+                    "_version": 1,
+                    "_data": {
+                      "dockerImage": "onedata/lambda-substitute-placeholders:v1",
+                      "dockerExecutionOptions": {
+                        "readonly": false,
+                        "oneclientOptions": "",
+                        "oneclientMountPoint": "/mnt/onedata",
+                        "mountOneclient": false
+                      }
+                    }
+                  }
+                },
+                "name": "substitute-placeholders",
+                "description": "",
+                "configParameterSpecs": [],
+                "argumentSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "template",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "mappings",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "object",
+                          "_version": 1,
+                          "_data": {}
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "originalAtmLambdaId": "4f90f9b31eff557e49ddd67c01b93c50ch80a6"
+        }
+      }
+    },
+    "schemaFormatVersion": 3,
+    "originalRevisionNumber": 1,
+    "atmWorkflowSchemaRevision": {
+      "_version": 1,
+      "_data": {
+        "stores": [
+          {
+            "_version": 1,
+            "_data": {
+              "type": "singleValue",
+              "requiresInitialContent": true,
+              "name": "input-store",
+              "id": "c6354eeb077a3ccb778b8377313c7967533bcf",
+              "description": "",
+              "defaultInitialContent": {
+                "name": "my name"
+              },
+              "config": {
+                "_version": 1,
+                "_data": {
+                  "itemDataSpec": {
+                    "_version": 2,
+                    "_data": {
+                      "type": "object",
+                      "_version": 1,
+                      "_data": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "type": "singleValue",
+              "requiresInitialContent": false,
+              "name": "result-store",
+              "id": "ff53b016c3f10a8c14ab23932442c6ceb66221",
+              "description": "",
+              "defaultInitialContent": null,
+              "config": {
+                "_version": 1,
+                "_data": {
+                  "itemDataSpec": {
+                    "_version": 2,
+                    "_data": {
+                      "type": "string",
+                      "_version": 1,
+                      "_data": {
+                        "allowedValues": null
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "state": "draft",
+        "lanes": [
+          {
+            "_version": 1,
+            "_data": {
+              "storeIteratorSpec": {
+                "_version": 1,
+                "_data": {
+                  "storeSchemaId": "c6354eeb077a3ccb778b8377313c7967533bcf",
+                  "maxBatchSize": 10
+                }
+              },
+              "parallelBoxes": [
+                {
+                  "_version": 1,
+                  "_data": {
+                    "tasks": [
+                      {
+                        "_version": 1,
+                        "_data": {
+                          "timeSeriesStoreConfig": null,
+                          "resultMappings": [
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "storeSchemaId": "ff53b016c3f10a8c14ab23932442c6ceb66221",
+                                "storeContentUpdateOptions": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "type": "singleValueStoreContentUpdateOptions",
+                                    "_version": 1,
+                                    "_data": {}
+                                  }
+                                },
+                                "resultName": "output"
+                              }
+                            }
+                          ],
+                          "resourceSpecOverride": null,
+                          "name": "substitute-placeholders",
+                          "lambdaRevisionNumber": 2,
+                          "lambdaId": "4f90f9b31eff557e49ddd67c01b93c50ch80a6",
+                          "lambdaConfig": {},
+                          "id": "e603207f0b4e9ecbc6a36f3e2f5349832ff864",
+                          "argumentMappings": [
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "const",
+                                    "valueBuilderRecipe": "Welcome $name!"
+                                  }
+                                },
+                                "argumentName": "template"
+                              }
+                            },
+                            {
+                              "_version": 1,
+                              "_data": {
+                                "valueBuilder": {
+                                  "_version": 1,
+                                  "_data": {
+                                    "valueBuilderType": "singleValueStoreContent",
+                                    "valueBuilderRecipe": "c6354eeb077a3ccb778b8377313c7967533bcf"
+                                  }
+                                },
+                                "argumentName": "mappings"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "name": "Parallel box",
+                    "id": "cb037bdad9ae47443a5188e670d014e0e9fe8d"
+                  }
+                }
+              ],
+              "name": "lane1",
+              "maxRetries": 0,
+              "instantFailureExceptionThreshold": 0.1,
+              "id": "04fe3129069ec4967653e41dc96cb510a0d170",
+              "dashboardSpec": null
+            }
+          }
+        ],
+        "description": "",
+        "dashboardSpec": null
+      }
+    }
+  },
+  "originalAtmWorkflowSchemaId": "9f7ce78b70a3e300e417fc3bdf18ae57chc2af",
+  "name": "substitute-placeholders-example"
+}
