@@ -1,5 +1,5 @@
 {
-  "summary": "",
+  "summary": "Creates a predefined directory structure for a new EUreka3D project and sets access rights to chosen groups.",
   "schemaFormatVersion": 3,
   "revision": {
     "supplementaryAtmLambdas": {
@@ -1187,7 +1187,7 @@
             }
           }
         ],
-        "description": "",
+        "description": "The first implementation that creates a structure with 4 directories: 0-Reconnaissance, 1-Preliminary, 2-Detailed, Paradata.",
         "dashboardSpec": null
       }
     }
