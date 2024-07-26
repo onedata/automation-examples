@@ -99,7 +99,7 @@ assert_all_lambda_images_are_used_in_workflows() {
     done
 
     if [[ $verified == true ]]; then
-      echo "All and only newest lambda images are used"
+      echo "Every lambda image in its newest version is used in a workflow"
       return 0
     fi
 
