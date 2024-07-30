@@ -46,7 +46,7 @@
               "dockerImage": "onedata/lambda-detect-file-mime-type-mounted:v2",
               "dockerExecutionOptions": {
                 "readonly": false,
-                "oneclientOptions": "-i",
+                "oneclientOptions": "",
                 "oneclientMountPoint": "/mnt/onedata",
                 "mountOneclient": true
               }

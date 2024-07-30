@@ -80,7 +80,7 @@
               "dockerImage": "onedata/lambda-calculate-downloaded-file-checksum-mounted:v2",
               "dockerExecutionOptions": {
                 "readonly": false,
-                "oneclientOptions": "-i",
+                "oneclientOptions": "",
                 "oneclientMountPoint": "/mnt/onedata",
                 "mountOneclient": true
               }
