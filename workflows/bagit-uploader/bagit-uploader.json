@@ -103,7 +103,7 @@
                       "dockerImage": "onedata/lambda-download-file-mounted:v3",
                       "dockerExecutionOptions": {
                         "readonly": false,
-                        "oneclientOptions": "-i",
+                        "oneclientOptions": "",
                         "oneclientMountPoint": "/mnt/onedata",
                         "mountOneclient": true
                       }
@@ -210,7 +210,7 @@
                       "dockerImage": "onedata/lambda-bagit-uploader-parse-fetch-file-mounted:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
-                        "oneclientOptions": "-i",
+                        "oneclientOptions": "",
                         "oneclientMountPoint": "/mnt/onedata",
                         "mountOneclient": true
                       }
@@ -380,7 +380,7 @@
                       "dockerImage": "onedata/lambda-bagit-uploader-unpack-data-mounted:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
-                        "oneclientOptions": "-i",
+                        "oneclientOptions": "",
                         "oneclientMountPoint": "/mnt/onedata",
                         "mountOneclient": true
                       }
@@ -526,7 +526,7 @@
                       "dockerImage": "onedata/lambda-bagit-uploader-archive-destination-rest:v3",
                       "dockerExecutionOptions": {
                         "readonly": false,
-                        "oneclientOptions": "-i",
+                        "oneclientOptions": "",
                         "oneclientMountPoint": "/mnt/onedata",
                         "mountOneclient": true
                       }
@@ -640,7 +640,7 @@
                       "dockerImage": "onedata/lambda-bagit-uploader-calculate-checksum-mounted:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
-                        "oneclientOptions": "-i",
+                        "oneclientOptions": "",
                         "oneclientMountPoint": "/mnt/onedata",
                         "mountOneclient": true
                       }
@@ -709,7 +709,7 @@
                       "dockerImage": "onedata/lambda-bagit-uploader-register-metadata-mounted:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
-                        "oneclientOptions": "-i",
+                        "oneclientOptions": "",
                         "oneclientMountPoint": "/mnt/onedata",
                         "mountOneclient": true
                       }
@@ -849,7 +849,7 @@
                       "dockerImage": "onedata/lambda-bagit-uploader-validate-mounted:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
-                        "oneclientOptions": "-i",
+                        "oneclientOptions": "",
                         "oneclientMountPoint": "/mnt/onedata",
                         "mountOneclient": true
                       }

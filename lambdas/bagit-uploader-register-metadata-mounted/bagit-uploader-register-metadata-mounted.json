@@ -30,7 +30,7 @@
               "dockerImage": "onedata/lambda-bagit-uploader-register-metadata-mounted:v2",
               "dockerExecutionOptions": {
                 "readonly": false,
-                "oneclientOptions": "-i",
+                "oneclientOptions": "",
                 "oneclientMountPoint": "/mnt/onedata",
                 "mountOneclient": true
               }
