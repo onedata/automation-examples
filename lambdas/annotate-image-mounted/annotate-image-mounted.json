@@ -37,8 +37,8 @@
             }
           }
         },
-        "name": "Annotate image",
-        "description": "Processes the input file; if it's an image, examines its main characteristics and sets corresponding xattrs (width, height, orientation, average_colour, dominant_colour)",
+        "name": "Annotate image mounted",
+        "description": "Processes the input file; if it's an image, examines its main characteristics and sets corresponding xattrs (width, height, orientation, average_colour, dominant_colour).",
         "configParameterSpecs": [],
         "argumentSpecs": [
           {
