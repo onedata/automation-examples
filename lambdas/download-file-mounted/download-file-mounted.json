@@ -2,7 +2,7 @@
   "schemaFormatVersion": 3,
   "revision": {
     "schemaFormatVersion": 3,
-    "originalRevisionNumber": 1,
+    "originalRevisionNumber": 2,
     "atmLambdaRevision": {
       "_version": 1,
       "_data": {
@@ -94,7 +94,7 @@
             "engine": "openfaas",
             "_version": 1,
             "_data": {
-              "dockerImage": "onedata/lambda-download-file-mounted:v3",
+              "dockerImage": "onedata/lambda-download-file-mounted:v4",
               "dockerExecutionOptions": {
                 "readonly": false,
                 "oneclientOptions": "",
