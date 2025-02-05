@@ -37,8 +37,55 @@ from PIL import Image
 VERIFY_SSL_CERTS: Final[bool] = os.getenv("VERIFY_SSL_CERTIFICATES") != "false"
 REST_REQUEST_TIMEOUT: Final[int] = 60
 MOUNT_POINT: Final[str] = "/mnt/onedata"
+
+# configuration of the dominant colour calculation procedure
 NUM_CLUSTERS: int = 5
 RESIZE_WIDTH: int = 100
+
+colour_names_to_hex = {
+    "black": "#000000",
+    "white": "#ffffff",
+    "dark gray": "#808080",
+    "light gray": "#b0b0b0",
+    "red": "#ff0000",
+    "orange": "#ffa500",
+    "yellow": "#ffff00",
+    "green": "#008000",
+    "blue": "#0000ff",
+    "magenta": "#ff00ff",
+    "purple": "#800080",
+    "coral": "#ff7f50",
+    "maroon": "#800000",
+    "navy": "#000080",
+    "cyan": "#00ffff",
+    "gold": "#ffd700",
+    "lime": "#00ff00",
+    "jade": "#00a36c",
+    "olive": "#808000",
+    "pink": "#ffc0cb",
+    "brown": "#a52a2a",
+    "indigo": "#4b0082",
+    "violet": "#ee82ee",
+    "turquoise": "#40e0d0",
+    "teal": "#008080",
+    "salmon": "#fa8072",
+    "lavender": "#e6e6fa",
+    "plum": "#dda0dd",
+    "peach": "#ffe5b4",
+    "khaki": "#f0e68c",
+    "beige": "#f5f5dc",
+    "tan": "#d2b48c",
+    "crimson": "#dc143c",
+    "sky blue": "#87ceeb",
+    "chartreuse": "#7fff00",
+    "mint": "#98ff98",
+    "rose": "#ff007f",
+    "sienna": "#a0522d",
+    "mauve": "#e0b0ff",
+    "apricot": "#fbceb1",
+    "wheat": "#f5deb3",
+    "sand": "#c2b280",
+}
 
 
 ##===================================================================
@@ -77,9 +124,9 @@ def run_job(job: Job) -> Union[None, AtmException]:
         file_path = build_file_path(job)
         try:
             image = Image.open(file_path)
-            image = try_change_image_to_rgb_format(image)
-        except IOError as ex:
-            return AtmException(exception=f"Failed to open image: {str(ex)}")
+            image = ensure_image_in_rgb_format(image)
+        except IOError:
+            return None
         width, height = image.size
         orientation = "vertical" if height > width else "horizontal"
 
@@ -107,7 +154,7 @@ def build_file_path(job: Job) -> str:
     return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["file"]["fileId"]}'
 
 
-def try_change_image_to_rgb_format(image):
+def ensure_image_in_rgb_format(image):
     if image.mode != "RGB":
         return image.convert("RGB")
     return image
@@ -167,49 +214,3 @@ def rgb_to_closest_colour_name(rgb_triplet):
         key=lambda item: euclidean_distance(webcolors.hex_to_rgb(item[1]), rgb_triplet),
     )
     return closest_color[0]
-
-
-colour_names_to_hex = {
-    "black": "#000000",
-    "white": "#ffffff",
-    "dark gray": "#808080",
-    "light gray": "#b0b0b0",
-    "red": "#ff0000",
-    "orange": "#ffa500",
-    "yellow": "#ffff00",
-    "green": "#008000",
-    "blue": "#0000ff",
-    "magenta": "#ff00ff",
-    "purple": "#800080",
-    "coral": "#ff7f50",
-    "maroon": "#800000",
-    "navy": "#000080",
-    "cyan": "#00ffff",
-    "gold": "#ffd700",
-    "lime": "#00ff00",
-    "jade": "#00a36c",
-    "olive": "#808000",
-    "pink": "#ffc0cb",
-    "brown": "#a52a2a",
-    "indigo": "#4b0082",
-    "violet": "#ee82ee",
-    "turquoise": "#40e0d0",
-    "teal": "#008080",
-    "salmon": "#fa8072",
-    "lavender": "#e6e6fa",
-    "plum": "#dda0dd",
-    "peach": "#ffe5b4",
-    "khaki": "#f0e68c",
-    "beige": "#f5f5dc",
-    "tan": "#d2b48c",
-    "crimson": "#dc143c",
-    "sky blue": "#87ceeb",
-    "chartreuse": "#7fff00",
-    "mint": "#98ff98",
-    "rose": "#ff007f",
-    "sienna": "#a0522d",
-    "mauve": "#e0b0ff",
-    "apricot": "#fbceb1",
-    "wheat": "#f5deb3",
-    "sand": "#c2b280",
-}
