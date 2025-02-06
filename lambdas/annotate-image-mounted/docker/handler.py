@@ -39,10 +39,10 @@ REST_REQUEST_TIMEOUT: Final[int] = 60
 MOUNT_POINT: Final[str] = "/mnt/onedata"
 
 # configuration of the dominant colour calculation procedure
-NUM_CLUSTERS: int = 5
+MAX_CLUSTER_COUNT: int = 5
 RESIZE_WIDTH: int = 100
 
-colour_names_to_hex = {
+COLOUR_NAMES_TO_HEX = {
     "black": "#000000",
     "white": "#ffffff",
     "dark gray": "#808080",
@@ -195,7 +195,7 @@ def calc_dominant_image_colour(image):
     ar = ar.reshape(h * w, channels)
 
     unique_colors = numpy.unique(ar, axis=0)  # avoid using too big number of clusters
-    num_clusters = min(NUM_CLUSTERS, len(unique_colors))
+    num_clusters = min(MAX_CLUSTER_COUNT, len(unique_colors))
 
     counts, codes = perform_clustering(ar, num_clusters)
 
@@ -210,7 +210,7 @@ def euclidean_distance(c1, c2):
 
 def rgb_to_closest_colour_name(rgb_triplet):
     closest_color = min(
-        colour_names_to_hex.items(),
+        COLOUR_NAMES_TO_HEX.items(),
         key=lambda item: euclidean_distance(webcolors.hex_to_rgb(item[1]), rgb_triplet),
     )
     return closest_color[0]
