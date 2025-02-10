@@ -10,15 +10,13 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 import os
 import traceback
-from typing import Final, Union
-
-import requests
-from typing_extensions import NamedTuple, TypedDict
+from typing import Final, List, NamedTuple, Tuple, TypedDict, Union
 
 import numpy
 import scipy.cluster
 import webcolors
 import xattr
+from numpy import ndarray
 from onedata_lambda_utils.types import (
     AtmException,
     AtmFile,
@@ -27,7 +25,7 @@ from onedata_lambda_utils.types import (
     AtmJobBatchRequestCtx,
     AtmObject,
 )
-from PIL import Image
+from PIL import Image, ImageFile
 
 ##===================================================================
 ## Lambda configuration
@@ -42,6 +40,7 @@ MOUNT_POINT: Final[str] = "/mnt/onedata"
 MAX_CLUSTER_COUNT: int = 5
 RESIZE_WIDTH: int = 100
 
+PILImage = Union[Image.Image, ImageFile.ImageFile]
 COLOUR_NAMES_TO_HEX = {
     "black": "#000000",
     "white": "#ffffff",
@@ -124,27 +123,15 @@ def run_job(job: Job) -> Union[None, AtmException]:
         file_path = build_file_path(job)
         try:
             image = Image.open(file_path)
-            image = ensure_image_in_rgb_format(image)
+            image_in_rgb = ensure_image_in_rgb_format(image)
         except IOError:
             return None
-        width, height = image.size
-        orientation = "vertical" if height > width else "horizontal"
 
-        avg_colour_rgb = calc_average_image_colour(image)
-        dominant_colour_rgb = calc_dominant_image_colour(image)
-
+        image_properties = infer_image_properties(image_in_rgb)
         try:
-            file_xattrs = xattr.xattr(file_path)
-            file_xattrs.set("width", str.encode(str(width)))
-            file_xattrs.set("height", str.encode(str(height)))
-            file_xattrs.set("orientation", str.encode(orientation))
-            file_xattrs.set("average_colour", str.encode(avg_colour_rgb))
-            file_xattrs.set("dominant_colour", str.encode(dominant_colour_rgb))
-
+            save_properties_as_xattrs(file_path, image_properties)
         except Exception as ex:
             return AtmException(exception=f"Failed to set xattrs due to: {str(ex)}")
-    except requests.RequestException as ex:
-        return AtmException(exception=str(ex))
     except Exception:
         return AtmException(exception=traceback.format_exc())
     return None
@@ -154,13 +141,41 @@ def build_file_path(job: Job) -> str:
     return f'{MOUNT_POINT}/.__onedata__file_id__{job.args["file"]["fileId"]}'
 
 
-def ensure_image_in_rgb_format(image):
+def ensure_image_in_rgb_format(image: PILImage) -> PILImage:
     if image.mode != "RGB":
         return image.convert("RGB")
     return image
 
 
-def safe_average(channel):
+def infer_image_properties(image: PILImage) -> dict:
+    width, height = image.size
+    orientation = "vertical" if height > width else "horizontal"
+    avg_colour_rgb = calc_average_image_colour(image)
+    dominant_colour_rgb = calc_dominant_image_colour(image)
+    return {
+        "width": width,
+        "height": height,
+        "orientation": orientation,
+        "avg_colour_rgb": avg_colour_rgb,
+        "dominant_colour_rgb": dominant_colour_rgb,
+    }
+
+
+def save_properties_as_xattrs(file_path: str, properties: dict) -> None:
+    file_xattrs = xattr.xattr(file_path)
+    for attr_name, attr_val in properties.items():
+        file_xattrs.set(attr_name, str.encode(str(attr_val)))
+
+
+def calc_average_image_colour(image: PILImage) -> str:
+    h = image.histogram()
+    r, g, b = h[0:256], h[256 : 256 * 2], h[256 * 2 : 256 * 3]
+    return rgb_to_closest_colour_name(
+        (safe_average(r), safe_average(g), safe_average(b))
+    )
+
+
+def safe_average(channel: List[int]) -> int:
     total_weight = sum(channel)
     return (
         int(sum(i * w for i, w in enumerate(channel)) / total_weight)
@@ -169,22 +184,7 @@ def safe_average(channel):
     )
 
 
-def calc_average_image_colour(image):
-    h = image.histogram()
-    r, g, b = h[0:256], h[256 : 256 * 2], h[256 * 2 : 256 * 3]
-    return rgb_to_closest_colour_name(
-        (safe_average(r), safe_average(g), safe_average(b))
-    )
-
-
-def perform_clustering(ar, num_clusters):
-    codes, _ = scipy.cluster.vq.kmeans(ar, num_clusters)
-    vecs, _ = scipy.cluster.vq.vq(ar, codes)  # assign codes
-    counts, _ = numpy.histogram(vecs, len(codes))  # count occurrences
-    return counts, codes
-
-
-def calc_dominant_image_colour(image):
+def calc_dominant_image_colour(image: PILImage) -> str:
     width, height = image.size
     image = image.resize(
         (RESIZE_WIDTH, int(RESIZE_WIDTH * height / width))
@@ -204,13 +204,20 @@ def calc_dominant_image_colour(image):
     return rgb_to_closest_colour_name((r, g, b))
 
 
-def euclidean_distance(c1, c2):
-    return sum((a - b) ** 2 for a, b in zip(c1, c2))
+def perform_clustering(ar: numpy.ndarray, num_clusters: int) -> Tuple[ndarray, ndarray]:
+    codes, _ = scipy.cluster.vq.kmeans(ar, num_clusters)
+    vecs, _ = scipy.cluster.vq.vq(ar, codes)  # assign codes
+    counts, _ = numpy.histogram(vecs, len(codes))  # count occurrences
+    return counts, codes
 
 
-def rgb_to_closest_colour_name(rgb_triplet):
+def rgb_to_closest_colour_name(rgb_triplet: Tuple[int, int, int]) -> str:
     closest_color = min(
         COLOUR_NAMES_TO_HEX.items(),
         key=lambda item: euclidean_distance(webcolors.hex_to_rgb(item[1]), rgb_triplet),
     )
     return closest_color[0]
+
+
+def euclidean_distance(c1: Tuple[int, int, int], c2: Tuple[int, int, int]) -> int:
+    return sum((a - b) ** 2 for a, b in zip(c1, c2))
