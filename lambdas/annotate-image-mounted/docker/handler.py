@@ -112,7 +112,7 @@ def infer_image_properties(image: PILImage) -> dict:
         "width": width,
         "height": height,
         "orientation": orientation,
-        "avg_colour": avg_colour_rgb,
+        "average_colour": avg_colour_rgb,
         "dominant_colour": dominant_colour_rgb,
     }
 
