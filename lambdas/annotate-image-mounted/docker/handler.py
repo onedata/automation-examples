@@ -40,6 +40,51 @@ MOUNT_POINT: Final[str] = "/mnt/onedata"
 MAX_CLUSTER_COUNT: int = 5
 RESIZE_WIDTH: int = 100
 
+COLOUR_NAMES_TO_HEX = {
+    "black": "#000000",
+    "white": "#ffffff",
+    "dark gray": "#808080",
+    "light gray": "#b0b0b0",
+    "red": "#ff0000",
+    "orange": "#ffa500",
+    "yellow": "#ffff00",
+    "green": "#008000",
+    "blue": "#0000ff",
+    "magenta": "#ff00ff",
+    "purple": "#800080",
+    "coral": "#ff7f50",
+    "maroon": "#800000",
+    "navy": "#000080",
+    "cyan": "#00ffff",
+    "gold": "#ffd700",
+    "lime": "#00ff00",
+    "jade": "#00a36c",
+    "olive": "#808000",
+    "pink": "#ffc0cb",
+    "brown": "#a52a2a",
+    "indigo": "#4b0082",
+    "violet": "#ee82ee",
+    "turquoise": "#40e0d0",
+    "teal": "#008080",
+    "salmon": "#fa8072",
+    "lavender": "#e6e6fa",
+    "plum": "#dda0dd",
+    "peach": "#ffe5b4",
+    "khaki": "#f0e68c",
+    "beige": "#f5f5dc",
+    "tan": "#d2b48c",
+    "crimson": "#dc143c",
+    "sky blue": "#87ceeb",
+    "chartreuse": "#7fff00",
+    "mint": "#98ff98",
+    "rose": "#ff007f",
+    "sienna": "#a0522d",
+    "mauve": "#e0b0ff",
+    "apricot": "#fbceb1",
+    "wheat": "#f5deb3",
+    "sand": "#c2b280",
+}
+
 PILImage = Union[Image.Image, ImageFile.ImageFile]
 
 
@@ -168,10 +213,9 @@ def perform_clustering(ar: ndarray, num_clusters: int) -> Tuple[ndarray, ndarray
 
 
 def rgb_to_closest_colour_name(rgb_triplet: Tuple[int, int, int]) -> str:
-    colours = {name: webcolors.name_to_rgb(name) for name in webcolors.names()}
     closest_color = min(
-        colours.items(),
-        key=lambda item: euclidean_distance(item[1], rgb_triplet),
+        COLOUR_NAMES_TO_HEX.items(),
+        key=lambda item: euclidean_distance(webcolors.hex_to_rgb(item[1]), rgb_triplet),
     )
     return closest_color[0]
 
