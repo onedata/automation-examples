@@ -178,6 +178,8 @@ def download_xrootd_file(job_args: JobArgs) -> None:
 def download_http_file(job_args: JobArgs) -> None:
     request = requests.get(
         job_args["downloadInfo"]["sourceUrl"],
+        # some websites won't allow downloads without the user-agent header
+        headers={"user-agent": "Custom user agent"},
         stream=True,
         allow_redirects=True,
         timeout=EXTENDED_REST_REQUEST_TIMEOUT,

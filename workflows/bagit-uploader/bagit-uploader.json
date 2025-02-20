@@ -1,14 +1,14 @@
 {
-  "summary": "",
+  "summary": "Ingests a BagIt archive into Onedata, unpacking or fetching files from remote locations and creating a Onedata archive",
   "schemaFormatVersion": 3,
   "revision": {
     "supplementaryAtmLambdas": {
       "ff239ec67d526dd1b70b59bc990b450cch0643": {
-        "6": {
+        "7": {
           "schemaFormatVersion": 3,
           "revision": {
             "schemaFormatVersion": 3,
-            "originalRevisionNumber": 6,
+            "originalRevisionNumber": 7,
             "atmLambdaRevision": {
               "_version": 1,
               "_data": {
@@ -100,7 +100,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "onedata/lambda-download-file-mounted:v3",
+                      "dockerImage": "onedata/lambda-download-file-mounted:v4",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -892,7 +892,7 @@
       }
     },
     "schemaFormatVersion": 3,
-    "originalRevisionNumber": 6,
+    "originalRevisionNumber": 7,
     "atmWorkflowSchemaRevision": {
       "_version": 1,
       "_data": {
@@ -1079,7 +1079,7 @@
             }
           }
         ],
-        "state": "draft",
+        "state": "stable",
         "lanes": [
           {
             "_version": 1,
@@ -2155,7 +2155,7 @@
                           ],
                           "resourceSpecOverride": null,
                           "name": "bagit-uploader-download-files",
-                          "lambdaRevisionNumber": 6,
+                          "lambdaRevisionNumber": 7,
                           "lambdaId": "ff239ec67d526dd1b70b59bc990b450cch0643",
                           "lambdaConfig": {},
                           "id": "bbaab9dee648d5faee1d7a4ce948cdcb7c90c0",
@@ -3088,7 +3088,7 @@
             }
           }
         ],
-        "description": "",
+        "description": "Default implementation",
         "dashboardSpec": {
           "_version": 1,
           "_data": {
@@ -4042,5 +4042,5 @@
     }
   },
   "originalAtmWorkflowSchemaId": "7c791163beb2ec1d4aeae53478dfa766ch107d",
-  "name": "bagit-uploader"
+  "name": "BagIt Uploader"
 }
