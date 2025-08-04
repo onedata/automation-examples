@@ -100,7 +100,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-download-file-mounted:v4-dev",
+                      "dockerImage": "docker.onedata.org/lambda-download-file-mounted:v5-dev",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
