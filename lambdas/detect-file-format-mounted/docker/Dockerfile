@@ -1,4 +1,4 @@
-FROM onedata/lambda-base-slim:v1
+FROM onedata/lambda-base-slim:v2
 
 USER root
 
