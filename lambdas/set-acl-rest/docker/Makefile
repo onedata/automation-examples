@@ -1,5 +1,5 @@
 REPO_NAME = lambda-set-acl-rest
-TAG = v1
+TAG = v2
 
 
 include ../../code_style_common.mk
