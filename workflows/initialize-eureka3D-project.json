@@ -60,7 +60,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-echo:v4-dev",
+                      "dockerImage": "onedata/lambda-echo:v4",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -200,7 +200,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-set-acl-rest:v2-dev",
+                      "dockerImage": "onedata/lambda-set-acl-rest:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -325,7 +325,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-create-dir-structure-rest:v2-dev",
+                      "dockerImage": "onedata/lambda-create-dir-structure-rest:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -450,7 +450,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-build-allowing-acl:v2-dev",
+                      "dockerImage": "onedata/lambda-build-allowing-acl:v2",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",

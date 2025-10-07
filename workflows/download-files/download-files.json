@@ -100,7 +100,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-download-file-mounted:v5-dev",
+                      "dockerImage": "onedata/lambda-download-file-mounted:v5",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -217,7 +217,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-calculate-downloaded-file-checksum-mounted:v3-dev",
+                      "dockerImage": "onedata/lambda-calculate-downloaded-file-checksum-mounted:v3",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -377,7 +377,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-parse-fetch-file-mounted:v3-dev",
+                      "dockerImage": "onedata/lambda-parse-fetch-file-mounted:v3",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
