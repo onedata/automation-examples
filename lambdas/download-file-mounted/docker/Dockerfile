@@ -2,19 +2,11 @@ FROM onedata/lambda-base-slim:v2
 
 USER root
 
-RUN apt update
-RUN apt install -y dpkg-dev \
+RUN apt-get update
+RUN apt-get install -y dpkg-dev \
                    cmake \
-                   g++ \
-                   gcc \
-                   binutils \
-                   libx11-dev \
-                   libxpm-dev \
                    libxft-dev \
-                   libxext-dev \
-                   libssl-dev \
-                   git
-
+                   libssl-dev
 
 RUN python3 -m pip install xrootd
 

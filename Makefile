@@ -40,28 +40,28 @@ lambdas-publish-public:
 SCRIPT_LAMBDA_MANAGEMENT := ./utils/manage_lambdas.sh
 SUFFIX ?=  # suffix to set in a lambda image after a tag
 
-inc-makefile-tags:
+lambdas-inc-makefile-tags:
 	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_tags_in_makefiles --inc $(SUFFIX)
 
-dec-makefile-tags:
+lambdas-dec-makefile-tags:
 	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_tags_in_makefiles --dec $(SUFFIX)
 
-inc-dockerfile-tags:
+lambdas-inc-dockerfile-tags:
 	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_tags_in_dockerfiles --inc $(SUFFIX)
 
-dec-dockerfile-tags:
+lambdas-dec-dockerfile-tags:
 	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_tags_in_dockerfiles --dec $(SUFFIX)
 
-update-dockerfiles-public:
+lambdas-update-dockerfiles-public:
 	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_repos_in_dockerfiles --public
 
-update-dockerfiles-dev:
+lambdas-update-dockerfiles-dev:
 	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_repos_in_dockerfiles --dev
 
-update-dumps-public:
+lambdas-update-dumps-public:
 	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_images_in_dumps_with_makefile --public
 
-update-dumps-dev:
+lambdas-update-dumps-dev:
 	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_images_in_dumps_with_makefile --dev
 
 
