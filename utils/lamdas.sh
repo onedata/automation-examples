@@ -2,7 +2,15 @@
 
 # List of functions defined locally in this script
 local_functions=(
+  # update all lambdas tags in makefiles
+  # increase all tags by 1: --inc
+  # decrease all tags by 1: --dec
+  # add additional suffix to the tag e.g.: --inc/--dec -dev
+  # function ignores current tag suffix (anything after tag number)
   update_all_lambda_tags_in_makefiles
+
+  # update every lambda tag in its dump
+  # functions replaces lambda tag in dump with the one in makefile
   update_all_lambda_images_in_dumps_with_makefile
 )
 
