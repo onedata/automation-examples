@@ -1,27 +1,14 @@
-FROM onedata/lambda-base-slim:v1
+FROM onedata/lambda-base-slim:v2
 
 USER root
 
-RUN apt update
-RUN apt install -y dpkg-dev \
+RUN apt-get update
+RUN apt-get install -y dpkg-dev \
                    cmake \
-                   g++ \
-                   gcc \
-                   binutils \
-                   libx11-dev \
-                   libxpm-dev \
                    libxft-dev \
-                   libxext-dev \
-                   libssl-dev \
-                   git
+                   libssl-dev
 
-RUN mkdir -p /tmp/xrootd_build ; cd /tmp/xrootd_build ; \
-    git clone https://github.com/xrootd/xrootd.git ; \
-    cd xrootd; git checkout v5.5.2 ; cd .. ; \
-    cmake ./xrootd -DCMAKE_INSTALL_PREFIX=/opt/xrootd -DENABLE_PERL=FALSE ; \
-    make ; make install; \
-    echo /opt/xrootd/lib >> /etc/ld.so.conf; ldconfig; \
-    cd bindings/python/; python setup.py install; \
-    cd /tmp; rm -rf xrootd_build
+RUN python3 -m pip install xrootd
+
 
 USER app

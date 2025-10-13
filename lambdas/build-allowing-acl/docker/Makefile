@@ -1,5 +1,5 @@
 REPO_NAME = lambda-build-allowing-acl
-TAG = v1
+TAG = v2
 
 
 include ../../code_style_common.mk

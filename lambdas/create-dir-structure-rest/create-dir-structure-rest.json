@@ -55,7 +55,7 @@
             "engine": "openfaas",
             "_version": 1,
             "_data": {
-              "dockerImage": "onedata/lambda-create-dir-structure-rest:v1",
+              "dockerImage": "onedata/lambda-create-dir-structure-rest:v2",
               "dockerExecutionOptions": {
                 "readonly": false,
                 "oneclientOptions": "",

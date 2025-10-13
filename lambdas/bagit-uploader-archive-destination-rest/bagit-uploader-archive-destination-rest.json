@@ -79,7 +79,7 @@
             "engine": "openfaas",
             "_version": 1,
             "_data": {
-              "dockerImage": "onedata/lambda-bagit-uploader-archive-destination-rest:v3",
+              "dockerImage": "onedata/lambda-bagit-uploader-archive-destination-rest:v4",
               "dockerExecutionOptions": {
                 "readonly": false,
                 "oneclientOptions": "",

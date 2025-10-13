@@ -52,7 +52,7 @@
             "engine": "openfaas",
             "_version": 1,
             "_data": {
-              "dockerImage": "onedata/lambda-build-allowing-acl:v1",
+              "dockerImage": "onedata/lambda-build-allowing-acl:v2",
               "dockerExecutionOptions": {
                 "readonly": false,
                 "oneclientOptions": "",
