@@ -6,12 +6,12 @@ http://opendata.cern.ch/record/5200/files/2e2mu_2011.csv	4092	data/dir1/cern_ope
 http://opendata.cern.ch/record/5200/files/Hto4l_2011A.ig	2462918	data/dir1/cern_open_data/cern_hto4l_2011A.ig
 http://opendata.cern.ch/record/5200/files/Hto4l_2012C_1.ig	7062143	data/dir1/cern_open_data/cern_hto4l_2012C.ig
 http://opendata.cern.ch/record/5200/files/Hto4l_120-130GeV.ig	1119117	data/dir1/cern_open_data/cern_htol4l.ig
-https://www.gutenberg.org/cache/epub/26408/pg26408.txt	826564	data/dir1/gutenberg/A_Budget_of_Paradoxes,_Volume_II.txt
+https://www.gutenberg.org/cache/epub/26408/pg26408.txt	826389	data/dir1/gutenberg/A_Budget_of_Paradoxes,_Volume_II.txt
 https://www.gutenberg.org/cache/epub/11/pg11.txt	174355	data/dir1/gutenberg/Alice's_Adventures_in_Wonderland.txt
 https://www.gutenberg.org/cache/epub/100/pg100.txt	5638525	data/dir1/gutenberg/The_Complete_Works_of_William_Shakespeare.txt
 https://www.gutenberg.org/cache/epub/4763/pg4763.txt	139564	data/dir1/gutenberg/The_Game_of_Logic.txt
-https://www.gutenberg.org/cache/epub/16449/pg16449.txt	358297	data/dir1/gutenberg/The_Number_Concept:_Its_Origin_and_Development.txt
-https://www.gutenberg.org/cache/epub/26481/pg26481.txt	156237	data/dir1/gutenberg/The_Romance_of_Mathematics.txt
+https://www.gutenberg.org/cache/epub/16449/pg16449.txt	358680	data/dir1/gutenberg/The_Number_Concept:_Its_Origin_and_Development.txt
+https://www.gutenberg.org/cache/epub/26481/pg26481.txt	156251	data/dir1/gutenberg/The_Romance_of_Mathematics.txt
 https://www.gutenberg.org/cache/epub/43/pg43.txt	163530	data/dir1/gutenberg/The_Strange_Case_of_Dr._Jekyll_and_Mr._Hyde.txt
 https://www.gutenberg.org/cache/epub/77184/pg77184.txt	526294	data/dir1/gutenberg/Voyage_d'une_femme_au_Spitzberg.txt
 https://www.robots.ox.ac.uk/~vgg/data/flowers/102/setid.mat	14989	data/dir1/other/flower_data_splits.mat
