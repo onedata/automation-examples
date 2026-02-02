@@ -1,7 +1,6 @@
-https://packages.onedata.org/onedatify-25.0.systemd-1.x86_64.rpm 50793 data/rpm/onedatify-25.0.systemd-1.x86_64.rpm
 https://packages.onedata.org/onedatify-21.02.8.systemd-1.x86_64.rpm 49747 data/rpm/onedatify-21.02.8.systemd-1.x86_64.rpm
 https://packages.onedata.org/onedatify-21.02.7.systemd-1.x86_64.rpm 49744 data/rpm/onedatify-21.02.7.systemd-1.x86_64.rpm
-https://packages.onedata.org/onedatify_25.0.systemd_amd64.deb 45434 data/deb/onedatify_25.0.systemd_amd64.deb
+https://packages.onedata.org/onedatify-20.02.19.systemd-1.x86_64.rpm 50132 data/rpm/onedatify-20.02.19.systemd-1.x86_64.rpm
 https://packages.onedata.org/onedatify_21.02.9.systemd_amd64.deb 44976 data/deb/onedatify_21.02.9.systemd_amd64.deb
 https://packages.onedata.org/onedatify_21.02.8.18.g24b6385.systemd_amd64.deb 45594 data/deb/onedatify_21.02.8.18.g24b6385.systemd_amd64.deb
 https://packages.onedata.org/onedatify_21.02.8.9.g9c31ceb.systemd_amd64.deb 45260 data/deb/onedatify_21.02.8.9.g9c31ceb.systemd_amd64.deb
@@ -12,6 +11,7 @@ https://packages.onedata.org/onedatify_21.02.8.3.gd22f21f.systemd_amd64.deb 4493
 https://packages.onedata.org/onedatify_21.02.8.1.gd0dc778.systemd_amd64.deb 44932 data/deb/onedatify_21.02.8.1.gd0dc778.systemd_amd64.deb
 https://packages.onedata.org/onedatify_21.02.8.systemd_amd64.deb 44582 data/deb/onedatify_21.02.8.systemd_amd64.deb
 https://packages.onedata.org/onedatify_21.02.7.systemd_amd64.deb 43864 data/deb/onedatify_21.02.7.systemd_amd64.deb
+https://packages.onedata.org/onedatify_20.02.19.systemd_amd64.deb 45246 data/deb/onedatify_20.02.19.systemd_amd64.deb
 https://packages.onedata.org/onedatify.sh 5087 data/scripts/onedatify.sh
 https://packages.onedata.org/oneprovider.sh 4386 data/scripts/oneprovider.sh
 https://packages.onedata.org/onezone.sh 4406 data/scripts/onezone.sh
