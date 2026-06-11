@@ -3,7 +3,7 @@ Reads manifests from bagit archive and sets them as custom metadata for each fil
 """
 
 __author__ = "Bartosz Walkowicz"
-__copyright__ = "Copyright (C) 2023 ACK CYFRONET AGH"
+__copyright__ = "Copyright (C) 2023 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 
