@@ -1,0 +1,66 @@
+# uv workspace root for automation-examples -- a *virtual* root (no [project] of its own)
+# tying the lambda members and shared packages/ into one workspace with a single uv.lock.
+# Build a lambda image:  docker build --build-arg LAMBDA_PACKAGE=<name> .
+
+[tool.uv.workspace]
+members = ["packages/*", "lambdas/*"]
+
+[tool.uv.sources]
+checksum = { workspace = true }
+# Unpublished SDK -> vendored wheel (kept in the build context so it resolves the same
+# host-side and inside `docker build`). Refresh: rebuild the wheel into vendor/, then
+# `uv lock --refresh-package onedata-lambda-utils`.
+# TODO(remove-after-pypi-publish): drop this section + vendor/; `>=1.0` resolves from PyPI.
+onedata-lambda-utils = { path = "vendor/onedata_lambda_utils-1.0.0-py3-none-any.whl" }
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "ruff>=0.15",
+    "mypy>=2.1",
+    "pytest-httpserver>=1.0",
+    "trustme>=1.1",
+    "types-requests>=2.32",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+# `src` only marks isort's first-party roots; ruff still lints the whole tree (lambdas,
+# tests, packages) except the dirs below.
+src = ["lambdas/*/src", "packages/*/src"]
+extend-exclude = ["lambdas/*/docker", "lambdas_old", "utils"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.isort]
+# 2 blank lines after imports so the first `## section ##` banner matches inter-section spacing.
+lines-after-imports = 2
+
+[tool.mypy]
+python_version = "3.12"
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = "xattr.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "magic.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["scipy.*", "webcolors.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+# importlib mode: lambdas reuse test basenames (test_handler.py, ...), which the default
+# prepend mode collides on without per-dir __init__.py.
+addopts = "--import-mode=importlib"
+# REST tests use a self-signed mock server (verify=False); silence the warning.
+filterwarnings = [
+    "ignore::urllib3.exceptions.InsecureRequestWarning",
+]
