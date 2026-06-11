@@ -6,7 +6,7 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 from typing import TypedDict
 
-from onedata_lambda_utils import AtmFile, AtmJob, AtmJobContext, AtmObject, per_job
+from onedata_lambda_utils import AtmFile, AtmObject, Job, JobContext, per_job
 
 
 ##===================================================================
@@ -28,5 +28,5 @@ class JobResult(TypedDict):
 
 
 @per_job
-def handle(job: AtmJob[JobArgs], ctx: AtmJobContext[AtmObject]) -> JobResult:
+def handle(job: Job[JobArgs], ctx: JobContext[AtmObject]) -> JobResult:
     return {"result": f"Hello - {job.args['item']['name']}"}

@@ -1,0 +1,15 @@
+[project]
+name = "checksum"
+version = "1.0.0"
+description = "Shared checksum logic for Onedata Automation lambdas (algorithms, streaming hash, stats builders, report shape)"
+requires-python = ">=3.12"
+dependencies = [
+    "onedata-lambda-utils>=1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/checksum"]
