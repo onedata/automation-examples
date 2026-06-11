@@ -1,82 +1,80 @@
-##
-## Lambdas
-##
+# automation-examples -- root tooling (lambda v3). A uv workspace of example lambdas:
+# dev tasks run in the workspace .venv via `uv run`; images via plain `docker build`.
 
-include lambdas/code_style_common.mk
+# Image registry: dev by default; append REGISTRY=onedata for the public image.
+DEV_REGISTRY    := docker.onedata.org
+PUBLIC_REGISTRY := onedata
+REGISTRY        ?= $(DEV_REGISTRY)
 
-LAMBDA_DIRS := $(foreach dir,$(wildcard lambdas/*),$(if $(wildcard $(dir)/docker/handler.py),$(dir)/docker))
+# Local SDK source, vendored as a wheel until it's published to PyPI (see `vendor-sdk`).
+SDK_REPO ?= ../onedata-lambda-utils
 
-define foreach_lambda
-	for lambda_dir in $(LAMBDA_DIRS); do \
-		$(MAKE) -C $$lambda_dir $1 || exit 1; \
-	done
-endef
+# Migrated lambdas (= the lambdas/ workspace members).
+LAMBDAS := $(notdir $(wildcard lambdas/*))
 
-# Formatting works recursively by default so aliasing simply works
-lambdas-format: format
-lambdas-black-check: black-check
-lambdas-static-analysis: static-analysis
+# Image for a lambda: <registry>/lambda-<name>:v<version> (version from its pyproject).
+lambda_version = $(shell python3 -c "import tomllib; print(tomllib.load(open('lambdas/$(1)/pyproject.toml','rb'))['project']['version'])")
+lambda_image   = $(REGISTRY)/lambda-$(1):v$(call lambda_version,$(1))
 
-lambdas-type-check:	
-	$(call foreach_lambda,type-check)
+.DEFAULT_GOAL := help
+.PHONY: help sync format lint type-check test check \
+        build build-all publish publish-all image-name clean vendor-sdk _require_lambda
 
-lambdas-build-dev:
-	$(call foreach_lambda,build)
+# `make help` groups targets by `##@ section` banners and lists each `target: ## description`.
+help:
+	@echo "Usage: make <target> [LAMBDA=<name>] [REGISTRY=$(PUBLIC_REGISTRY)]"
+	@awk 'BEGIN{FS=":.*## "} /^##@ /{printf "\n%s:\n",substr($$0,5)} /^[a-z][a-zA-Z0-9_-]*:.*## /{printf "  %-12s %s\n",$$1,$$2}' $(MAKEFILE_LIST)
+	@echo ""
+	@echo "lambdas:"
+	@echo "$(LAMBDAS)" | fmt -w 76 | sed 's/^/  /'
 
-lambdas-publish-dev:
-	$(call foreach_lambda,publish)
+##@ dev
 
-lambdas-build-public:
-	$(call foreach_lambda,build REGISTRY=docker.io HUB_USER=onedata)
+sync: ## sync the dev env (uv sync --all-packages)
+	uv sync --all-packages
 
-lambdas-publish-public:
-	$(call foreach_lambda,publish REGISTRY=docker.io HUB_USER=onedata)
+format: ## ruff format + autofix
+	uv run ruff format .
+	uv run ruff check --fix .
 
+lint: ## ruff format --check + check
+	uv run ruff format --check .
+	uv run ruff check .
 
-##
-## Lambdas management
-##
+type-check: ## mypy (src only)
+	uv run mypy lambdas/*/src packages/*/src
 
-SCRIPT_LAMBDA_MANAGEMENT := ./utils/manage_lambdas.sh
-SUFFIX ?=  # suffix to set in a lambda image after a tag
+test: ## pytest
+	uv run pytest
 
-lambdas-inc-makefile-tags:
-	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_tags_in_makefiles --inc $(SUFFIX)
+check: lint type-check test ## lint + type-check + test
 
-lambdas-dec-makefile-tags:
-	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_tags_in_makefiles --dec $(SUFFIX)
+##@ images
 
-lambdas-inc-dockerfile-tags:
-	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_tags_in_dockerfiles --inc $(SUFFIX)
+build: _require_lambda ## build one image (LAMBDA=<name>)
+	docker build --build-arg LAMBDA_PACKAGE=$(LAMBDA) -t $(call lambda_image,$(LAMBDA)) .
 
-lambdas-dec-dockerfile-tags:
-	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_tags_in_dockerfiles --dec $(SUFFIX)
+publish: _require_lambda ## push one image (LAMBDA=<name>)
+	docker push $(call lambda_image,$(LAMBDA))
 
-lambdas-update-dockerfiles-public:
-	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_repos_in_dockerfiles --public
+build-all: ## build every lambda
+	@set -e; for l in $(LAMBDAS); do echo ">> build $$l"; $(MAKE) --no-print-directory build LAMBDA=$$l; done
 
-lambdas-update-dockerfiles-dev:
-	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_repos_in_dockerfiles --dev
+publish-all: ## push every lambda
+	@set -e; for l in $(LAMBDAS); do echo ">> publish $$l"; $(MAKE) --no-print-directory publish LAMBDA=$$l; done
 
-lambdas-update-dumps-public:
-	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_images_in_dumps_with_makefile --public
+image-name: _require_lambda ## print the resolved image:tag (LAMBDA=<name>)
+	@echo $(call lambda_image,$(LAMBDA))
 
-lambdas-update-dumps-dev:
-	$(SCRIPT_LAMBDA_MANAGEMENT) update_all_lambda_images_in_dumps_with_makefile --dev
+##@ housekeeping
 
+clean: ## remove tool caches + __pycache__
+	rm -rf .ruff_cache .mypy_cache .pytest_cache
+	@find . -name __pycache__ -type d -prune -exec rm -rf {} + 2>/dev/null || true
 
-##
-## Workflows
-##
+vendor-sdk: ## rebuild & vendor the local SDK wheel (temporary, pre-PyPI)
+	cd $(SDK_REPO) && uv build --wheel --out-dir "$(CURDIR)/vendor"
+	uv lock --refresh-package onedata-lambda-utils
 
-workflows-ensure-all-used-docker-images-are-public:
-	@./utils/workflows.sh ensure_all_used_docker_images_are_public
-
-workflows-assert-only-public-docker-images-are-used:
-	@./utils/workflows.sh assert_only_public_docker_images_are_used
-
-workflows-assert-all-used-docker-images-are-published:
-	@./utils/workflows.sh assert_all_used_docker_images_are_published
-
-workflows-assert-all-lambda-images-are-used-in-workflows:
-	@./utils/workflows.sh assert_all_lambda_images_are_used_in_workflows
+_require_lambda:
+	@test -n "$(LAMBDA)" && test -d "lambdas/$(LAMBDA)" || { echo "error: set LAMBDA to one of: $(LAMBDAS)"; exit 1; }
