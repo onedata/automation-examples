@@ -16,14 +16,23 @@ LAMBDAS := $(notdir $(wildcard lambdas/*))
 lambda_version = $(shell python3 -c "import tomllib; print(tomllib.load(open('lambdas/$(1)/pyproject.toml','rb'))['project']['version'])")
 lambda_image   = $(REGISTRY)/lambda-$(1):v$(call lambda_version,$(1))
 
+bold := $(shell tput bold)
+normal := $(shell tput sgr0)
+blue := $(shell tput setaf 4)
+
+define print_target
+	@echo ""
+	@echo "$(blue)$(bold)$@:$(normal)"
+endef
+
 .DEFAULT_GOAL := help
-.PHONY: help sync format lint type-check test check \
+.PHONY: help sync format format-check static-analysis type-check test lint check \
         build build-all publish publish-all image-name clean vendor-sdk _require_lambda
 
 # `make help` groups targets by `##@ section` banners and lists each `target: ## description`.
 help:
 	@echo "Usage: make <target> [LAMBDA=<name>] [REGISTRY=$(PUBLIC_REGISTRY)]"
-	@awk 'BEGIN{FS=":.*## "} /^##@ /{printf "\n%s:\n",substr($$0,5)} /^[a-z][a-zA-Z0-9_-]*:.*## /{printf "  %-12s %s\n",$$1,$$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN{FS=":.*## "} /^##@ /{printf "\n%s:\n",substr($$0,5)} /^[a-z][a-zA-Z0-9_-]*:.*## /{printf "  %-20s %s\n",$$1,$$2}' $(MAKEFILE_LIST)
 	@echo ""
 	@echo "lambdas:"
 	@echo "$(LAMBDAS)" | fmt -w 76 | sed 's/^/  /'
@@ -34,20 +43,30 @@ sync: ## sync the dev env (uv sync --all-packages)
 	uv sync --all-packages
 
 format: ## ruff format + autofix
+	$(call print_target)
 	uv run ruff format .
 	uv run ruff check --fix .
 
-lint: ## ruff format --check + check
+format-check: ## ruff format --check
+	$(call print_target)
 	uv run ruff format --check .
+
+static-analysis: ## ruff check
+	$(call print_target)
 	uv run ruff check .
 
 type-check: ## mypy (src only)
+	$(call print_target)
 	uv run mypy lambdas/*/src packages/*/src
 
-test: ## pytest
-	uv run pytest
+lint: format-check static-analysis type-check ## format-check + static-analysis + type-check
+	@:
 
-check: lint type-check test ## lint + type-check + test
+test: ## pytest (+ junit for CI)
+	$(call print_target)
+	uv run pytest --junitxml=automation-examples-tests-results.xml
+
+check: lint test ## lint + test
 
 ##@ images
 
@@ -73,7 +92,7 @@ clean: ## remove tool caches + __pycache__
 	@find . -name __pycache__ -type d -prune -exec rm -rf {} + 2>/dev/null || true
 
 vendor-sdk: ## rebuild & vendor the local SDK wheel (temporary, pre-PyPI)
-	cd $(SDK_REPO) && uv build --wheel --out-dir "$(CURDIR)/vendor"
+	cd $(SDK_REPO) && uv build --wheel --no-create-gitignore --out-dir "$(CURDIR)/vendor"
 	uv lock --refresh-package onedata-lambda-utils
 
 _require_lambda:

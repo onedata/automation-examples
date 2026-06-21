@@ -32,7 +32,13 @@ src = ["lambdas/*/src", "packages/*/src"]
 extend-exclude = ["lambdas/*/docker", "lambdas_old", "utils"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B"]
+select = ["E", "W", "F", "I", "UP", "B", "SIM", "PL"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**/*.py" = [
+    "PLC0415",  # imports inside test functions are fine for locality
+    "PLR2004",  # magic numbers are the point of assertions
+]
 
 [tool.ruff.lint.isort]
 # 2 blank lines after imports so the first `## section ##` banner matches inter-section spacing.
@@ -42,7 +48,12 @@ lines-after-imports = 2
 python_version = "3.12"
 warn_redundant_casts = true
 warn_unused_ignores = true
+warn_unused_configs = true
+warn_return_any = true
+no_implicit_optional = true
+strict_equality = true
 disallow_untyped_defs = true
+disallow_incomplete_defs = true
 
 [[tool.mypy.overrides]]
 module = "xattr.*"

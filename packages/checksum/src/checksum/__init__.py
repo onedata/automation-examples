@@ -81,6 +81,8 @@ def calculate_checksum(
         if on_bytes is not None:
             on_bytes(len(chunk))
 
+    # digest is Any (getattr-based dispatch, so the shake hexdigest(len) branch type-checks);
+    # str() pins the declared return type.
     if algorithm in ("shake_128", "shake_256"):
-        return digest.hexdigest(_SHAKE_DIGEST_BYTES)
-    return digest.hexdigest()
+        return str(digest.hexdigest(_SHAKE_DIGEST_BYTES))
+    return str(digest.hexdigest())
