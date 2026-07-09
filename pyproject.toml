@@ -6,6 +6,7 @@
 members = ["packages/*", "lambdas/*"]
 
 [tool.uv.sources]
+bagit-archive = { workspace = true }
 checksum = { workspace = true }
 # Unpublished SDK -> vendored wheel (kept in the build context so it resolves the same
 # host-side and inside `docker build`). Refresh: rebuild the wheel into vendor/, then
@@ -57,6 +58,10 @@ disallow_incomplete_defs = true
 
 [[tool.mypy.overrides]]
 module = "xattr.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["XRootD", "XRootD.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

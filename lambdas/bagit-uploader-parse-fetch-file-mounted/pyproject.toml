@@ -1,0 +1,19 @@
+[project]
+name = "bagit-uploader-parse-fetch-file-mounted"
+version = "4.0.0"
+description = "Parse BagIt fetch.txt from an archive using mounted Oneclient"
+requires-python = ">=3.12"
+dependencies = [
+    "bagit-archive",
+    "onedata-lambda-utils>=1.0",
+]
+
+[project.entry-points."onedata.lambda"]
+handler = "bagit_uploader_parse_fetch_file_mounted.handler:handle"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bagit_uploader_parse_fetch_file_mounted"]

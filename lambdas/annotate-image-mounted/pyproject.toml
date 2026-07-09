@@ -1,0 +1,23 @@
+[project]
+name = "annotate-image-mounted"
+version = "4.0.0"
+description = "Annotate image files with basic properties using mounted Oneclient"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=1.26",
+    "onedata-lambda-utils>=1.0",
+    "pillow>=10.4",
+    "scipy>=1.14",
+    "webcolors>=24.8",
+    "xattr>=1.1",
+]
+
+[project.entry-points."onedata.lambda"]
+handler = "annotate_image_mounted.handler:handle"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/annotate_image_mounted"]
