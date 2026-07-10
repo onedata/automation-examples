@@ -51,7 +51,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/substitute-placeholders:v4-dev2",
+                      "dockerImage": "docker.onedata.org/lambda-substitute-placeholders:v4-dev2",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
