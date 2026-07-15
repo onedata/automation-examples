@@ -13,14 +13,18 @@ from onedata_lambda_utils.testing import build_job_context, build_jobs
 from demo.handler import handle
 
 
+FILE_ID = "file-id"
+FILE_NAME = "example.txt"
+
+
 def test_greets_input_file() -> None:
     rc = build_job_context(config={})
     jobs = build_jobs(
         [
             {
                 "item": {
-                    "fileId": "file-id",
-                    "name": "example.txt",
+                    "fileId": FILE_ID,
+                    "name": FILE_NAME,
                     "type": "REG",
                 }
             }
@@ -29,7 +33,7 @@ def test_greets_input_file() -> None:
 
     results = handle(jobs, rc.context)
 
-    assert results == [{"result": "Hello - example.txt"}]
+    assert results == [{"result": f"Hello - {FILE_NAME}"}]
 
 
 def test_handles_multiple_jobs() -> None:

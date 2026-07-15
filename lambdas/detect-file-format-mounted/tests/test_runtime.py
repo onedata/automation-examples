@@ -14,19 +14,29 @@ from onedata_lambda_utils.testing import build_request, run_local
 from detect_file_format_mounted import handler
 
 
+FILE_ID = "file-id"
+FILE_NAME = "document.txt"
+MISMATCHED_FILE_NAME = "document.bin"
+METADATA_KEY = "metadata"
+FORMAT_NAME = "ASCII text"
+MIME_TYPE = "text/plain"
+EXTENSIONS = [".txt"]
+EXTENSION_MATCHES = True
+
+
 def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     mount_point = tmp_path / "mnt"
     mount_point.mkdir()
     monkeypatch.setenv("ONECLIENT_MOUNT_POINT", str(mount_point))
     out_dir = tmp_path / "out"
     out_dir.mkdir()
-    target = mount_point / ".__onedata__file_id__file-id"
+    target = mount_point / f".__onedata__file_id__{FILE_ID}"
     target.write_text("content")
     stored: dict[str, bytes] = {}
 
     def from_file(path: str, mime: bool = False) -> str:
         assert Path(path) == target
-        return "text/plain" if mime else "ASCII text"
+        return MIME_TYPE if mime else FORMAT_NAME
 
     class XAttr:
         def __init__(self, path: str) -> None:
@@ -36,18 +46,18 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
             stored[name] = value
 
     monkeypatch.setattr(handler.magic, "from_file", from_file)
-    monkeypatch.setattr(handler.mimetypes, "guess_all_extensions", lambda mime_type: [".txt"])
+    monkeypatch.setattr(handler.mimetypes, "guess_all_extensions", lambda mime_type: EXTENSIONS)
     monkeypatch.setattr(handler.xattr, "xattr", XAttr)
 
     request = build_request(
         [
             {
                 "file": {
-                    "fileId": "file-id",
-                    "name": "document.txt",
+                    "fileId": FILE_ID,
+                    "name": FILE_NAME,
                     "type": "REG",
                 },
-                "metadataKey": "metadata",
+                "metadataKey": METADATA_KEY,
             }
         ],
         config={},
@@ -58,18 +68,18 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
         "resultsBatch": [
             {
                 "result": {
-                    "fileId": "file-id",
-                    "fileName": "document.txt",
-                    "formatName": "ASCII text",
-                    "mimeType": "text/plain",
-                    "extensions": [".txt"],
-                    "isExtensionMatchingFormat": True,
+                    "fileId": FILE_ID,
+                    "fileName": FILE_NAME,
+                    "formatName": FORMAT_NAME,
+                    "mimeType": MIME_TYPE,
+                    "extensions": EXTENSIONS,
+                    "isExtensionMatchingFormat": EXTENSION_MATCHES,
                 }
             }
         ]
     }
     assert stored == {
-        "metadata.format-name": b"ASCII text",
-        "metadata.mime-type": b"text/plain",
-        "metadata.is-extension-matching-format": b"True",
+        f"{METADATA_KEY}.format-name": FORMAT_NAME.encode(),
+        f"{METADATA_KEY}.mime-type": MIME_TYPE.encode(),
+        f"{METADATA_KEY}.is-extension-matching-format": str(EXTENSION_MATCHES).encode(),
     }

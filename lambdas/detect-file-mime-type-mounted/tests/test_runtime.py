@@ -14,13 +14,21 @@ from onedata_lambda_utils.testing import build_request, run_local
 from detect_file_mime_type_mounted import handler
 
 
+FILE_ID = "file-id"
+FILE_NAME = "document.txt"
+UNKNOWN_FILE_NAME = "unknown.extension-not-known"
+METADATA_KEY = "metadata"
+MIME_TYPE = "text/plain"
+UNKNOWN_MIME_TYPE = "unknown"
+
+
 def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     mount_point = tmp_path / "mnt"
     mount_point.mkdir()
     monkeypatch.setenv("ONECLIENT_MOUNT_POINT", str(mount_point))
     out_dir = tmp_path / "out"
     out_dir.mkdir()
-    target = mount_point / ".__onedata__file_id__file-id"
+    target = mount_point / f".__onedata__file_id__{FILE_ID}"
     target.write_text("content")
     stored: dict[str, bytes] = {}
 
@@ -37,11 +45,11 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
         [
             {
                 "file": {
-                    "fileId": "file-id",
-                    "name": "document.txt",
+                    "fileId": FILE_ID,
+                    "name": FILE_NAME,
                     "type": "REG",
                 },
-                "metadataKey": "metadata",
+                "metadataKey": METADATA_KEY,
             }
         ],
         config={},
@@ -52,11 +60,11 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
         "resultsBatch": [
             {
                 "format": {
-                    "fileId": "file-id",
-                    "fileName": "document.txt",
-                    "mimeType": "text/plain",
+                    "fileId": FILE_ID,
+                    "fileName": FILE_NAME,
+                    "mimeType": MIME_TYPE,
                 }
             }
         ]
     }
-    assert stored == {"metadata.mime-type": b"text/plain"}
+    assert stored == {f"{METADATA_KEY}.mime-type": MIME_TYPE.encode()}

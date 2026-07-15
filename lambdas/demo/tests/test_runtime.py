@@ -13,6 +13,10 @@ from onedata_lambda_utils.testing import build_request, run_local
 from demo.handler import handle
 
 
+FILE_ID = "file-id"
+FILE_NAME = "example.txt"
+
+
 def test_run_end_to_end(tmp_path: Path) -> None:
     out_dir = tmp_path / "out"
     out_dir.mkdir()
@@ -20,8 +24,8 @@ def test_run_end_to_end(tmp_path: Path) -> None:
         [
             {
                 "item": {
-                    "fileId": "file-id",
-                    "name": "example.txt",
+                    "fileId": FILE_ID,
+                    "name": FILE_NAME,
                     "type": "REG",
                 }
             }
@@ -31,4 +35,4 @@ def test_run_end_to_end(tmp_path: Path) -> None:
 
     result = run_local(handle, request, out_dir=out_dir)
 
-    assert result.envelope == {"resultsBatch": [{"result": "Hello - example.txt"}]}
+    assert result.envelope == {"resultsBatch": [{"result": f"Hello - {FILE_NAME}"}]}

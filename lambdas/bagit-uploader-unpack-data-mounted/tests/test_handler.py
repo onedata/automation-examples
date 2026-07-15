@@ -16,10 +16,15 @@ from onedata_lambda_utils.testing import build_job_context, build_jobs
 from bagit_uploader_unpack_data_mounted.handler import handle
 
 
+ARCHIVE_ID = "archive-id"
+ARCHIVE_NAME = "archive.zip"
+DESTINATION_ID = "destination-id"
+
+
 def _job_args(
-    archive_id: str = "archive-id",
-    archive_name: str = "archive.zip",
-    destination_id: str = "destination-id",
+    archive_id: str = ARCHIVE_ID,
+    archive_name: str = ARCHIVE_NAME,
+    destination_id: str = DESTINATION_ID,
 ) -> dict[str, Any]:
     return {
         "archive": {
@@ -54,8 +59,8 @@ def _write_zip_archive(path: Path, entries: dict[str, bytes]) -> None:
 
 
 def test_parallel_variant_unpacks_zip_data_files(mount_point: Path) -> None:
-    archive_path = _mounted_file(mount_point, "archive-id")
-    destination_path = _mounted_file(mount_point, "destination-id")
+    archive_path = _mounted_file(mount_point, ARCHIVE_ID)
+    destination_path = _mounted_file(mount_point, DESTINATION_ID)
     _write_zip_archive(
         archive_path,
         {
@@ -72,11 +77,11 @@ def test_parallel_variant_unpacks_zip_data_files(mount_point: Path) -> None:
     assert results == [
         {
             "unpackedFiles": [
-                ".__onedata__file_id__destination-id/file.txt",
-                ".__onedata__file_id__destination-id/nested/file.bin",
+                f".__onedata__file_id__{DESTINATION_ID}/file.txt",
+                f".__onedata__file_id__{DESTINATION_ID}/nested/file.bin",
             ],
             "statusLog": {
-                "archive": "archive.zip",
+                "archive": ARCHIVE_NAME,
                 "status": "Successfully unpacked 2 files.",
             },
         }

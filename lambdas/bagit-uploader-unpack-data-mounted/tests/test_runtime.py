@@ -16,15 +16,20 @@ from onedata_lambda_utils.testing import build_request, run_local
 from bagit_uploader_unpack_data_mounted.handler import handle
 
 
+ARCHIVE_ID = "archive-id"
+ARCHIVE_NAME = "archive.zip"
+DESTINATION_ID = "destination-id"
+
+
 def _job_args() -> dict[str, Any]:
     return {
         "archive": {
-            "fileId": "archive-id",
-            "name": "archive.zip",
+            "fileId": ARCHIVE_ID,
+            "name": ARCHIVE_NAME,
             "type": "REG",
         },
         "destinationDir": {
-            "fileId": "destination-id",
+            "fileId": DESTINATION_ID,
             "type": "DIR",
         },
     }
@@ -41,7 +46,7 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
     out_dir = tmp_path / "out"
     out_dir.mkdir()
 
-    with zipfile.ZipFile(_mounted_file(mount_point, "archive-id"), "w") as archive:
+    with zipfile.ZipFile(_mounted_file(mount_point, ARCHIVE_ID), "w") as archive:
         archive.writestr("bag/data/", b"")
         archive.writestr("bag/bagit.txt", b"BagIt-Version: 0.97\n")
         archive.writestr("bag/data/file.txt", b"runtime content")
@@ -52,15 +57,15 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
     assert result.envelope == {
         "resultsBatch": [
             {
-                "unpackedFiles": [".__onedata__file_id__destination-id/file.txt"],
+                "unpackedFiles": [f".__onedata__file_id__{DESTINATION_ID}/file.txt"],
                 "statusLog": {
-                    "archive": "archive.zip",
+                    "archive": ARCHIVE_NAME,
                     "status": "Successfully unpacked 1 files.",
                 },
             }
         ]
     }
-    assert _mounted_file(mount_point, "destination-id").joinpath("file.txt").read_bytes() == (
+    assert _mounted_file(mount_point, DESTINATION_ID).joinpath("file.txt").read_bytes() == (
         b"runtime content"
     )
     ts_names = [m["tsName"] for m in result.streams["stats"]]

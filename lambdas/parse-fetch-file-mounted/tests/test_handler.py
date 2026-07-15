@@ -15,6 +15,17 @@ from onedata_lambda_utils.testing import build_job_context, build_jobs
 from parse_fetch_file_mounted.handler import handle
 
 
+FETCH_FILE_ID = "fetch-file-id"
+DESTINATION_ID = "destination-id"
+FETCH_FILE_NAME = "fetch.txt"
+SOURCE_URL = "https://example.test/a.txt"
+SOURCE_SIZE = 12
+SOURCE_PATH = "a.txt"
+NESTED_SOURCE_URL = "root://example.test/b.bin"
+NESTED_SOURCE_SIZE = 34
+NESTED_SOURCE_PATH = "nested/b.bin"
+
+
 @pytest.fixture
 def mount_point(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     mount = tmp_path / "mnt"
@@ -27,23 +38,28 @@ def _mounted_file(mount_point: Path, file_id: str) -> Path:
     return mount_point / f".__onedata__file_id__{file_id}"
 
 
+def _destination_path(rel_path: str) -> str:
+    return f".__onedata__file_id__{DESTINATION_ID}/{rel_path}"
+
+
 def _job_args(fetch_file_type: str = "REG") -> dict[str, Any]:
     return {
         "fetchFile": {
-            "fileId": "fetch-file-id",
-            "name": "fetch.txt",
+            "fileId": FETCH_FILE_ID,
+            "name": FETCH_FILE_NAME,
             "type": fetch_file_type,
         },
         "destinationDir": {
-            "fileId": "destination-id",
+            "fileId": DESTINATION_ID,
             "type": "DIR",
         },
     }
 
 
 def test_parses_fetch_file(mount_point: Path) -> None:
-    _mounted_file(mount_point, "fetch-file-id").write_text(
-        "https://example.test/a.txt 12 a.txt\nroot://example.test/b.bin 34 nested/b.bin\n"
+    _mounted_file(mount_point, FETCH_FILE_ID).write_text(
+        f"{SOURCE_URL} {SOURCE_SIZE} {SOURCE_PATH}\n"
+        f"{NESTED_SOURCE_URL} {NESTED_SOURCE_SIZE} {NESTED_SOURCE_PATH}\n"
     )
 
     rc = build_job_context(config={})
@@ -53,19 +69,19 @@ def test_parses_fetch_file(mount_point: Path) -> None:
         {
             "filesToDownload": [
                 {
-                    "sourceUrl": "https://example.test/a.txt",
-                    "destinationPath": ".__onedata__file_id__destination-id/a.txt",
-                    "size": 12,
+                    "sourceUrl": SOURCE_URL,
+                    "destinationPath": _destination_path(SOURCE_PATH),
+                    "size": SOURCE_SIZE,
                 },
                 {
-                    "sourceUrl": "root://example.test/b.bin",
-                    "destinationPath": ".__onedata__file_id__destination-id/nested/b.bin",
-                    "size": 34,
+                    "sourceUrl": NESTED_SOURCE_URL,
+                    "destinationPath": _destination_path(NESTED_SOURCE_PATH),
+                    "size": NESTED_SOURCE_SIZE,
                 },
             ],
             "statusLog": {
                 "severity": "info",
-                "fetchFileName": "fetch.txt",
+                "fetchFileName": FETCH_FILE_NAME,
                 "status": "Found  2 files to be downloaded.",
             },
         }
@@ -73,7 +89,7 @@ def test_parses_fetch_file(mount_point: Path) -> None:
 
 
 def test_directory_fetch_file_returns_empty_list(mount_point: Path) -> None:
-    _mounted_file(mount_point, "fetch-file-id").mkdir()
+    _mounted_file(mount_point, FETCH_FILE_ID).mkdir()
 
     rc = build_job_context(config={})
     results = handle(build_jobs([_job_args(fetch_file_type="DIR")]), rc.context)
@@ -83,7 +99,7 @@ def test_directory_fetch_file_returns_empty_list(mount_point: Path) -> None:
 
 
 def test_rejects_malformed_line(mount_point: Path) -> None:
-    _mounted_file(mount_point, "fetch-file-id").write_text("https://example.test/a.txt 12\n")
+    _mounted_file(mount_point, FETCH_FILE_ID).write_text("https://example.test/a.txt 12\n")
 
     rc = build_job_context(config={})
     results = handle(build_jobs([_job_args()]), rc.context)
@@ -93,7 +109,7 @@ def test_rejects_malformed_line(mount_point: Path) -> None:
 
 
 def test_rejects_unsafe_destination_path(mount_point: Path) -> None:
-    _mounted_file(mount_point, "fetch-file-id").write_text(
+    _mounted_file(mount_point, FETCH_FILE_ID).write_text(
         "https://example.test/a.txt 12 ../a.txt\n"
     )
 

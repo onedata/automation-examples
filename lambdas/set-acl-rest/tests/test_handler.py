@@ -14,6 +14,16 @@ from onedata_lambda_utils.testing import build_job_context, build_jobs
 from set_acl_rest import handler
 
 
+FILE_ID = "file-id"
+GROUP_ID = "group-id"
+TARGET_NAME = "target"
+ACE_TYPE = "ALLOW"
+ACE_FLAGS = "IDENTIFIER_GROUP"
+ACE_MASK = "READ_OBJECT"
+PROVIDER_DOMAIN = "provider.test"
+ACCESS_TOKEN = "token"
+
+
 class Response:
     def __init__(self, status_code: int = 200) -> None:
         self.status_code = status_code
@@ -26,16 +36,16 @@ class Response:
 def _job_args() -> dict[str, Any]:
     return {
         "targetFile": {
-            "fileId": "file-id",
-            "name": "target",
+            "fileId": FILE_ID,
+            "name": TARGET_NAME,
             "type": "REG",
         },
         "acl": [
             {
-                "acetype": "ALLOW",
-                "aceflags": "IDENTIFIER_GROUP",
-                "acemask": "READ_OBJECT",
-                "identifier": "group-id",
+                "acetype": ACE_TYPE,
+                "aceflags": ACE_FLAGS,
+                "acemask": ACE_MASK,
+                "identifier": GROUP_ID,
             }
         ],
     }
@@ -52,15 +62,15 @@ def test_sets_acl(monkeypatch: pytest.MonkeyPatch) -> None:
 
     rc = build_job_context(
         config={},
-        oneprovider_domain="provider.test",
-        access_token="token",
+        oneprovider_domain=PROVIDER_DOMAIN,
+        access_token=ACCESS_TOKEN,
     )
     results = handler.handle(build_jobs([_job_args()]), rc.context)
 
     assert results == [None]
-    assert puts[0][0] == ("https://provider.test/api/v3/oneprovider/data/file-id/metadata/xattrs")
+    assert puts[0][0] == (f"https://{PROVIDER_DOMAIN}/api/v3/oneprovider/data/{FILE_ID}/metadata/xattrs")
     assert puts[0][1]["headers"] == {
-        "x-auth-token": "token",
+        "x-auth-token": ACCESS_TOKEN,
         "content-type": "application/json",
     }
     assert puts[0][1]["json"] == {"cdmi_acl": _job_args()["acl"]}
@@ -75,8 +85,8 @@ def test_rest_error_is_per_job_exception(monkeypatch: pytest.MonkeyPatch) -> Non
 
     rc = build_job_context(
         config={},
-        oneprovider_domain="provider.test",
-        access_token="token",
+        oneprovider_domain=PROVIDER_DOMAIN,
+        access_token=ACCESS_TOKEN,
     )
     results = handler.handle(build_jobs([_job_args()]), rc.context)
 

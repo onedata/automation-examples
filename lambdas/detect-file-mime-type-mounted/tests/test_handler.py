@@ -15,6 +15,14 @@ from onedata_lambda_utils.testing import build_job_context, build_jobs
 from detect_file_mime_type_mounted import handler
 
 
+FILE_ID = "file-id"
+FILE_NAME = "document.txt"
+UNKNOWN_FILE_NAME = "unknown.extension-not-known"
+METADATA_KEY = "metadata"
+MIME_TYPE = "text/plain"
+UNKNOWN_MIME_TYPE = "unknown"
+
+
 @pytest.fixture
 def mount_point(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     mount = tmp_path / "mnt"
@@ -29,13 +37,13 @@ def _mounted_file(mount_point: Path, file_id: str) -> Path:
 
 def _job_args(
     *,
-    file_name: str = "document.txt",
+    file_name: str = FILE_NAME,
     file_type: str = "REG",
-    metadata_key: str = "metadata",
+    metadata_key: str = METADATA_KEY,
 ) -> dict[str, Any]:
     return {
         "file": {
-            "fileId": "file-id",
+            "fileId": FILE_ID,
             "name": file_name,
             "type": file_type,
         },
@@ -46,7 +54,7 @@ def _job_args(
 def test_detects_mime_type_and_stores_xattr(
     mount_point: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    target = _mounted_file(mount_point, "file-id")
+    target = _mounted_file(mount_point, FILE_ID)
     target.write_text("content")
     stored: dict[str, bytes] = {}
 
@@ -65,25 +73,25 @@ def test_detects_mime_type_and_stores_xattr(
     assert results == [
         {
             "format": {
-                "fileId": "file-id",
-                "fileName": "document.txt",
-                "mimeType": "text/plain",
+                "fileId": FILE_ID,
+                "fileName": FILE_NAME,
+                "mimeType": MIME_TYPE,
             }
         }
     ]
-    assert stored == {"metadata.mime-type": b"text/plain"}
+    assert stored == {f"{METADATA_KEY}.mime-type": MIME_TYPE.encode()}
 
 
 def test_unknown_mime_type_without_metadata(mount_point: Path) -> None:
-    _mounted_file(mount_point, "file-id").write_text("content")
+    _mounted_file(mount_point, FILE_ID).write_text("content")
 
     rc = build_job_context(config={})
     results = handler.handle(
-        build_jobs([_job_args(file_name="unknown.extension-not-known", metadata_key="")]),
+        build_jobs([_job_args(file_name=UNKNOWN_FILE_NAME, metadata_key="")]),
         rc.context,
     )
 
-    assert results[0]["format"]["mimeType"] == "unknown"
+    assert results[0]["format"]["mimeType"] == UNKNOWN_MIME_TYPE
 
 
 def test_rejects_non_regular_file() -> None:

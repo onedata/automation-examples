@@ -16,15 +16,20 @@ from onedata_lambda_utils.testing import build_request, run_local
 from bagit_uploader_register_metadata_mounted import handler
 
 
+ARCHIVE_ID = "archive-id"
+ARCHIVE_NAME = "archive.zip"
+DESTINATION_ID = "destination-id"
+
+
 def _job_args() -> dict[str, Any]:
     return {
         "archive": {
-            "fileId": "archive-id",
-            "name": "archive.zip",
+            "fileId": ARCHIVE_ID,
+            "name": ARCHIVE_NAME,
             "type": "REG",
         },
         "destinationDir": {
-            "fileId": "destination-id",
+            "fileId": DESTINATION_ID,
             "name": "destination",
             "type": "DIR",
         },
@@ -42,7 +47,7 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
     out_dir = tmp_path / "out"
     out_dir.mkdir()
 
-    target = _mounted_file(mount_point, "destination-id") / "file.txt"
+    target = _mounted_file(mount_point, DESTINATION_ID) / "file.txt"
     target.parent.mkdir()
     target.write_bytes(b"content")
     xattrs: dict[Path, dict[str, bytes]] = {}
@@ -56,7 +61,7 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
 
     monkeypatch.setattr(handler.xattr, "xattr", XAttr)
 
-    with zipfile.ZipFile(_mounted_file(mount_point, "archive-id"), "w") as archive:
+    with zipfile.ZipFile(_mounted_file(mount_point, ARCHIVE_ID), "w") as archive:
         archive.writestr("bag/bagit.txt", b"BagIt-Version: 0.97\n")
         archive.writestr("bag/manifest-sha256.txt", "abc123 data/file.txt\n")
 

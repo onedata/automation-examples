@@ -16,10 +16,15 @@ from onedata_lambda_utils.testing import build_job_context, build_jobs
 from bagit_uploader_register_metadata_mounted import handler
 
 
+ARCHIVE_ID = "archive-id"
+ARCHIVE_NAME = "archive.zip"
+DESTINATION_ID = "destination-id"
+
+
 def _job_args(
-    archive_id: str = "archive-id",
-    archive_name: str = "archive.zip",
-    destination_id: str = "destination-id",
+    archive_id: str = ARCHIVE_ID,
+    archive_name: str = ARCHIVE_NAME,
+    destination_id: str = DESTINATION_ID,
     archive_type: str = "REG",
     destination_type: str = "DIR",
 ) -> dict[str, Any]:
@@ -73,11 +78,11 @@ def xattrs(monkeypatch: pytest.MonkeyPatch) -> dict[Path, dict[str, bytes]]:
 def test_registers_expected_checksum_xattrs(
     mount_point: Path, xattrs: dict[Path, dict[str, bytes]]
 ) -> None:
-    target = _mounted_file(mount_point, "destination-id") / "nested" / "file.txt"
+    target = _mounted_file(mount_point, DESTINATION_ID) / "nested" / "file.txt"
     target.parent.mkdir(parents=True)
     target.write_bytes(b"content")
     _write_zip_archive(
-        _mounted_file(mount_point, "archive-id"),
+        _mounted_file(mount_point, ARCHIVE_ID),
         "abc123 data/nested/file.txt\n",
     )
 
@@ -91,7 +96,7 @@ def test_registers_expected_checksum_xattrs(
 
 def test_rejects_manifest_path_outside_data(mount_point: Path) -> None:
     _write_zip_archive(
-        _mounted_file(mount_point, "archive-id"),
+        _mounted_file(mount_point, ARCHIVE_ID),
         "abc123 metadata/file.txt\n",
     )
 

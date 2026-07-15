@@ -14,6 +14,16 @@ from onedata_lambda_utils.testing import build_request, run_local
 from set_acl_rest import handler
 
 
+FILE_ID = "file-id"
+GROUP_ID = "group-id"
+TARGET_NAME = "target"
+ACE_TYPE = "ALLOW"
+ACE_FLAGS = "IDENTIFIER_GROUP"
+ACE_MASK = "READ_OBJECT"
+PROVIDER_DOMAIN = "provider.test"
+ACCESS_TOKEN = "token"
+
+
 class Response:
     def raise_for_status(self) -> None:
         pass
@@ -34,35 +44,35 @@ def test_run_end_to_end(tmp_path: Any, monkeypatch: pytest.MonkeyPatch) -> None:
         [
             {
                 "targetFile": {
-                    "fileId": "file-id",
-                    "name": "target",
+                    "fileId": FILE_ID,
+                    "name": TARGET_NAME,
                     "type": "REG",
                 },
                 "acl": [
                     {
-                        "acetype": "ALLOW",
-                        "aceflags": "IDENTIFIER_GROUP",
-                        "acemask": "READ_OBJECT",
-                        "identifier": "group-id",
+                        "acetype": ACE_TYPE,
+                        "aceflags": ACE_FLAGS,
+                        "acemask": ACE_MASK,
+                        "identifier": GROUP_ID,
                     }
                 ],
             }
         ],
         config={},
-        oneprovider_domain="provider.test",
-        access_token="token",
+        oneprovider_domain=PROVIDER_DOMAIN,
+        access_token=ACCESS_TOKEN,
     )
     result = run_local(handler.handle, request, out_dir=out_dir)
 
     assert result.envelope == {"resultsBatch": [None]}
-    assert puts[0][0] == ("https://provider.test/api/v3/oneprovider/data/file-id/metadata/xattrs")
+    assert puts[0][0] == (f"https://{PROVIDER_DOMAIN}/api/v3/oneprovider/data/{FILE_ID}/metadata/xattrs")
     assert puts[0][1]["json"] == {
         "cdmi_acl": [
             {
-                "acetype": "ALLOW",
-                "aceflags": "IDENTIFIER_GROUP",
-                "acemask": "READ_OBJECT",
-                "identifier": "group-id",
+                "acetype": ACE_TYPE,
+                "aceflags": ACE_FLAGS,
+                "acemask": ACE_MASK,
+                "identifier": GROUP_ID,
             }
         ]
     }

@@ -16,6 +16,16 @@ from PIL import Image
 from annotate_image_mounted import handler
 
 
+FILE_ID = "file-id"
+IMAGE_SIZE = (4, 2)
+IMAGE_COLOUR = (255, 0, 0)
+IMAGE_FORMAT = "PNG"
+IMAGE_WIDTH = b"4"
+IMAGE_HEIGHT = b"2"
+IMAGE_ORIENTATION = b"horizontal"
+IMAGE_COLOUR_NAME = b"red"
+
+
 @pytest.fixture
 def mount_point(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     mount = tmp_path / "mnt"
@@ -31,17 +41,15 @@ def _mounted_file(mount_point: Path, file_id: str) -> Path:
 def _job_args(file_type: str = "REG") -> dict[str, Any]:
     return {
         "file": {
-            "fileId": "file-id",
+            "fileId": FILE_ID,
             "type": file_type,
         }
     }
 
 
-def test_annotates_image_with_xattrs(
-    mount_point: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    target = _mounted_file(mount_point, "file-id")
-    Image.new("RGB", (4, 2), color=(255, 0, 0)).save(target, format="PNG")
+def test_annotates_image_with_xattrs(mount_point: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    target = _mounted_file(mount_point, FILE_ID)
+    Image.new("RGB", IMAGE_SIZE, color=IMAGE_COLOUR).save(target, format=IMAGE_FORMAT)
     stored: dict[str, bytes] = {}
 
     class XAttr:
@@ -58,11 +66,11 @@ def test_annotates_image_with_xattrs(
 
     assert results == [None]
     assert stored == {
-        "width": b"4",
-        "height": b"2",
-        "orientation": b"horizontal",
-        "average_colour": b"red",
-        "dominant_colour": b"red",
+        "width": IMAGE_WIDTH,
+        "height": IMAGE_HEIGHT,
+        "orientation": IMAGE_ORIENTATION,
+        "average_colour": IMAGE_COLOUR_NAME,
+        "dominant_colour": IMAGE_COLOUR_NAME,
     }
 
 
@@ -75,7 +83,7 @@ def test_non_regular_file_is_ignored() -> None:
 
 
 def test_non_image_file_is_ignored(mount_point: Path) -> None:
-    _mounted_file(mount_point, "file-id").write_text("not an image")
+    _mounted_file(mount_point, FILE_ID).write_text("not an image")
 
     rc = build_job_context(config={})
     results = handler.handle(build_jobs([_job_args()]), rc.context)
@@ -86,8 +94,8 @@ def test_non_image_file_is_ignored(mount_point: Path) -> None:
 def test_xattr_error_is_per_job_exception(
     mount_point: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    target = _mounted_file(mount_point, "file-id")
-    Image.new("RGB", (4, 2), color=(255, 0, 0)).save(target, format="PNG")
+    target = _mounted_file(mount_point, FILE_ID)
+    Image.new("RGB", IMAGE_SIZE, color=IMAGE_COLOUR).save(target, format=IMAGE_FORMAT)
 
     class XAttr:
         def __init__(self, path: str) -> None:

@@ -15,6 +15,16 @@ from PIL import Image
 from annotate_image_mounted import handler
 
 
+FILE_ID = "file-id"
+IMAGE_SIZE = (4, 2)
+IMAGE_COLOUR = (255, 0, 0)
+IMAGE_FORMAT = "PNG"
+IMAGE_WIDTH = b"4"
+IMAGE_HEIGHT = b"2"
+IMAGE_ORIENTATION = b"horizontal"
+IMAGE_COLOUR_NAME = b"red"
+
+
 def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     mount_point = tmp_path / "mnt"
     mount_point.mkdir()
@@ -22,8 +32,8 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
     out_dir = tmp_path / "out"
     out_dir.mkdir()
 
-    target = mount_point / ".__onedata__file_id__file-id"
-    Image.new("RGB", (4, 2), color=(255, 0, 0)).save(target, format="PNG")
+    target = mount_point / f".__onedata__file_id__{FILE_ID}"
+    Image.new("RGB", IMAGE_SIZE, color=IMAGE_COLOUR).save(target, format=IMAGE_FORMAT)
     stored: dict[str, bytes] = {}
 
     class XAttr:
@@ -39,7 +49,7 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
         [
             {
                 "file": {
-                    "fileId": "file-id",
+                    "fileId": FILE_ID,
                     "type": "REG",
                 }
             }
@@ -50,9 +60,9 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
 
     assert result.envelope == {"resultsBatch": [None]}
     assert stored == {
-        "width": b"4",
-        "height": b"2",
-        "orientation": b"horizontal",
-        "average_colour": b"red",
-        "dominant_colour": b"red",
+        "width": IMAGE_WIDTH,
+        "height": IMAGE_HEIGHT,
+        "orientation": IMAGE_ORIENTATION,
+        "average_colour": IMAGE_COLOUR_NAME,
+        "dominant_colour": IMAGE_COLOUR_NAME,
     }

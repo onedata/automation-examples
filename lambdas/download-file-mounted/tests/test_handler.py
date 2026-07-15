@@ -18,6 +18,12 @@ from onedata_lambda_utils.testing import build_job_context, build_jobs
 from download_file_mounted import handler
 
 
+SOURCE_URL = "https://example.test/file.txt"
+ROOT_URL = "root://example.test/file.dat"
+DESTINATION_PATH = "nested/file.txt"
+DESTINATION_CONTENT = b"hello onedata\n"
+
+
 def test_http_download_writes_file_and_streams_stats(
     mount_point: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -25,10 +31,9 @@ def test_http_download_writes_file_and_streams_stats(
     job_args: Callable[[str, str, int], dict[str, Any]],
 ) -> None:
     chunks = [b"hello ", b"onedata\n"]
-    source_url = "https://example.test/file.txt"
 
     def get(url: str, **kwargs: object) -> object:
-        assert url == source_url
+        assert url == SOURCE_URL
         assert kwargs["stream"] is True
         assert kwargs["allow_redirects"] is True
         assert kwargs["headers"] == {"user-agent": handler.USER_AGENT}
@@ -38,12 +43,12 @@ def test_http_download_writes_file_and_streams_stats(
 
     rc = build_job_context(config={})
     results = handler.handle(
-        build_jobs([job_args(source_url, "nested/file.txt", sum(map(len, chunks)))]),
+        build_jobs([job_args(SOURCE_URL, DESTINATION_PATH, sum(map(len, chunks)))]),
         rc.context,
     )
 
-    assert results == [{"processedFilePath": "nested/file.txt"}]
-    assert (mount_point / "nested/file.txt").read_bytes() == b"hello onedata\n"
+    assert results == [{"processedFilePath": DESTINATION_PATH}]
+    assert (mount_point / DESTINATION_PATH).read_bytes() == DESTINATION_CONTENT
     ts_names = [m["tsName"] for m in rc.streams["stats"]]
     assert ts_names.count("bytesProcessed") == 2
     assert ts_names.count("filesProcessed") == 1
@@ -66,7 +71,7 @@ def test_existing_file_with_expected_size_is_not_downloaded(
 
     rc = build_job_context(config={})
     results = handler.handle(
-        build_jobs([job_args("https://example.test/file.txt", "already/here.txt", 6)]),
+        build_jobs([job_args(SOURCE_URL, "already/here.txt", 6)]),
         rc.context,
     )
 
@@ -96,7 +101,7 @@ def test_existing_file_with_wrong_size_is_replaced(
 
     rc = build_job_context(config={})
     results = handler.handle(
-        build_jobs([job_args("https://example.test/file.txt", "replace/me.txt", 11)]),
+        build_jobs([job_args(SOURCE_URL, "replace/me.txt", 11)]),
         rc.context,
     )
 
@@ -121,7 +126,7 @@ def test_size_mismatch_is_per_job_exception(
 
     rc = build_job_context(config={})
     results = handler.handle(
-        build_jobs([job_args("https://example.test/file.txt", "bad-size.txt", 100)]),
+        build_jobs([job_args(SOURCE_URL, "bad-size.txt", 100)]),
         rc.context,
     )
 
@@ -148,7 +153,7 @@ def test_destination_path_must_stay_within_mount(
 
     rc = build_job_context(config={})
     results = handler.handle(
-        build_jobs([job_args("https://example.test/file.txt", "../outside.txt", 7)]),
+        build_jobs([job_args(SOURCE_URL, "../outside.txt", 7)]),
         rc.context,
     )
 
@@ -177,7 +182,7 @@ def test_xrootd_download_uses_xrootd_client(
             pass
 
         def open(self, url: str, flags: object) -> tuple[Status, None]:
-            assert url == "root://example.test/file.dat"
+            assert url == ROOT_URL
             assert flags is sys.modules["XRootD.client.flags"].OpenFlags.READ
             return Status(), None
 
@@ -190,7 +195,7 @@ def test_xrootd_download_uses_xrootd_client(
 
     rc = build_job_context(config={})
     results = handler.handle(
-        build_jobs([job_args("root://example.test/file.dat", "xrootd/file.dat", 12)]),
+        build_jobs([job_args(ROOT_URL, "xrootd/file.dat", 12)]),
         rc.context,
     )
 
