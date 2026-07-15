@@ -14,6 +14,7 @@ import xattr
 from onedata_lambda_utils import (
     DEFAULT_MAX_WORKERS,
     AtmFile,
+    AtmObject,
     Job,
     JobContext,
     JobException,
@@ -37,10 +38,6 @@ AVAILABLE_CHECKSUM_ALGORITHMS: Final[set[str]] = {"adler32"}.union(hashlib.algor
 ##===================================================================
 
 
-class TaskConfig(TypedDict):
-    pass
-
-
 class JobArgs(TypedDict):
     archive: AtmFile
     destinationDir: AtmFile
@@ -55,7 +52,7 @@ type JobResult = None
 
 
 @per_job(max_workers=DEFAULT_MAX_WORKERS)
-def handle(job: Job[JobArgs], _ctx: JobContext[TaskConfig]) -> JobResult:
+def handle(job: Job[JobArgs], _ctx: JobContext[AtmObject]) -> JobResult:
     archive = job.args["archive"]
     destination_dir = job.args["destinationDir"]
 

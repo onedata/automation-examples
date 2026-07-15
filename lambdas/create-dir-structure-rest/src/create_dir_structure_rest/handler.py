@@ -19,6 +19,7 @@ import requests
 from onedata_lambda_utils import (
     DEFAULT_MAX_WORKERS,
     AtmFile,
+    AtmObject,
     Job,
     JobContext,
     JobException,
@@ -49,17 +50,13 @@ class JobResult(TypedDict):
     directories: list[AtmFile]
 
 
-class TaskConfig(TypedDict):
-    pass
-
-
 ##===================================================================
 ## Lambda implementation
 ##===================================================================
 
 
 @per_job(max_workers=DEFAULT_MAX_WORKERS)
-def handle(job: Job[JobArgs], ctx: JobContext[TaskConfig]) -> JobResult:
+def handle(job: Job[JobArgs], ctx: JobContext[AtmObject]) -> JobResult:
     parent_id = job.args["targetDir"]["fileId"]
     parent_path = job.args["targetDir"]["path"]
 
@@ -71,7 +68,7 @@ def handle(job: Job[JobArgs], ctx: JobContext[TaskConfig]) -> JobResult:
     return {"directories": dir_objects}
 
 
-def _create_dir(parent_id: str, parent_path: str, path: str, ctx: JobContext[TaskConfig]) -> str:
+def _create_dir(parent_id: str, parent_path: str, path: str, ctx: JobContext[AtmObject]) -> str:
     resp = requests.put(
         _build_create_dir_rest_url(ctx.oneprovider_domain, parent_id, path),
         params={"type": "DIR", "create_parents": "true"},
@@ -98,7 +95,7 @@ def _build_create_dir_rest_url(domain: str, parent_id: str, path: str) -> str:
     return f"https://{domain}/api/v3/oneprovider/data/{parent_id}/path/{_encode_url_path(path)}"
 
 
-def _get_file_id(parent_path: str, path: str, ctx: JobContext[TaskConfig]) -> str:
+def _get_file_id(parent_path: str, path: str, ctx: JobContext[AtmObject]) -> str:
     resp = requests.post(
         _build_get_file_id_rest_url(ctx.oneprovider_domain, parent_path, path),
         headers={

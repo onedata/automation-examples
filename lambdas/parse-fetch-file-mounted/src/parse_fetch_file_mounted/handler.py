@@ -12,7 +12,6 @@ from pathlib import Path, PurePosixPath
 from typing import TypedDict
 
 from onedata_lambda_utils import (
-    DEFAULT_MAX_WORKERS,
     AtmFile,
     AtmObject,
     Job,
@@ -23,8 +22,9 @@ from onedata_lambda_utils import (
 )
 
 
-class TaskConfig(TypedDict):
-    pass
+##===================================================================
+## Lambda interface
+##===================================================================
 
 
 class JobArgs(TypedDict):
@@ -43,8 +43,13 @@ class JobResult(TypedDict):
     statusLog: AtmObject
 
 
-@per_job(max_workers=DEFAULT_MAX_WORKERS)
-def handle(job: Job[JobArgs], _ctx: JobContext[TaskConfig]) -> JobResult:
+##===================================================================
+## Lambda implementation
+##===================================================================
+
+
+@per_job
+def handle(job: Job[JobArgs], _ctx: JobContext[AtmObject]) -> JobResult:
     fetch_file = job.args["fetchFile"]
 
     if fetch_file["type"] == "DIR":

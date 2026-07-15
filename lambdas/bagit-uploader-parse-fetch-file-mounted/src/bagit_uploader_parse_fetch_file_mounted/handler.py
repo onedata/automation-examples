@@ -10,7 +10,6 @@ from pathlib import PurePosixPath
 from typing import TypedDict
 
 from onedata_lambda_utils import (
-    DEFAULT_MAX_WORKERS,
     AtmFile,
     AtmObject,
     Job,
@@ -22,8 +21,9 @@ from onedata_lambda_utils import (
 from bagit_archive import BagitArchive, open_mounted_archive
 
 
-class TaskConfig(TypedDict):
-    pass
+##===================================================================
+## Lambda interface
+##===================================================================
 
 
 class JobArgs(TypedDict):
@@ -42,8 +42,13 @@ class JobResult(TypedDict):
     statusLog: AtmObject
 
 
-@per_job(max_workers=DEFAULT_MAX_WORKERS)
-def handle(job: Job[JobArgs], _ctx: JobContext[TaskConfig]) -> JobResult:
+##===================================================================
+## Lambda implementation
+##===================================================================
+
+
+@per_job
+def handle(job: Job[JobArgs], _ctx: JobContext[AtmObject]) -> JobResult:
     archive = job.args["archive"]
     if archive["type"] != "REG":
         raise JobException("Archive must be a regular file")

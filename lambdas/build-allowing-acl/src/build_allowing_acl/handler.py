@@ -22,10 +22,6 @@ from onedata_lambda_utils.types import (
 ##===================================================================
 
 
-class TaskConfig(TypedDict):
-    pass
-
-
 class JobArgs(TypedDict):
     groups: list[AtmGroup]
     # users: TODO VFS-12008 implement section responsible for building
@@ -45,7 +41,7 @@ class JobResult(TypedDict):
 
 
 @per_job
-def handle(job: Job[JobArgs], ctx: JobContext[TaskConfig]) -> JobResult:
+def handle(job: Job[JobArgs], _ctx: JobContext[AtmObject]) -> JobResult:
 
     groups = job.args["groups"]
     granted_access_rights = job.args["grantedAccessRights"]

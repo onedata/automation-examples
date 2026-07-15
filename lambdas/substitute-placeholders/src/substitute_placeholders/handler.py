@@ -9,11 +9,18 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 from string import Template
 from typing import TypedDict
 
-from onedata_lambda_utils import DEFAULT_MAX_WORKERS, Job, JobContext, JobException, per_job
+from onedata_lambda_utils import (
+    AtmObject,
+    Job,
+    JobContext,
+    JobException,
+    per_job,
+)
 
 
-class TaskConfig(TypedDict):
-    pass
+##===================================================================
+## Lambda interface
+##===================================================================
 
 
 class JobArgs(TypedDict):
@@ -25,8 +32,13 @@ class JobResult(TypedDict):
     output: str
 
 
-@per_job(max_workers=DEFAULT_MAX_WORKERS)
-def handle(job: Job[JobArgs], _ctx: JobContext[TaskConfig]) -> JobResult:
+##===================================================================
+## Lambda implementation
+##===================================================================
+
+
+@per_job
+def handle(job: Job[JobArgs], _ctx: JobContext[AtmObject]) -> JobResult:
     try:
         output = Template(job.args["template"]).substitute(job.args["mappings"])
     except KeyError as ex:

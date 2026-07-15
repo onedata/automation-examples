@@ -13,6 +13,7 @@ import requests
 from onedata_lambda_utils import (
     DEFAULT_MAX_WORKERS,
     AtmFile,
+    AtmObject,
     Job,
     JobContext,
     JobException,
@@ -36,10 +37,6 @@ class BytesArchived(TimeSeriesMeasurementBuilder, ts_name="bytesArchived", unit=
     pass
 
 
-class TaskConfig(TypedDict):
-    pass
-
-
 class JobArgs(TypedDict):
     destinationDir: AtmFile
 
@@ -49,7 +46,7 @@ class JobResult(TypedDict):
 
 
 @per_job(max_workers=DEFAULT_MAX_WORKERS)
-def handle(job: Job[JobArgs], ctx: JobContext[TaskConfig]) -> JobResult:
+def handle(job: Job[JobArgs], ctx: JobContext[AtmObject]) -> JobResult:
     try:
         dataset_id = _establish_dataset(job.args, ctx)
         archive_id = _create_archive(ctx, dataset_id)
@@ -60,7 +57,7 @@ def handle(job: Job[JobArgs], ctx: JobContext[TaskConfig]) -> JobResult:
     return {"archiveId": archive_id}
 
 
-def _establish_dataset(job_args: JobArgs, ctx: JobContext[TaskConfig]) -> str:
+def _establish_dataset(job_args: JobArgs, ctx: JobContext[AtmObject]) -> str:
     response = requests.post(
         _build_rest_url(ctx, "datasets"),
         headers={
@@ -88,7 +85,7 @@ def _establish_dataset(job_args: JobArgs, ctx: JobContext[TaskConfig]) -> str:
     raise JobException(f"Unexpected response while establishing dataset: {response.text}")
 
 
-def _get_destination_dir_dataset_id(job_args: JobArgs, ctx: JobContext[TaskConfig]) -> str:
+def _get_destination_dir_dataset_id(job_args: JobArgs, ctx: JobContext[AtmObject]) -> str:
     destination_dir_id = job_args["destinationDir"]["fileId"]
     response = requests.get(
         _build_rest_url(ctx, f"data/{destination_dir_id}/dataset/summary"),
@@ -100,7 +97,7 @@ def _get_destination_dir_dataset_id(job_args: JobArgs, ctx: JobContext[TaskConfi
     return cast(str, response.json()["directDataset"])
 
 
-def _create_archive(ctx: JobContext[TaskConfig], dataset_id: str) -> str:
+def _create_archive(ctx: JobContext[AtmObject], dataset_id: str) -> str:
     response = requests.post(
         _build_rest_url(ctx, "archives"),
         headers={
@@ -121,7 +118,7 @@ def _create_archive(ctx: JobContext[TaskConfig], dataset_id: str) -> str:
     return cast(str, response.json()["archiveId"])
 
 
-def _await_archive_preserved(ctx: JobContext[TaskConfig], archive_id: str) -> None:
+def _await_archive_preserved(ctx: JobContext[AtmObject], archive_id: str) -> None:
     bytes_archived = 0
     files_archived = 0
     stats = ctx.result_streamer(STATS_STREAM)
@@ -149,7 +146,7 @@ def _await_archive_preserved(ctx: JobContext[TaskConfig], archive_id: str) -> No
         )
 
 
-def _get_archive_info(ctx: JobContext[TaskConfig], archive_id: str) -> dict[str, Any]:
+def _get_archive_info(ctx: JobContext[AtmObject], archive_id: str) -> dict[str, Any]:
     response = requests.get(
         _build_rest_url(ctx, f"archives/{archive_id}"),
         headers={"x-auth-token": ctx.access_token},
@@ -161,7 +158,7 @@ def _get_archive_info(ctx: JobContext[TaskConfig], archive_id: str) -> dict[str,
     return cast(dict[str, Any], response.json())
 
 
-def _build_rest_url(ctx: JobContext[TaskConfig], path: str) -> str:
+def _build_rest_url(ctx: JobContext[AtmObject], path: str) -> str:
     return f"https://{ctx.oneprovider_domain}/api/v3/oneprovider/{path.lstrip('/')}"
 
 

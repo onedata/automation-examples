@@ -19,6 +19,7 @@ from typing import Final, NamedTuple, TypedDict
 import xattr
 from onedata_lambda_utils import (
     DEFAULT_MAX_WORKERS,
+    AtmObject,
     Job,
     JobContext,
     JobException,
@@ -34,10 +35,6 @@ MONITOR_CLEANUP_TIMEOUT: Final[float] = 5.0
 EXPECTED_CHECKSUM_XATTR: Final[re.Pattern[str]] = re.compile(
     r"^checksum\.(?P<algorithm>[^.]+)\.expected$"
 )
-
-
-class TaskConfig(TypedDict):
-    pass
 
 
 class JobArgs(TypedDict):
@@ -71,7 +68,7 @@ class CalculatedFileChecksum(NamedTuple):
 
 
 @per_job(max_workers=DEFAULT_MAX_WORKERS)
-def handle(job: Job[JobArgs], ctx: JobContext[TaskConfig]) -> JobResult:
+def handle(job: Job[JobArgs], ctx: JobContext[AtmObject]) -> JobResult:
     file_path = _build_file_path(job.args)
     expected_checksums = _list_expected_checksums(file_path)
 

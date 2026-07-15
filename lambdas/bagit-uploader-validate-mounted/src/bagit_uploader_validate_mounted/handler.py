@@ -43,10 +43,6 @@ BAGIT_TXT_LINES: Final[int] = 2
 ##===================================================================
 
 
-class TaskConfig(TypedDict):
-    pass
-
-
 class JobArgs(TypedDict):
     archive: AtmFile
 
@@ -62,7 +58,7 @@ class JobResult(TypedDict):
 
 
 @per_job(max_workers=DEFAULT_MAX_WORKERS)
-def handle(job: Job[JobArgs], _ctx: JobContext[TaskConfig]) -> JobResult:
+def handle(job: Job[JobArgs], _ctx: JobContext[AtmObject]) -> JobResult:
     archive = job.args["archive"]
     if archive["type"] != "REG":
         raise JobException("Not an archive file")

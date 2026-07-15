@@ -16,6 +16,7 @@ from typing import IO, Final, NamedTuple, TypedDict
 from onedata_lambda_utils import (
     DEFAULT_MAX_WORKERS,
     AtmFile,
+    AtmObject,
     Job,
     JobContext,
     JobException,
@@ -51,10 +52,6 @@ class FilesUnpacked(TimeSeriesMeasurementBuilder, ts_name="filesUnpacked", unit=
 
 
 class BytesUnpacked(TimeSeriesMeasurementBuilder, ts_name="bytesUnpacked", unit="Bytes"):
-    pass
-
-
-class TaskConfig(TypedDict):
     pass
 
 
@@ -94,7 +91,7 @@ class FileUnpackProgress:
 
 
 @per_job(max_workers=DEFAULT_MAX_WORKERS)
-def handle(job: Job[JobArgs], ctx: JobContext[TaskConfig]) -> JobResult:
+def handle(job: Job[JobArgs], ctx: JobContext[AtmObject]) -> JobResult:
     archive_file = job.args["archive"]
     destination_dir = job.args["destinationDir"]
 

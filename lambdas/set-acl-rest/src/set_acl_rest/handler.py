@@ -35,10 +35,6 @@ ENV_VERIFY_SSL: Final[str] = "VERIFY_SSL_CERTIFICATES"
 ##===================================================================
 
 
-class TaskConfig(TypedDict):
-    pass
-
-
 class JobArgs(TypedDict):
     targetFile: AtmFile
     acl: list[AtmObject]
@@ -53,14 +49,14 @@ type JobResult = None
 
 
 @per_job(max_workers=DEFAULT_MAX_WORKERS)
-def handle(job: Job[JobArgs], ctx: JobContext[TaskConfig]) -> JobResult:
+def handle(job: Job[JobArgs], ctx: JobContext[AtmObject]) -> JobResult:
     try:
         _set_acl(job.args, ctx)
     except requests.RequestException as ex:
         raise JobException(f"REST request failed: {ex}") from ex
 
 
-def _set_acl(job_args: JobArgs, ctx: JobContext[TaskConfig]) -> None:
+def _set_acl(job_args: JobArgs, ctx: JobContext[AtmObject]) -> None:
     response = requests.put(
         _build_set_acl_rest_url(ctx.oneprovider_domain, job_args["targetFile"]["fileId"]),
         headers={
