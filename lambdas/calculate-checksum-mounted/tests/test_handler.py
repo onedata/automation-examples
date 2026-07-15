@@ -3,8 +3,8 @@ Unit tests for the v3 checksum lambda, exercised through the SDK's in-memory tes
 (`onedata_lambda_utils.testing`) -- no Docker, no provider, no real `/out`.
 """
 
-__author__ = "Bartosz Walkowicz"
-__copyright__ = "Copyright (C) 2022-2026 Onedata (onedata.org)"
+__author__ = "Bartosz Walkowicz, Wojciech Szmelich"
+__copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 import hashlib

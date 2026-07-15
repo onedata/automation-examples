@@ -3,7 +3,7 @@ Unit tests for the ACL builder handler.
 """
 
 __author__ = "Wojciech Szmelich"
-__copyright__ = "Copyright (C) 2024-2026 ACK CYFRONET AGH"
+__copyright__ = "Copyright (C) 2026 ACK CYFRONET AGH"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 from onedata_lambda_utils.testing import build_job_context, build_jobs

@@ -3,7 +3,7 @@ Integration tests for the ACL builder lambda through the real SDK runtime.
 """
 
 __author__ = "Wojciech Szmelich"
-__copyright__ = "Copyright (C) 2024-2026 ACK CYFRONET AGH"
+__copyright__ = "Copyright (C) 2026 ACK CYFRONET AGH"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 from pathlib import Path

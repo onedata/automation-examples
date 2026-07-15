@@ -5,8 +5,8 @@ construction (the provider domain / access token come from the wire ctx), the re
 `requests` path, the buffered stats flusher, and envelope assembly.
 """
 
-__author__ = "Bartosz Walkowicz"
-__copyright__ = "Copyright (C) 2022-2026 Onedata (onedata.org)"
+__author__ = "Bartosz Walkowicz, Wojciech Szmelich"
+__copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 import hashlib

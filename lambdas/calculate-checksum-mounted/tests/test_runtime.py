@@ -6,8 +6,8 @@ Unlike `test_handler.py` (handler logic on fake context), this goes through wire
 assembly -- asserting on both the response envelope and what landed on `/out/stats`.
 """
 
-__author__ = "Bartosz Walkowicz"
-__copyright__ = "Copyright (C) 2022-2026 Onedata (onedata.org)"
+__author__ = "Bartosz Walkowicz, Wojciech Szmelich"
+__copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 import hashlib

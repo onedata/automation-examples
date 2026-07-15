@@ -5,7 +5,7 @@ talks to the provider via `https://`), with an ad-hoc CA from `trustme`. Tests s
 """
 
 __author__ = "Bartosz Walkowicz"
-__copyright__ = "Copyright (C) 2022-2026 Onedata (onedata.org)"
+__copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 import ssl

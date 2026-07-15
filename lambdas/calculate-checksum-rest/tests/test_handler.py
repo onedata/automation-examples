@@ -3,8 +3,8 @@ Unit tests for the REST checksum handler: call `handle(jobs, ctx)` directly (fak
 with the provider domain pointed at a local mock HTTPS server.
 """
 
-__author__ = "Bartosz Walkowicz"
-__copyright__ = "Copyright (C) 2022-2026 Onedata (onedata.org)"
+__author__ = "Bartosz Walkowicz, Wojciech Szmelich"
+__copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 import hashlib

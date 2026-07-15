@@ -2,8 +2,8 @@
 Unit tests for the mounted image annotator.
 """
 
-__author__ = "Lukasz Opiola, Wojciech Szmelich"
-__copyright__ = "Copyright (C) 2024-2026 Onedata (onedata.org)"
+__author__ = "Wojciech Szmelich"
+__copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 from pathlib import Path

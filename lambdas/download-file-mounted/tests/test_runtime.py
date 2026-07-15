@@ -5,8 +5,8 @@ They exercise wire parsing, `JobContext` construction, envelope assembly, buffer
 flushing, and writes to the configured Oneclient mount point.
 """
 
-__author__ = "Wojciech, Szmelich"
-__copyright__ = "Copyright (C) 2022-2026 Onedata (onedata.org)"
+__author__ = "Wojciech Szmelich"
+__copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 from collections.abc import Callable

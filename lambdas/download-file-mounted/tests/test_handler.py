@@ -3,8 +3,8 @@ Unit tests for the mounted download handler, exercised through the SDK's in-memo
 helpers. The tests use a temporary Oneclient mount point and stub HTTP/XRootD clients.
 """
 
-__author__ = "Wojciech, Szmelich"
-__copyright__ = "Copyright (C) 2022-2026 Onedata (onedata.org)"
+__author__ = "Wojciech Szmelich"
+__copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 import sys

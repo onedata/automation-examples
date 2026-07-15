@@ -2,8 +2,8 @@
 Integration tests for the mounted BagIt fetch.txt parser through the SDK runtime.
 """
 
-__author__ = "Bartosz Walkowicz, Wojciech Szmelich"
-__copyright__ = "Copyright (C) 2023-2026 Onedata (onedata.org)"
+__author__ = "Wojciech Szmelich"
+__copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 import zipfile
