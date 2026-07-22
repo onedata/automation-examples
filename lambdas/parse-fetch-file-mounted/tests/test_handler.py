@@ -109,9 +109,7 @@ def test_rejects_malformed_line(mount_point: Path) -> None:
 
 
 def test_rejects_unsafe_destination_path(mount_point: Path) -> None:
-    _mounted_file(mount_point, FETCH_FILE_ID).write_text(
-        "https://example.test/a.txt 12 ../a.txt\n"
-    )
+    _mounted_file(mount_point, FETCH_FILE_ID).write_text("https://example.test/a.txt 12 ../a.txt\n")
 
     rc = build_job_context(config={})
     results = handle(build_jobs([_job_args()]), rc.context)

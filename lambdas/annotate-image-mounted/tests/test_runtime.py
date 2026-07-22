@@ -16,6 +16,7 @@ from annotate_image_mounted import handler
 
 
 FILE_ID = "file-id"
+FAILING_FILE_ID = "failing-file-id"
 IMAGE_SIZE = (4, 2)
 IMAGE_COLOUR = (255, 0, 0)
 IMAGE_FORMAT = "PNG"
@@ -25,41 +26,57 @@ IMAGE_ORIENTATION = b"horizontal"
 IMAGE_COLOUR_NAME = b"red"
 
 
-def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def _mounted_file(mount_point: Path, file_id: str) -> Path:
+    return mount_point / f".__onedata__file_id__{file_id}"
+
+
+def _job_args(file_id: str) -> dict[str, dict[str, str]]:
+    return {
+        "file": {
+            "fileId": file_id,
+            "type": "REG",
+        }
+    }
+
+
+def test_run_end_to_end_isolates_per_job_xattr_errors(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     mount_point = tmp_path / "mnt"
     mount_point.mkdir()
     monkeypatch.setenv("ONECLIENT_MOUNT_POINT", str(mount_point))
     out_dir = tmp_path / "out"
     out_dir.mkdir()
 
-    target = mount_point / f".__onedata__file_id__{FILE_ID}"
+    target = _mounted_file(mount_point, FILE_ID)
+    failing_target = _mounted_file(mount_point, FAILING_FILE_ID)
     Image.new("RGB", IMAGE_SIZE, color=IMAGE_COLOUR).save(target, format=IMAGE_FORMAT)
-    stored: dict[str, bytes] = {}
+    Image.new("RGB", IMAGE_SIZE, color=IMAGE_COLOUR).save(failing_target, format=IMAGE_FORMAT)
+    stored: dict[Path, dict[str, bytes]] = {}
 
     class XAttr:
         def __init__(self, path: str) -> None:
-            assert Path(path) == target
+            self.path = Path(path)
 
         def set(self, name: str, value: bytes) -> None:
-            stored[name] = value
+            if self.path == failing_target:
+                raise OSError("xattr failed")
+            stored.setdefault(self.path, {})[name] = value
 
     monkeypatch.setattr(handler.xattr, "xattr", XAttr)
 
     request = build_request(
-        [
-            {
-                "file": {
-                    "fileId": FILE_ID,
-                    "type": "REG",
-                }
-            }
-        ],
+        [_job_args(FILE_ID), _job_args(FAILING_FILE_ID)],
         config={},
     )
     result = run_local(handler.handle, request, out_dir=out_dir)
 
-    assert result.envelope == {"resultsBatch": [None]}
-    assert stored == {
+    batch = result.envelope["resultsBatch"]
+
+    assert batch[0] is None
+    assert "exception" in batch[1]
+    assert "Failed to set xattrs" in batch[1]["exception"]
+    assert stored[target] == {
         "width": IMAGE_WIDTH,
         "height": IMAGE_HEIGHT,
         "orientation": IMAGE_ORIENTATION,

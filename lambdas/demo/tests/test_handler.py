@@ -15,6 +15,10 @@ from demo.handler import handle
 
 FILE_ID = "file-id"
 FILE_NAME = "example.txt"
+FIRST_FILE_ID = "first-id"
+FIRST_FILE_NAME = "first.txt"
+SECOND_FILE_ID = "second-id"
+SECOND_FILE_NAME = "second.txt"
 
 
 def test_greets_input_file() -> None:
@@ -39,13 +43,13 @@ def test_greets_input_file() -> None:
 def test_handles_multiple_jobs() -> None:
     rc = build_job_context(config={})
     args_batch: list[dict[str, Any]] = [
-        {"item": {"fileId": "first-id", "name": "first.txt", "type": "REG"}},
-        {"item": {"fileId": "second-id", "name": "second.txt", "type": "REG"}},
+        {"item": {"fileId": FIRST_FILE_ID, "name": FIRST_FILE_NAME, "type": "REG"}},
+        {"item": {"fileId": SECOND_FILE_ID, "name": SECOND_FILE_NAME, "type": "REG"}},
     ]
 
     results = handle(build_jobs(args_batch), rc.context)
 
     assert results == [
-        {"result": "Hello - first.txt"},
-        {"result": "Hello - second.txt"},
+        {"result": f"Hello - {FIRST_FILE_NAME}"},
+        {"result": f"Hello - {SECOND_FILE_NAME}"},
     ]

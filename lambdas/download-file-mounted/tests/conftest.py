@@ -3,12 +3,12 @@ Shared fixtures and fakes for the mounted download lambda tests.
 """
 
 __author__ = "Wojciech, Szmelich"
-__copyright__ = "Copyright (C) 2022-2026 Onedata (onedata.org)"
+__copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 import sys
 import types
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -16,27 +16,22 @@ import pytest
 import requests
 
 
-def _install_xrootd_stub() -> None:
+@pytest.fixture
+def xrootd_client(monkeypatch: pytest.MonkeyPatch) -> types.ModuleType:
     xrootd = types.ModuleType("XRootD")
     client = types.ModuleType("XRootD.client")
     flags = types.ModuleType("XRootD.client.flags")
 
-    class _File:
-        pass
-
     class _OpenFlags:
         READ = object()
 
-    client.File = _File
-    flags.OpenFlags = _OpenFlags
-    xrootd.client = client
+    flags.__dict__["OpenFlags"] = _OpenFlags
+    xrootd.__dict__["client"] = client
 
-    sys.modules.setdefault("XRootD", xrootd)
-    sys.modules.setdefault("XRootD.client", client)
-    sys.modules.setdefault("XRootD.client.flags", flags)
-
-
-_install_xrootd_stub()
+    monkeypatch.setitem(sys.modules, "XRootD", xrootd)
+    monkeypatch.setitem(sys.modules, "XRootD.client", client)
+    monkeypatch.setitem(sys.modules, "XRootD.client.flags", flags)
+    return client
 
 
 class Response:
@@ -67,17 +62,7 @@ def out_dir(tmp_path: Path) -> Path:
     return out
 
 
-@pytest.fixture
-def response_cls() -> type[Response]:
-    return Response
-
-
-@pytest.fixture
-def job_args() -> Callable[[str, str, int], dict[str, Any]]:
-    return _job_args
-
-
-def _job_args(source_url: str, destination_path: str, size: int) -> dict[str, Any]:
+def job_args(source_url: str, destination_path: str, size: int) -> dict[str, Any]:
     return {
         "downloadInfo": {
             "sourceUrl": source_url,

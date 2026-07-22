@@ -68,7 +68,9 @@ def test_sets_acl(monkeypatch: pytest.MonkeyPatch) -> None:
     results = handler.handle(build_jobs([_job_args()]), rc.context)
 
     assert results == [None]
-    assert puts[0][0] == (f"https://{PROVIDER_DOMAIN}/api/v3/oneprovider/data/{FILE_ID}/metadata/xattrs")
+    assert puts[0][0] == (
+        f"https://{PROVIDER_DOMAIN}/api/v3/oneprovider/data/{FILE_ID}/metadata/xattrs"
+    )
     assert puts[0][1]["headers"] == {
         "x-auth-token": ACCESS_TOKEN,
         "content-type": "application/json",

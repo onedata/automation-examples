@@ -8,14 +8,16 @@ __copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 import sys
-from collections.abc import Callable, Iterator
+import types
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any
 
 import pytest
 from onedata_lambda_utils.testing import build_job_context, build_jobs
 
 from download_file_mounted import handler
+
+from .conftest import Response, job_args
 
 
 SOURCE_URL = "https://example.test/file.txt"
@@ -27,8 +29,6 @@ DESTINATION_CONTENT = b"hello onedata\n"
 def test_http_download_writes_file_and_streams_stats(
     mount_point: Path,
     monkeypatch: pytest.MonkeyPatch,
-    response_cls: type[Any],
-    job_args: Callable[[str, str, int], dict[str, Any]],
 ) -> None:
     chunks = [b"hello ", b"onedata\n"]
 
@@ -37,7 +37,7 @@ def test_http_download_writes_file_and_streams_stats(
         assert kwargs["stream"] is True
         assert kwargs["allow_redirects"] is True
         assert kwargs["headers"] == {"user-agent": handler.USER_AGENT}
-        return response_cls(chunks)
+        return Response(chunks)
 
     monkeypatch.setattr(handler.requests, "get", get)
 
@@ -58,7 +58,6 @@ def test_http_download_writes_file_and_streams_stats(
 def test_existing_file_with_expected_size_is_not_downloaded(
     mount_point: Path,
     monkeypatch: pytest.MonkeyPatch,
-    job_args: Callable[[str, str, int], dict[str, Any]],
 ) -> None:
     target = mount_point / "already/here.txt"
     target.parent.mkdir()
@@ -86,8 +85,6 @@ def test_existing_file_with_expected_size_is_not_downloaded(
 def test_existing_file_with_wrong_size_is_replaced(
     mount_point: Path,
     monkeypatch: pytest.MonkeyPatch,
-    response_cls: type[Any],
-    job_args: Callable[[str, str, int], dict[str, Any]],
 ) -> None:
     target = mount_point / "replace/me.txt"
     target.parent.mkdir()
@@ -96,7 +93,7 @@ def test_existing_file_with_wrong_size_is_replaced(
     monkeypatch.setattr(
         handler.requests,
         "get",
-        lambda *args, **kwargs: response_cls([b"new content"]),
+        lambda *args, **kwargs: Response([b"new content"]),
     )
 
     rc = build_job_context(config={})
@@ -115,13 +112,11 @@ def test_existing_file_with_wrong_size_is_replaced(
 def test_size_mismatch_is_per_job_exception(
     mount_point: Path,
     monkeypatch: pytest.MonkeyPatch,
-    response_cls: type[Any],
-    job_args: Callable[[str, str, int], dict[str, Any]],
 ) -> None:
     monkeypatch.setattr(
         handler.requests,
         "get",
-        lambda *args, **kwargs: response_cls([b"too short"]),
+        lambda *args, **kwargs: Response([b"too short"]),
     )
 
     rc = build_job_context(config={})
@@ -141,14 +136,12 @@ def test_size_mismatch_is_per_job_exception(
 def test_destination_path_must_stay_within_mount(
     tmp_path: Path,
     mount_point: Path,
-    response_cls: type[Any],
     monkeypatch: pytest.MonkeyPatch,
-    job_args: Callable[[str, str, int], dict[str, Any]],
 ) -> None:
     monkeypatch.setattr(
         handler.requests,
         "get",
-        lambda *args, **kwargs: response_cls([b"outside"]),
+        lambda *args, **kwargs: Response([b"outside"]),
     )
 
     rc = build_job_context(config={})
@@ -168,7 +161,7 @@ def test_destination_path_must_stay_within_mount(
 def test_xrootd_download_uses_xrootd_client(
     mount_point: Path,
     monkeypatch: pytest.MonkeyPatch,
-    job_args: Callable[[str, str, int], dict[str, Any]],
+    xrootd_client: types.ModuleType,
 ) -> None:
     class Status:
         ok = True
@@ -183,7 +176,8 @@ def test_xrootd_download_uses_xrootd_client(
 
         def open(self, url: str, flags: object) -> tuple[Status, None]:
             assert url == ROOT_URL
-            assert flags is sys.modules["XRootD.client.flags"].OpenFlags.READ
+            open_flags = sys.modules["XRootD.client.flags"].__dict__["OpenFlags"]
+            assert flags is open_flags.READ
             return Status(), None
 
         def readchunks(self, offset: int, chunksize: int) -> Iterator[bytes]:
@@ -191,7 +185,7 @@ def test_xrootd_download_uses_xrootd_client(
             assert chunksize == handler.DOWNLOAD_CHUNK_SIZE
             yield b"xrootd bytes"
 
-    monkeypatch.setattr(sys.modules["XRootD.client"], "File", File)
+    monkeypatch.setattr(xrootd_client, "File", File, raising=False)
 
     rc = build_job_context(config={})
     results = handler.handle(

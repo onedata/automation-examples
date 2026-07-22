@@ -47,7 +47,7 @@ def _mounted_file(mount_point: Path, file_id: str) -> Path:
 def _bagit_entries(payload: bytes = b"hello bagit\n") -> dict[str, bytes]:
     checksum = hashlib.sha256(payload).hexdigest()
     return {
-        "bag/bagit.txt": (b"BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n"),
+        "bag/bagit.txt": b"BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n",
         "bag/data/payload.txt": payload,
         "bag/manifest-sha256.txt": f"{checksum} data/payload.txt\n".encode(),
     }

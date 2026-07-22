@@ -94,7 +94,7 @@ def test_parallel_variant_verifies_expected_checksums(
 def test_parallel_variant_checksum_mismatch_is_per_job_exception(
     mount_point: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    target = mount_point / f".__onedata__file_id__{DESTINATION_ID}" / FILE_NAME
+    target = mount_point / _file_path()
     target.parent.mkdir()
     target.write_bytes(FILE_CONTENT)
 

@@ -14,6 +14,14 @@ from onedata_lambda_utils.testing import build_job_context, build_jobs
 from bagit_uploader_archive_destination_rest import handler
 
 
+ARCHIVE_ID = "archive-id"
+DATASET_ID = "dataset-id"
+EXISTING_DATASET_ID = "existing-dataset-id"
+DESTINATION_DIR_ID = "dir-id"
+PROVIDER_DOMAIN = "provider.test"
+ACCESS_TOKEN = "token"
+
+
 class Response:
     def __init__(self, payload: dict[str, Any], status_code: int = 200) -> None:
         self.payload = payload
@@ -48,13 +56,13 @@ def test_creates_archive_and_streams_stats(monkeypatch: pytest.MonkeyPatch) -> N
     def post(url: str, **kwargs: Any) -> Response:
         posts.append((url, kwargs.get("json")))
         if url.endswith("/datasets"):
-            return Response({"datasetId": "dataset-id"}, status_code=201)
+            return Response({"datasetId": DATASET_ID}, status_code=201)
         if url.endswith("/archives"):
-            return Response({"archiveId": "archive-id"}, status_code=201)
+            return Response({"archiveId": ARCHIVE_ID}, status_code=201)
         raise AssertionError(url)
 
     def get(url: str, **kwargs: Any) -> Response:
-        assert url.endswith("/archives/archive-id")
+        assert url.endswith(f"/archives/{ARCHIVE_ID}")
         return Response(next(archive_states))
 
     monkeypatch.setattr(handler.requests, "post", post)
@@ -63,16 +71,16 @@ def test_creates_archive_and_streams_stats(monkeypatch: pytest.MonkeyPatch) -> N
 
     rc = build_job_context(
         config={},
-        oneprovider_domain="provider.test",
-        access_token="token",
+        oneprovider_domain=PROVIDER_DOMAIN,
+        access_token=ACCESS_TOKEN,
     )
     results = handler.handle(
-        build_jobs([{"destinationDir": {"fileId": "dir-id", "type": "DIR"}}]),
+        build_jobs([{"destinationDir": {"fileId": DESTINATION_DIR_ID, "type": "DIR"}}]),
         rc.context,
     )
 
-    assert results == [{"archiveId": "archive-id"}]
-    assert posts[0][1] == {"rootFileId": "dir-id", "protectionFlags": []}
+    assert results == [{"archiveId": ARCHIVE_ID}]
+    assert posts[0][1] == {"rootFileId": DESTINATION_DIR_ID, "protectionFlags": []}
     assert posts[1][1]["config"] == {"includeDip": True, "layout": "bagit"}
     ts_names = [item["tsName"] for item in rc.streams["stats"]]
     assert ts_names == ["bytesArchived", "filesArchived", "bytesArchived", "filesArchived"]
@@ -83,13 +91,13 @@ def test_existing_dataset_is_reused(monkeypatch: pytest.MonkeyPatch) -> None:
         if url.endswith("/datasets"):
             return Response({}, status_code=409)
         if url.endswith("/archives"):
-            return Response({"archiveId": "archive-id"}, status_code=201)
+            return Response({"archiveId": ARCHIVE_ID}, status_code=201)
         raise AssertionError(url)
 
     def get(url: str, **kwargs: Any) -> Response:
-        if url.endswith("/data/dir-id/dataset/summary"):
-            return Response({"directDataset": "existing-dataset-id"})
-        if url.endswith("/archives/archive-id"):
+        if url.endswith(f"/data/{DESTINATION_DIR_ID}/dataset/summary"):
+            return Response({"directDataset": EXISTING_DATASET_ID})
+        if url.endswith(f"/archives/{ARCHIVE_ID}"):
             return Response(
                 {
                     "state": "preserved",
@@ -104,13 +112,13 @@ def test_existing_dataset_is_reused(monkeypatch: pytest.MonkeyPatch) -> None:
 
     rc = build_job_context(
         config={},
-        oneprovider_domain="provider.test",
-        access_token="token",
+        oneprovider_domain=PROVIDER_DOMAIN,
+        access_token=ACCESS_TOKEN,
     )
     results = handler.handle(
-        build_jobs([{"destinationDir": {"fileId": "dir-id", "type": "DIR"}}]),
+        build_jobs([{"destinationDir": {"fileId": DESTINATION_DIR_ID, "type": "DIR"}}]),
         rc.context,
     )
 
-    assert results == [{"archiveId": "archive-id"}]
+    assert results == [{"archiveId": ARCHIVE_ID}]
     assert rc.logs["logs"][0]["content"]["message"] == "Dataset already established."

@@ -15,6 +15,15 @@ from onedata_lambda_utils.testing import build_request, run_local
 from bagit_uploader_calculate_checksum_mounted import handler
 
 
+DESTINATION_ID = "destination-id"
+FILE_NAME = "file.txt"
+CONTENT_TAIL = b"end"
+
+
+def _file_path() -> str:
+    return f".__onedata__file_id__{DESTINATION_ID}/{FILE_NAME}"
+
+
 def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     mount_point = tmp_path / "mnt"
     mount_point.mkdir()
@@ -22,9 +31,9 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
     out_dir = tmp_path / "out"
     out_dir.mkdir()
 
-    target = mount_point / ".__onedata__file_id__destination-id" / "file.txt"
+    target = mount_point / _file_path()
     target.parent.mkdir()
-    content = b"checksum content"
+    content = (b"x" * handler.READ_CHUNK_SIZE) + CONTENT_TAIL
     target.write_bytes(content)
     expected = hashlib.sha256(content).hexdigest()
     stored: dict[str, bytes] = {"checksum.sha256.expected": f'"{expected}"'.encode()}
@@ -45,7 +54,7 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setattr(handler.xattr, "xattr", XAttr)
 
     request = build_request(
-        [{"filePath": ".__onedata__file_id__destination-id/file.txt"}],
+        [{"filePath": _file_path()}],
         config={},
     )
     result = run_local(handler.handle, request, out_dir=out_dir)
@@ -67,4 +76,10 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
         ]
     }
     assert stored["checksum.sha256.calculated"] == f'"{expected}"'.encode()
-    assert result.streams["stats"][0]["tsName"] == "bytesProcessed_sha256"
+    stats = result.streams["stats"]
+    ts_names = [m["tsName"] for m in stats]
+    sha256_stats = [m for m in stats if m["tsName"] == "bytesProcessed_sha256"]
+
+    assert ts_names.count("bytesProcessed_sha256") == 2
+    assert [m["value"] for m in sha256_stats] == [handler.READ_CHUNK_SIZE, len(CONTENT_TAIL)]
+    assert sum(m["value"] for m in sha256_stats) == len(content)

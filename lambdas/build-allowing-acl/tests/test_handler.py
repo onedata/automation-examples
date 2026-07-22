@@ -11,6 +11,13 @@ from onedata_lambda_utils.testing import build_job_context, build_jobs
 from build_allowing_acl.handler import handle
 
 
+GROUP_ID = "group-1"
+OTHER_GROUP_ID = "group-2"
+READ_ACCESS_RIGHT = "READ_OBJECT"
+ACCESS_RIGHTS = [READ_ACCESS_RIGHT, "WRITE_OBJECT", "DELETE"]
+ACE_MASK = ",".join(ACCESS_RIGHTS)
+
+
 def _group(group_id: str) -> dict[str, str]:
     return {
         "groupId": group_id,
@@ -26,8 +33,8 @@ def test_builds_allowing_acl_for_groups() -> None:
         build_jobs(
             [
                 {
-                    "groups": [_group("group-1"), _group("group-2")],
-                    "grantedAccessRights": ["READ_OBJECT", "WRITE_OBJECT", "DELETE"],
+                    "groups": [_group(GROUP_ID), _group(OTHER_GROUP_ID)],
+                    "grantedAccessRights": ACCESS_RIGHTS,
                 }
             ]
         ),
@@ -40,14 +47,14 @@ def test_builds_allowing_acl_for_groups() -> None:
                 {
                     "acetype": "ALLOW",
                     "aceflags": "IDENTIFIER_GROUP",
-                    "acemask": "READ_OBJECT,WRITE_OBJECT,DELETE",
-                    "identifier": "group-1",
+                    "acemask": ACE_MASK,
+                    "identifier": GROUP_ID,
                 },
                 {
                     "acetype": "ALLOW",
                     "aceflags": "IDENTIFIER_GROUP",
-                    "acemask": "READ_OBJECT,WRITE_OBJECT,DELETE",
-                    "identifier": "group-2",
+                    "acemask": ACE_MASK,
+                    "identifier": OTHER_GROUP_ID,
                 },
             ]
         }
@@ -59,7 +66,7 @@ def test_empty_groups_yield_empty_acl() -> None:
     rc = build_job_context(config={})
 
     results = handle(
-        build_jobs([{"groups": [], "grantedAccessRights": ["READ_OBJECT"]}]),
+        build_jobs([{"groups": [], "grantedAccessRights": [READ_ACCESS_RIGHT]}]),
         rc.context,
     )
 
@@ -70,7 +77,7 @@ def test_empty_access_rights_yield_empty_mask() -> None:
     rc = build_job_context(config={})
 
     results = handle(
-        build_jobs([{"groups": [_group("group-1")], "grantedAccessRights": []}]),
+        build_jobs([{"groups": [_group(GROUP_ID)], "grantedAccessRights": []}]),
         rc.context,
     )
 
@@ -81,7 +88,7 @@ def test_empty_access_rights_yield_empty_mask() -> None:
                     "acetype": "ALLOW",
                     "aceflags": "IDENTIFIER_GROUP",
                     "acemask": "",
-                    "identifier": "group-1",
+                    "identifier": GROUP_ID,
                 }
             ]
         }
@@ -95,12 +102,12 @@ def test_batch_isolates_malformed_jobs() -> None:
         build_jobs(
             [
                 {
-                    "groups": [_group("group-1")],
-                    "grantedAccessRights": ["READ_OBJECT"],
+                    "groups": [_group(GROUP_ID)],
+                    "grantedAccessRights": [READ_ACCESS_RIGHT],
                 },
                 {
                     "groups": [{}],
-                    "grantedAccessRights": ["READ_OBJECT"],
+                    "grantedAccessRights": [READ_ACCESS_RIGHT],
                 },
             ]
         ),
@@ -112,8 +119,8 @@ def test_batch_isolates_malformed_jobs() -> None:
             {
                 "acetype": "ALLOW",
                 "aceflags": "IDENTIFIER_GROUP",
-                "acemask": "READ_OBJECT",
-                "identifier": "group-1",
+                "acemask": READ_ACCESS_RIGHT,
+                "identifier": GROUP_ID,
             }
         ]
     }

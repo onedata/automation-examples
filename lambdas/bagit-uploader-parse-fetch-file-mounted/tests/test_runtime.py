@@ -18,6 +18,8 @@ from bagit_uploader_parse_fetch_file_mounted.handler import handle
 
 ARCHIVE_ID = "archive-id"
 ARCHIVE_NAME = "archive.zip"
+EMPTY_ARCHIVE_ID = "empty-archive-id"
+EMPTY_ARCHIVE_NAME = "empty-archive.zip"
 DESTINATION_ID = "destination-id"
 SOURCE_URL = "https://example.test/a.txt"
 SOURCE_SIZE = 12
@@ -27,11 +29,11 @@ NESTED_SOURCE_SIZE = 34
 NESTED_SOURCE_PATH = "nested/b.bin"
 
 
-def _job_args() -> dict[str, Any]:
+def _job_args(archive_id: str = ARCHIVE_ID, archive_name: str = ARCHIVE_NAME) -> dict[str, Any]:
     return {
         "archive": {
-            "fileId": ARCHIVE_ID,
-            "name": ARCHIVE_NAME,
+            "fileId": archive_id,
+            "name": archive_name,
             "type": "REG",
         },
         "destinationDir": {
@@ -63,8 +65,20 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
             f"{SOURCE_URL} {SOURCE_SIZE} data/{SOURCE_PATH}\n"
             f"{NESTED_SOURCE_URL} {NESTED_SOURCE_SIZE} data/{NESTED_SOURCE_PATH}\n",
         )
+    with zipfile.ZipFile(_mounted_file(mount_point, EMPTY_ARCHIVE_ID), "w") as archive:
+        archive.writestr("bag/bagit.txt", b"BagIt-Version: 0.97\n")
 
-    result = run_local(handle, build_request([_job_args()], config={}), out_dir=out_dir)
+    result = run_local(
+        handle,
+        build_request(
+            [
+                _job_args(),
+                _job_args(EMPTY_ARCHIVE_ID, EMPTY_ARCHIVE_NAME),
+            ],
+            config={},
+        ),
+        out_dir=out_dir,
+    )
 
     assert result.envelope == {
         "resultsBatch": [
@@ -86,6 +100,14 @@ def test_run_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
                     "archive": ARCHIVE_NAME,
                     "status": "Found  2 files to be downloaded.",
                 },
-            }
+            },
+            {
+                "filesToDownload": [],
+                "statusLog": {
+                    "severity": "info",
+                    "archive": EMPTY_ARCHIVE_NAME,
+                    "status": "Found  0 files to be downloaded.",
+                },
+            },
         ]
     }
