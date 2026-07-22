@@ -19,12 +19,15 @@ BAGIT_TXT_PATH_PARTS: Final[int] = 2
 
 
 class BagitArchive(abc.ABC):
+    """Common interface for reading BagIt archives stored as ZIP or TAR files."""
+
     def __init__(self) -> None:
         self._bagit_dir_name: str | None = None
         self._files: list[str] | None = None
-        self._manifest_files: dict[frozenset[str], list[str]] = {}
+        self._manifest_file_by_algorithm: dict[str, str | None] = {}
 
     def get_bagit_dir_name(self) -> str:
+        """Return the top-level BagIt directory containing the required bagit.txt file."""
         if self._bagit_dir_name is not None:
             return self._bagit_dir_name
 
@@ -38,25 +41,33 @@ class BagitArchive(abc.ABC):
         raise JobException("Bagit directory not found")
 
     def build_file_path(self, file_rel_path: str, *, is_dir: bool = False) -> str:
+        """Build an archive-internal path relative to the detected BagIt directory."""
         suffix = self._dir_suffix if is_dir else ""
         return f"{self.get_bagit_dir_name()}/{file_rel_path}{suffix}"
 
     def list_manifest_files(self, algorithms: Iterable[str]) -> list[str]:
-        algorithm_set = frozenset(algorithms)
-        if algorithm_set in self._manifest_files:
-            return self._manifest_files[algorithm_set]
-
+        """Return existing payload manifest files for the requested checksum algorithms."""
         manifests = []
-        files = self.list_files()
-        for algorithm in algorithm_set:
-            manifest_file = self.build_file_path(f"manifest-{algorithm}.txt")
-            if manifest_file in files:
+        for algorithm in algorithms:
+            manifest_file = self._find_manifest_file(algorithm)
+            if manifest_file is not None:
                 manifests.append(manifest_file)
-
-        self._manifest_files[algorithm_set] = manifests
         return manifests
 
+    def _find_manifest_file(self, algorithm: str) -> str | None:
+        """Return manifest path for one checksum algorithm, caching missing files too."""
+        if algorithm in self._manifest_file_by_algorithm:
+            return self._manifest_file_by_algorithm[algorithm]
+
+        manifest_file: str | None = self.build_file_path(f"manifest-{algorithm}.txt")
+        if manifest_file not in self.list_files():
+            manifest_file = None
+
+        self._manifest_file_by_algorithm[algorithm] = manifest_file
+        return manifest_file
+
     def find_fetch_file(self) -> str | None:
+        """Return fetch.txt path if the archive declares remote payload files."""
         all_files = self.list_files()
         for file_path in all_files:
             path_tokens = file_path.split("/")
@@ -68,26 +79,33 @@ class BagitArchive(abc.ABC):
     @property
     @abc.abstractmethod
     def _dir_suffix(self) -> str:
+        """Return the suffix used when matching directory paths in this archive type."""
         pass
 
     @abc.abstractmethod
     def list_files(self) -> list[str]:
+        """Return all archive member paths."""
         pass
 
     @abc.abstractmethod
     def open_file(self, path: str) -> IO[bytes]:
+        """Open an archive member for binary reading."""
         pass
 
     @abc.abstractmethod
     def is_file(self, path: str) -> bool:
+        """Return whether the archive member is a regular file."""
         pass
 
     @abc.abstractmethod
     def file_size(self, path: str) -> int:
+        """Return the archive member size in bytes."""
         pass
 
 
 class ZipBagitArchive(BagitArchive):
+    """BagIt archive reader backed by zipfile.ZipFile."""
+
     def __init__(self, archive: zipfile.ZipFile) -> None:
         super().__init__()
         self.archive = archive
@@ -115,6 +133,8 @@ class ZipBagitArchive(BagitArchive):
 
 
 class TarBagitArchive(BagitArchive):
+    """BagIt archive reader backed by tarfile.TarFile."""
+
     def __init__(self, archive: tarfile.TarFile) -> None:
         super().__init__()
         self.archive = archive
@@ -146,6 +166,7 @@ class TarBagitArchive(BagitArchive):
 
 @contextlib.contextmanager
 def open_archive(archive_path: Path, archive_name: str) -> Generator[BagitArchive]:
+    """Open a ZIP/TAR BagIt archive using the file extension from archive_name."""
     archive_type = Path(archive_name).suffix
 
     if archive_type == ".zip":
@@ -163,5 +184,6 @@ def open_archive(archive_path: Path, archive_name: str) -> Generator[BagitArchiv
 
 @contextlib.contextmanager
 def open_mounted_archive(archive: AtmFile) -> Generator[BagitArchive]:
+    """Open an archive from the mounted Oneclient filesystem."""
     with open_archive(Path(mounted_file_path(archive["fileId"])), archive["name"]) as bagit_archive:
         yield bagit_archive

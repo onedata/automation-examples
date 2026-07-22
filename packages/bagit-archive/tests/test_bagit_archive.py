@@ -20,12 +20,15 @@ def test_zip_archive_helpers(tmp_path: Path) -> None:
         archive.writestr("bag/bagit.txt", b"BagIt-Version: 0.97\n")
         archive.writestr("bag/data/", b"")
         archive.writestr("bag/data/file.txt", b"content")
+        archive.writestr("bag/manifest-sha256.txt", b"checksum data/file.txt\n")
         archive.writestr("bag/fetch.txt", b"https://example.test/file 7 data/file.txt\n")
 
     with open_archive(archive_path, "bag.zip") as archive:
         assert archive.get_bagit_dir_name() == "bag"
         assert archive.build_file_path("data", is_dir=True) == "bag/data/"
         assert archive.find_fetch_file() == "bag/fetch.txt"
+        assert archive.list_manifest_files(["sha256", "md5"]) == ["bag/manifest-sha256.txt"]
+        assert archive.list_manifest_files(["md5", "sha256"]) == ["bag/manifest-sha256.txt"]
         assert archive.is_file("bag/data/file.txt")
         assert archive.file_size("bag/data/file.txt") == 7
 
@@ -39,6 +42,7 @@ def test_tar_archive_helpers(tmp_path: Path) -> None:
         for name, content in {
             "bag/bagit.txt": b"BagIt-Version: 0.97\n",
             "bag/data/file.txt": b"content",
+            "bag/manifest-md5.txt": b"checksum data/file.txt\n",
         }.items():
             info = tarfile.TarInfo(name)
             info.size = len(content)
@@ -48,5 +52,6 @@ def test_tar_archive_helpers(tmp_path: Path) -> None:
         assert archive.get_bagit_dir_name() == "bag"
         assert archive.build_file_path("data", is_dir=True) == "bag/data"
         assert archive.find_fetch_file() is None
+        assert archive.list_manifest_files(["sha256", "md5"]) == ["bag/manifest-md5.txt"]
         assert archive.is_file("bag/data/file.txt")
         assert archive.file_size("bag/data/file.txt") == 7
