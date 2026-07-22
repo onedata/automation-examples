@@ -5,6 +5,7 @@ description = "Validate BagIt archives using mounted Oneclient"
 requires-python = ">=3.12"
 dependencies = [
     "bagit-archive",
+    "checksum",
     "onedata-lambda-utils>=1.0",
 ]
 
