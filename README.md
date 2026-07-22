@@ -90,6 +90,42 @@ make test     # pytest only
 > refreshed with `make vendor-sdk`. See
 > `docs/guides/local-sdk-vendored-wheel.md` in `onedata-lambda-utils`.
 
+## Testing guidelines
+
+Each lambda should have focused tests under `lambdas/<name>/tests/`. Prefer
+small, explicit fixtures and constants over repeated inline literals, especially
+for file IDs, file names, metadata keys, REST URLs, checksum values, and expected
+results.
+
+Use `test_handler.py` for the lambda's own logic:
+
+- call the handler directly with `build_jobs()` and `build_job_context()`;
+- cover success paths, validation, error handling, and per-job exceptions;
+- assert meaningful side effects, such as files written under the mount point,
+  xattrs, REST calls, stream measurements, or status logs;
+- keep SDK runtime behaviour out of handler tests unless it is part of the
+  lambda logic.
+
+Add `test_runtime.py` only when it checks something useful beyond the same
+handler assertions:
+
+- mounted file access through `ONECLIENT_MOUNT_POINT`;
+- REST request flow using the runtime request envelope;
+- xattr or filesystem side effects observable only end to end;
+- stream flushing and final `result.streams`;
+- batch behaviour, result ordering, or isolation of per-job exceptions;
+- archive or multi-step workflows where `build_request()` plus `run_local()`
+  exercises a realistic lambda invocation.
+
+Do not add runtime tests for very small pure transformations when
+`test_handler.py` already covers the behaviour. A runtime test that only asserts
+`{"resultsBatch": [...]}` for a trivial handler is usually not worth keeping.
+
+When adding tests, keep them deterministic. Avoid depending on external network
+access, real providers, wall-clock time, or host-specific files. Mock REST
+clients and xattr access locally, create mounted files under `tmp_path`, and
+verify both the returned values and the important side effects.
+
 ## Contributing
 
 To add or change a lambda or workflow schema:
