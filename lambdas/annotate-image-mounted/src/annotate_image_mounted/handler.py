@@ -149,9 +149,7 @@ def _save_properties_as_xattrs(file_path: str, properties: ImageProperties) -> N
 def _calc_average_image_colour(image: PILImage) -> str:
     histogram = image.histogram()
     r, g, b = histogram[0:256], histogram[256 : 256 * 2], histogram[256 * 2 : 256 * 3]
-    return _rgb_to_closest_colour_name(
-        (_safe_average(r), _safe_average(g), _safe_average(b))
-    )
+    return _rgb_to_closest_colour_name((_safe_average(r), _safe_average(g), _safe_average(b)))
 
 
 def _safe_average(channel: list[int]) -> int:

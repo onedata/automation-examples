@@ -155,7 +155,7 @@ def _collect_files_to_unpack(
             if not file_rel_path:
                 continue
 
-            target_path = _build_target_path(destination_dir, file_rel_path)
+            target_path = _build_safe_target_path(destination_dir, file_rel_path)
             if not archive.is_file(file_path):
                 target_path.mkdir(parents=True, exist_ok=True)
                 continue
@@ -250,9 +250,9 @@ def _get_file_size(path: Path) -> int:
     return path.stat().st_size
 
 
-def _build_target_path(destination_dir: Path, file_rel_path: str) -> Path:
+def _build_safe_target_path(destination_dir: Path, file_rel_path: str) -> Path:
     rel_path = PurePosixPath(file_rel_path)
-    if rel_path.is_absolute() or any(part in ("", ".", "..") for part in rel_path.parts):
+    if _is_unsafe_relative_archive_path(rel_path):
         raise JobException(f"Unsafe archive path: {file_rel_path}")
 
     target_path = (destination_dir / Path(*rel_path.parts)).resolve()
@@ -260,6 +260,12 @@ def _build_target_path(destination_dir: Path, file_rel_path: str) -> Path:
     if not target_path.is_relative_to(resolved_destination):
         raise JobException(f"Unsafe archive path: {file_rel_path}")
     return target_path
+
+
+def _is_unsafe_relative_archive_path(path: PurePosixPath) -> bool:
+    return (
+        not path.parts or path.is_absolute() or any(part in ("", ".", "..") for part in path.parts)
+    )
 
 
 def _build_relative_file_dst_path(file_ctx: FileUnpackCtx) -> str:

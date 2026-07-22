@@ -5,7 +5,7 @@ NOTE: This lambda works on any type of file by simply returning `None`
 as checksum for anything but regular files.
 """
 
-__author__ = "Rafał Widziszewski"
+__author__ = "Rafał Widziszewski, Bartosz Walkowicz, Wojciech Szmelich"
 __copyright__ = "Copyright (C) 2022-2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 

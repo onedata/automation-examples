@@ -6,13 +6,11 @@ __author__ = "Rafał Widziszewski, Wojciech Szmelich"
 __copyright__ = "Copyright (C) 2022-2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
-import hashlib
 import re
 import traceback
-import zlib
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Final, TypedDict
+from typing import Final, TypedDict, cast
 
 from onedata_lambda_utils import (
     DEFAULT_MAX_WORKERS,
@@ -25,6 +23,7 @@ from onedata_lambda_utils import (
 )
 
 from bagit_archive import BagitArchive, open_mounted_archive
+from checksum import AVAILABLE_CHECKSUM_ALGORITHMS, ChecksumAlgorithm, calculate_checksum
 
 
 ##===================================================================
@@ -33,7 +32,6 @@ from bagit_archive import BagitArchive, open_mounted_archive
 
 
 SUPPORTED_URL_SCHEMAS: Final[tuple[str, ...]] = ("root:", "http:", "https:")
-AVAILABLE_CHECKSUM_ALGORITHMS: Final[set[str]] = {"adler32"}.union(hashlib.algorithms_available)
 READ_CHUNK_SIZE: Final[int] = 10 * 1024**2
 BAGIT_TXT_LINES: Final[int] = 2
 
@@ -148,16 +146,7 @@ def _validate_file_checksum(
 
 
 def _calculate_checksum(data_stream: Iterator[bytes], algorithm: str) -> str:
-    if algorithm == "adler32":
-        value = 1
-        for data in data_stream:
-            value = zlib.adler32(data, value)
-        return format(value, "x")
-
-    hash_data = hashlib.new(algorithm)
-    for data in data_stream:
-        hash_data.update(data)
-    return hash_data.hexdigest()
+    return calculate_checksum(cast(ChecksumAlgorithm, algorithm), data_stream)
 
 
 def _validate_bagit_txt(archive: BagitArchive) -> None:

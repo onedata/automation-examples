@@ -6,15 +6,13 @@ __author__ = "Rafał Widziszewski, Wojciech Szmelich"
 __copyright__ = "Copyright (C) 2023-2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
-import hashlib
 import queue
 import re
 import time
-import zlib
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from threading import Event, Thread
-from typing import Final, NamedTuple, TypedDict
+from typing import Final, NamedTuple, TypedDict, cast
 
 import xattr
 from onedata_lambda_utils import (
@@ -27,6 +25,8 @@ from onedata_lambda_utils import (
     per_job,
 )
 from onedata_lambda_utils.streaming import ResultStreamer
+
+from checksum import ChecksumAlgorithm, assert_supported, calculate_checksum
 
 
 READ_CHUNK_SIZE: Final[int] = 10 * 1024**2
@@ -69,7 +69,7 @@ class CalculatedFileChecksum(NamedTuple):
 
 @per_job(max_workers=DEFAULT_MAX_WORKERS)
 def handle(job: Job[JobArgs], ctx: JobContext[AtmObject]) -> JobResult:
-    file_path = _build_file_path(job.args)
+    file_path = _build_safe_mount_relative_path(job.args["filePath"])
     expected_checksums = _list_expected_checksums(file_path)
 
     measurements: queue.Queue[dict[str, int | str]] = queue.Queue()
@@ -101,13 +101,13 @@ def handle(job: Job[JobArgs], ctx: JobContext[AtmObject]) -> JobResult:
     }
 
 
-def _build_file_path(job_args: JobArgs) -> Path:
-    file_path = Path(job_args["filePath"])
-    if file_path.is_absolute():
+def _build_safe_mount_relative_path(file_path: str) -> Path:
+    relative_path = Path(file_path)
+    if relative_path.is_absolute():
         raise JobException("File path must be relative")
 
     mount = Path(mount_point()).resolve()
-    resolved_path = (mount / file_path).resolve()
+    resolved_path = (mount / relative_path).resolve()
     if not resolved_path.is_relative_to(mount):
         raise JobException("File path must stay within the Oneclient mount point")
     return resolved_path
@@ -175,22 +175,15 @@ def _calculate_checksum_insecure(
     algorithm: str,
     measurements: queue.Queue[dict[str, int | str]],
 ) -> str:
+    assert_supported(algorithm)
     with open(file_path, "rb") as file:
-        if algorithm == "adler32":
-            value = 1
-            for data in iter(lambda: file.read(READ_CHUNK_SIZE), b""):
-                value = zlib.adler32(data, value)
-                measurements.put(_build_time_series_measurement(algorithm, len(data)))
-            return format(value, "x")
-
-        if algorithm not in hashlib.algorithms_available:
-            raise JobException(f"Unsupported checksum algorithm: {algorithm}")
-
-        hash_data = hashlib.new(algorithm)
-        for data in iter(lambda: file.read(READ_CHUNK_SIZE), b""):
-            hash_data.update(data)
-            measurements.put(_build_time_series_measurement(algorithm, len(data)))
-        return hash_data.hexdigest()
+        return calculate_checksum(
+            cast(ChecksumAlgorithm, algorithm),
+            iter(lambda: file.read(READ_CHUNK_SIZE), b""),
+            on_bytes=lambda value: measurements.put(
+                _build_time_series_measurement(algorithm, value)
+            ),
+        )
 
 
 def _build_time_series_measurement(algorithm: str, value: int) -> dict[str, int | str]:

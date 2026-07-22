@@ -83,7 +83,7 @@ def _process_manifest_file(
         for line_num, line in enumerate(fd, start=1):
             checksum, rel_file_path = _parse_manifest_line(manifest_file, line_num, line)
             _set_checksum_xattr(
-                _build_destination_file_path(job_args, rel_file_path),
+                _build_safe_destination_file_path(job_args, rel_file_path),
                 xattr_name,
                 checksum,
             )
@@ -98,6 +98,15 @@ def _parse_manifest_line(manifest_file: str, line_num: int, line: bytes) -> tupl
             f"Failed to extract checksum and path from {manifest_file} line number {line_num}"
         ) from ex
 
+    rel_path = _extract_manifest_data_relative_path(file_path, manifest_file, line_num)
+    return checksum, str(rel_path)
+
+
+def _extract_manifest_data_relative_path(
+    file_path: str,
+    manifest_file: str,
+    line_num: int,
+) -> PurePosixPath:
     path = PurePosixPath(file_path)
     if not path.parts or path.parts[0] != "data":
         raise JobException(
@@ -110,12 +119,12 @@ def _parse_manifest_line(manifest_file: str, line_num: int, line: bytes) -> tupl
             f"Manifest path must point to a file inside data/ directory "
             f"({manifest_file} line {line_num})"
         )
-    return checksum, str(rel_path)
+    return rel_path
 
 
-def _build_destination_file_path(job_args: JobArgs, rel_file_path: str) -> Path:
+def _build_safe_destination_file_path(job_args: JobArgs, rel_file_path: str) -> Path:
     rel_path = PurePosixPath(rel_file_path)
-    if rel_path.is_absolute() or any(part in ("", ".", "..") for part in rel_path.parts):
+    if _is_unsafe_relative_archive_path(rel_path):
         raise JobException(f"Unsafe manifest path: {rel_file_path}")
 
     destination_dir = Path(mounted_file_path(job_args["destinationDir"]["fileId"]))
@@ -124,6 +133,12 @@ def _build_destination_file_path(job_args: JobArgs, rel_file_path: str) -> Path:
     if not file_path.is_relative_to(resolved_destination):
         raise JobException(f"Unsafe manifest path: {rel_file_path}")
     return file_path
+
+
+def _is_unsafe_relative_archive_path(path: PurePosixPath) -> bool:
+    return (
+        not path.parts or path.is_absolute() or any(part in ("", ".", "..") for part in path.parts)
+    )
 
 
 def _set_checksum_xattr(file_path: Path, xattr_name: str, checksum: str) -> None:
