@@ -147,20 +147,27 @@ def test_invalid_archive_returns_status_log(mount_point: Path) -> None:
     ]
 
 
-def test_checksum_mismatch_returns_status_log(mount_point: Path) -> None:
+def test_payload_checksum_mismatch_is_ignored(mount_point: Path) -> None:
+    archive = _archive_file("bad-checksum", "bad-checksum.zip")
     entries = _bagit_entries()
     entries["bag/manifest-sha256.txt"] = ("0" * 64 + " data/payload.txt\n").encode()
     _write_zip_bag(_mounted_file(mount_point, "bad-checksum"), entries)
 
     rc = build_job_context(config={})
     results = handle(
-        build_jobs([_job_args("bad-checksum", "bad-checksum.zip")]),
+        build_jobs([{"archive": archive}]),
         rc.context,
     )
 
-    assert results[0]["validArchives"] == []
-    assert results[0]["statusLog"]["status"] == "Invalid bagit archive"
-    assert "checksum verification failed" in results[0]["statusLog"]["reason"]
+    assert results == [
+        {
+            "validArchives": [archive],
+            "statusLog": {
+                "archive": "bad-checksum.zip",
+                "status": "Valid bagit archive",
+            },
+        }
+    ]
 
 
 def test_non_regular_file_is_per_job_exception() -> None:

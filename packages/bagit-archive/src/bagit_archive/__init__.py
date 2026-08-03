@@ -9,7 +9,7 @@ import contextlib
 import tarfile
 import zipfile
 from collections.abc import Generator, Iterable
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import IO, Final
 
 from onedata_lambda_utils import AtmFile, JobException, mounted_file_path
@@ -187,3 +187,22 @@ def open_mounted_archive(archive: AtmFile) -> Generator[BagitArchive]:
     """Open an archive from the mounted Oneclient filesystem."""
     with open_archive(Path(mounted_file_path(archive["fileId"])), archive["name"]) as bagit_archive:
         yield bagit_archive
+
+
+def is_unsafe_relative_archive_path(path: PurePosixPath) -> bool:
+    return (
+        not path.parts or path.is_absolute() or any(part in ("", ".", "..") for part in path.parts)
+    )
+
+
+def extract_safe_data_relative_path(path: str) -> PurePosixPath:
+    """Return a safe archive path relative to the BagIt data/ directory."""
+    archive_path = PurePosixPath(path)
+    if not archive_path.parts or archive_path.parts[0] != "data":
+        raise JobException(f"Path must point inside data/ directory: {path}")
+
+    data_relative_path = PurePosixPath(*archive_path.parts[1:])
+    if is_unsafe_relative_archive_path(data_relative_path):
+        raise JobException(f"Path must point to a safe location inside data/ directory: {path}")
+
+    return data_relative_path

@@ -104,4 +104,4 @@ def test_rejects_path_outside_data(mount_point: Path) -> None:
     results = handle(build_jobs([_job_args()]), rc.context)
 
     assert "exception" in results[0]
-    assert "File path not within data/" in results[0]["exception"]
+    assert "Path must point inside data/ directory: metadata/a.txt" in results[0]["exception"]

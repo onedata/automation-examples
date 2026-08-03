@@ -26,7 +26,7 @@ from onedata_lambda_utils import (
 )
 from onedata_lambda_utils.streaming import ResultStreamer
 
-from bagit_archive import open_mounted_archive
+from bagit_archive import is_unsafe_relative_archive_path, open_mounted_archive
 
 
 ##===================================================================
@@ -252,7 +252,7 @@ def _get_file_size(path: Path) -> int:
 
 def _build_safe_target_path(destination_dir: Path, file_rel_path: str) -> Path:
     rel_path = PurePosixPath(file_rel_path)
-    if _is_unsafe_relative_archive_path(rel_path):
+    if is_unsafe_relative_archive_path(rel_path):
         raise JobException(f"Unsafe archive path: {file_rel_path}")
 
     target_path = (destination_dir / Path(*rel_path.parts)).resolve()
@@ -260,12 +260,6 @@ def _build_safe_target_path(destination_dir: Path, file_rel_path: str) -> Path:
     if not target_path.is_relative_to(resolved_destination):
         raise JobException(f"Unsafe archive path: {file_rel_path}")
     return target_path
-
-
-def _is_unsafe_relative_archive_path(path: PurePosixPath) -> bool:
-    return (
-        not path.parts or path.is_absolute() or any(part in ("", ".", "..") for part in path.parts)
-    )
 
 
 def _build_relative_file_dst_path(file_ctx: FileUnpackCtx) -> str:

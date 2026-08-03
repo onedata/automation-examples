@@ -9,9 +9,12 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import io
 import tarfile
 import zipfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
-from bagit_archive import open_archive
+import pytest
+from onedata_lambda_utils import JobException
+
+from bagit_archive import extract_safe_data_relative_path, open_archive
 
 
 def test_zip_archive_helpers(tmp_path: Path) -> None:
@@ -55,3 +58,22 @@ def test_tar_archive_helpers(tmp_path: Path) -> None:
         assert archive.list_manifest_files(["sha256", "md5"]) == ["bag/manifest-md5.txt"]
         assert archive.is_file("bag/data/file.txt")
         assert archive.file_size("bag/data/file.txt") == 7
+
+
+def test_extract_safe_data_relative_path() -> None:
+    assert extract_safe_data_relative_path("data/dir/file.txt") == PurePosixPath("dir/file.txt")
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "",
+        "/data/file.txt",
+        "file.txt",
+        "data",
+        "data/../file.txt",
+    ],
+)
+def test_extract_safe_data_relative_path_rejects_invalid_path(path: str) -> None:
+    with pytest.raises(JobException):
+        extract_safe_data_relative_path(path)

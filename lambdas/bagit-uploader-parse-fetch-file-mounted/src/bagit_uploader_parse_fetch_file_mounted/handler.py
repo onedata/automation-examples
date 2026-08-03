@@ -6,7 +6,6 @@ __author__ = "Bartosz Walkowicz, Wojciech Szmelich"
 __copyright__ = "Copyright (C) 2023-2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
-from pathlib import PurePosixPath
 from typing import TypedDict
 
 from onedata_lambda_utils import (
@@ -18,7 +17,11 @@ from onedata_lambda_utils import (
     per_job,
 )
 
-from bagit_archive import BagitArchive, open_mounted_archive
+from bagit_archive import (
+    BagitArchive,
+    extract_safe_data_relative_path,
+    open_mounted_archive,
+)
 
 
 ##===================================================================
@@ -85,36 +88,10 @@ def _parse_line(dst_dir: str, line_num: int, line: bytes) -> FileDownloadInfo:
             f"Failed to extract url, size and path from fetch file line number {line_num}"
         ) from ex
 
-    data_rel_path = _extract_safe_data_relative_path(
-        rel_path,
-        outside_data_message=f"File path not within data/ directory (fetch.txt line {line_num})",
-        unsafe_path_message=f"Unsafe fetch path (fetch.txt line {line_num})",
-    )
+    data_rel_path = extract_safe_data_relative_path(rel_path)
 
     return {
         "sourceUrl": url,
         "destinationPath": f"{dst_dir}/{data_rel_path}",
         "size": sanitized_size,
     }
-
-
-def _extract_safe_data_relative_path(
-    path: str,
-    *,
-    outside_data_message: str,
-    unsafe_path_message: str,
-) -> PurePosixPath:
-    bagit_path = PurePosixPath(path)
-    if not bagit_path.parts or bagit_path.parts[0] != "data":
-        raise JobException(outside_data_message)
-
-    data_rel_path = PurePosixPath(*bagit_path.parts[1:])
-    if _is_unsafe_relative_archive_path(data_rel_path):
-        raise JobException(unsafe_path_message)
-    return data_rel_path
-
-
-def _is_unsafe_relative_archive_path(path: PurePosixPath) -> bool:
-    return (
-        not path.parts or path.is_absolute() or any(part in ("", ".", "..") for part in path.parts)
-    )

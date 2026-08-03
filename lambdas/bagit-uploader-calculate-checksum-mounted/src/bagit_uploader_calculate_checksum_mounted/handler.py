@@ -12,7 +12,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from threading import Event, Thread
-from typing import Final, NamedTuple, TypedDict, cast
+from typing import Final, NamedTuple, TypedDict
 
 import xattr
 from onedata_lambda_utils import (
@@ -26,7 +26,7 @@ from onedata_lambda_utils import (
 )
 from onedata_lambda_utils.streaming import ResultStreamer
 
-from checksum import ChecksumAlgorithm, assert_supported, calculate_checksum
+from checksum import ChecksumAlgorithm, calculate_checksum, require_supported
 
 
 READ_CHUNK_SIZE: Final[int] = 10 * 1024**2
@@ -58,12 +58,12 @@ class JobResult(TypedDict):
 
 class ExpectedFileChecksum(NamedTuple):
     file_path: Path
-    algorithm: str
+    algorithm: ChecksumAlgorithm
     checksum: str
 
 
 class CalculatedFileChecksum(NamedTuple):
-    algorithm: str
+    algorithm: ChecksumAlgorithm
     status: ChecksumStatus
 
 
@@ -125,7 +125,7 @@ def _list_expected_checksums(file_path: Path) -> list[ExpectedFileChecksum]:
         expected_checksums.append(
             ExpectedFileChecksum(
                 file_path=file_path,
-                algorithm=match.group("algorithm"),
+                algorithm=require_supported(match.group("algorithm")),
                 checksum=_decode_xattr_value(file_xattrs.get(xattr_name)),
             )
         )
@@ -161,29 +161,20 @@ def _verify_file_checksum(
 
 def _calculate_checksum(
     file_path: Path,
-    algorithm: str,
+    algorithm: ChecksumAlgorithm,
     measurements: queue.Queue[dict[str, int | str]],
 ) -> str:
     try:
-        return _calculate_checksum_insecure(file_path, algorithm, measurements)
+        with open(file_path, "rb") as file:
+            return calculate_checksum(
+                algorithm,
+                iter(lambda: file.read(READ_CHUNK_SIZE), b""),
+                on_bytes=lambda value: measurements.put(
+                    _build_time_series_measurement(algorithm, value)
+                ),
+            )
     except Exception as ex:
         raise JobException(f"Failed to calculate checksum due to: {ex}") from ex
-
-
-def _calculate_checksum_insecure(
-    file_path: Path,
-    algorithm: str,
-    measurements: queue.Queue[dict[str, int | str]],
-) -> str:
-    assert_supported(algorithm)
-    with open(file_path, "rb") as file:
-        return calculate_checksum(
-            cast(ChecksumAlgorithm, algorithm),
-            iter(lambda: file.read(READ_CHUNK_SIZE), b""),
-            on_bytes=lambda value: measurements.put(
-                _build_time_series_measurement(algorithm, value)
-            ),
-        )
 
 
 def _build_time_series_measurement(algorithm: str, value: int) -> dict[str, int | str]:

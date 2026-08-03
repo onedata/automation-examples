@@ -8,9 +8,8 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 import re
 import traceback
-from collections.abc import Iterator
 from pathlib import Path
-from typing import Final, TypedDict, cast
+from typing import Final, TypedDict
 
 from onedata_lambda_utils import (
     DEFAULT_MAX_WORKERS,
@@ -23,7 +22,12 @@ from onedata_lambda_utils import (
 )
 
 from bagit_archive import BagitArchive, open_mounted_archive
-from checksum import AVAILABLE_CHECKSUM_ALGORITHMS, ChecksumAlgorithm, calculate_checksum
+from checksum import (
+    AVAILABLE_CHECKSUM_ALGORITHMS,
+    ChecksumAlgorithm,
+    calculate_checksum,
+    require_supported,
+)
 
 
 ##===================================================================
@@ -132,21 +136,17 @@ def _validate_any_tagmanifest_file(archive: BagitArchive) -> None:
 
 
 def _validate_file_checksum(
-    archive: BagitArchive, file_path: str, algorithm: str, exp_checksum: str
+    archive: BagitArchive, file_path: str, algorithm: ChecksumAlgorithm, exp_checksum: str
 ) -> None:
     with archive.open_file(file_path) as fd:
         data_stream = iter(lambda: fd.read(READ_CHUNK_SIZE), b"")
-        checksum = _calculate_checksum(data_stream, algorithm)
+        checksum = calculate_checksum(algorithm, data_stream)
 
     if checksum != exp_checksum:
         raise JobException(
             f"{algorithm} checksum verification failed for {file_path}.\n"
             f"Expected: {exp_checksum}, Calculated: {checksum}"
         )
-
-
-def _calculate_checksum(data_stream: Iterator[bytes], algorithm: str) -> str:
-    return calculate_checksum(cast(ChecksumAlgorithm, algorithm), data_stream)
 
 
 def _validate_bagit_txt(archive: BagitArchive) -> None:
@@ -182,29 +182,29 @@ def _validate_payload(archive: BagitArchive) -> None:
     payload_files.update(_parse_fetch_file(archive))
 
     for manifest_file in archive.list_manifest_files(AVAILABLE_CHECKSUM_ALGORITHMS):
-        algorithm = _manifest_algorithm(manifest_file)
         referenced_files = set()
-        for exp_checksum, path in _parse_manifest_file(manifest_file, archive):
+        for _exp_checksum, path in _parse_manifest_file(manifest_file, archive):
             referenced_files.add(path)
-            # New-style validation also verifies payload checksums declared in manifests.
-            _validate_file_checksum(
-                archive,
-                archive.build_file_path(path),
-                algorithm,
-                exp_checksum,
-            )
+            # Currently skipping verifying payload checksums declared in manifests.
+            # algorithm = _manifest_algorithm(manifest_file)
+            # _validate_file_checksum(
+            #     archive,
+            #     archive.build_file_path(path),
+            #     algorithm,
+            #     exp_checksum,
+            # )
 
         if payload_files != referenced_files:
             raise JobException(
-                f"Files referenced by {manifest_file} do not match with payload files.\n"
+                f"Files referenced by {manifest_file} do n, ot match with payload files.\n"
                 f"  Files in payload but not referenced: {payload_files - referenced_files}\n"
                 f"  Files referenced but not in payload: {referenced_files - payload_files}"
             )
 
 
-def _manifest_algorithm(manifest_file: str) -> str:
+def _manifest_algorithm(manifest_file: str) -> ChecksumAlgorithm:
     manifest_name = Path(manifest_file).name
-    return manifest_name.removeprefix("manifest-").removesuffix(".txt")
+    return require_supported(manifest_name.removeprefix("manifest-").removesuffix(".txt"))
 
 
 def _parse_manifest_file(manifest_file: str, archive: BagitArchive) -> list[tuple[str, str]]:

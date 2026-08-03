@@ -104,7 +104,7 @@ def test_rejects_manifest_path_outside_data(mount_point: Path) -> None:
     results = handler.handle(build_jobs([_job_args()]), rc.context)
 
     assert "exception" in results[0]
-    assert "Manifest path must point inside data/" in results[0]["exception"]
+    assert "Path must point inside data/ directory: metadata/file.txt" in results[0]["exception"]
 
 
 def test_rejects_non_regular_archive() -> None:

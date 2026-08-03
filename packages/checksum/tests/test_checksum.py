@@ -15,6 +15,7 @@ from checksum import (
     assert_supported,
     calculate_checksum,
     is_supported,
+    require_supported,
 )
 
 
@@ -56,3 +57,9 @@ def test_assert_supported_raises_job_exception() -> None:
     assert_supported("sha256")  # supported -> no error
     with pytest.raises(JobException):
         assert_supported("crc32")
+
+
+def test_require_supported_returns_algorithm_or_raises() -> None:
+    assert require_supported("sha256") == "sha256"
+    with pytest.raises(JobException):
+        require_supported("crc32")

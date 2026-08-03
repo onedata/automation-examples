@@ -7,7 +7,7 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 import hashlib
 import zlib
 from collections.abc import Callable, Iterable
-from typing import Final, Literal, get_args
+from typing import Final, Literal, TypeGuard, get_args
 
 from onedata_lambda_utils import JobException
 
@@ -31,19 +31,21 @@ ChecksumAlgorithm = Literal[
     "shake_256",
 ]
 
-AVAILABLE_CHECKSUM_ALGORITHMS: Final[frozenset[str]] = frozenset(get_args(ChecksumAlgorithm))
+AVAILABLE_CHECKSUM_ALGORITHMS: Final[frozenset[ChecksumAlgorithm]] = frozenset(
+    get_args(ChecksumAlgorithm)
+)
 
 #: shake_* are extendable-output functions: their `hexdigest()` needs an explicit length.
 _SHAKE_DIGEST_BYTES: Final[int] = 32
 
 
-def is_supported(algorithm: str) -> bool:
+def is_supported(algorithm: str) -> TypeGuard[ChecksumAlgorithm]:
     return algorithm in AVAILABLE_CHECKSUM_ALGORITHMS
 
 
-def assert_supported(algorithm: str) -> None:
+def require_supported(algorithm: str) -> ChecksumAlgorithm:
     """
-    Fail the job (cleanly, no traceback) if `algorithm` is not in the catalogue.
+    Return `algorithm` with a narrowed type, or fail the job if it is unsupported.
 
     Raises `JobException`, which the SDK turns into an `AtmException` carrying just the
     message -- the natural fit for a known configuration error.
@@ -53,6 +55,12 @@ def assert_supported(algorithm: str) -> None:
             f"{algorithm} algorithm is unsupported. "
             f"Available ones are: {sorted(AVAILABLE_CHECKSUM_ALGORITHMS)}"
         )
+    return algorithm
+
+
+def assert_supported(algorithm: str) -> None:
+    """Fail the job (cleanly, no traceback) if `algorithm` is unsupported."""
+    require_supported(algorithm)
 
 
 def calculate_checksum(
