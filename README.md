@@ -92,34 +92,48 @@ make test     # pytest only
 
 ## Testing guidelines
 
-Each lambda should have focused tests under `lambdas/<name>/tests/`. Prefer
-small, explicit fixtures and constants over repeated inline literals, especially
-for file IDs, file names, metadata keys, REST URLs, checksum values, and expected
-results.
+Each lambda should have focused tests under `lambdas/<name>/tests/`. There are
+two complementary types of tests.
 
-Use `test_handler.py` for the lambda's own logic:
+`test_handler.py` contains unit tests of the lambda's own logic. These tests call
+the handler directly, without starting the SDK runtime. `build_jobs()` and
+`build_job_context()` prepare the required input and context. Calls that the
+handler makes to loggers, streamers, and heartbeats are captured in memory so
+that tests can inspect them.
 
-- call the handler directly with `build_jobs()` and `build_job_context()`;
-- cover success paths, validation, error handling, and per-job exceptions;
-- assert meaningful side effects, such as files written under the mount point,
-  xattrs, REST calls, stream measurements, or status logs;
-- keep SDK runtime behaviour out of handler tests unless it is part of the
-  lambda logic.
+Use `test_handler.py` to:
 
-Add `test_runtime.py` only when it checks something useful beyond the same
-handler assertions:
+- test successful results as well as validation failures, error handling,
+  per-job exceptions, and other error paths;
+- test `handle()` or individual helper functions from the lambda;
+- mock external services and other dependencies;
+- check returned values and side effects such as created files, xattrs, REST
+  calls, logs, and streamed items.
 
-- mounted file access through `ONECLIENT_MOUNT_POINT`;
-- REST request flow using the runtime request envelope;
-- xattr or filesystem side effects observable only end to end;
-- stream flushing and final `result.streams`;
-- batch behaviour, result ordering, or isolation of per-job exceptions;
-- archive or multi-step workflows where `build_request()` plus `run_local()`
-  exercises a realistic lambda invocation.
+These tests confirm what the handler sends to loggers and streamers, but they do
+not test how the SDK buffers, writes, or flushes that data.
 
-Do not add runtime tests for very small pure transformations when
-`test_handler.py` already covers the behaviour. A runtime test that only asserts
-`{"resultsBatch": [...]}` for a trivial handler is usually not worth keeping.
+`test_runtime.py` contains end-to-end tests of the lambda and SDK working
+together. `build_request()` creates a request in the same format as the backend,
+and `run_local()` passes it through the real SDK runtime. This covers request
+parsing, `JobContext` creation, the decorated handler, stream output, and the
+final response. It does not start Docker, but it is the closest local equivalent
+of a real lambda invocation.
+
+Use `test_runtime.py` to:
+
+- invoke only the exported handler through `build_request()` and `run_local()`;
+- leave the handler and SDK unchanged, while mocking systems outside the lambda
+  such as REST services, filesystem integrations, xattr access, or optional
+  native clients;
+- check the final response, flushed streams, output files, and other externally
+  visible effects.
+
+A runtime test is most valuable when it checks SDK behaviour that a handler unit
+test does not. Repeating the same assertion through `run_local()` may add little
+value for a very small lambda that only performs a simple transformation.
+
+This division is a guideline rather than a strict rule.
 
 When adding tests, keep them deterministic. Avoid depending on external network
 access, real providers, wall-clock time, or host-specific files. Mock REST
