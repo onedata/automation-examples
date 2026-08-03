@@ -196,7 +196,7 @@ def _validate_payload(archive: BagitArchive) -> None:
 
         if payload_files != referenced_files:
             raise JobException(
-                f"Files referenced by {manifest_file} do n, ot match with payload files.\n"
+                f"Files referenced by {manifest_file} do not match with payload files.\n"
                 f"  Files in payload but not referenced: {payload_files - referenced_files}\n"
                 f"  Files referenced but not in payload: {referenced_files - payload_files}"
             )
