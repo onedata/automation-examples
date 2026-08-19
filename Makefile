@@ -78,14 +78,14 @@ build: _require_lambda ## build one image (LAMBDA=<name>)
 	docker build --build-arg LAMBDA_PACKAGE=$(LAMBDA) -t $(call lambda_image,$(LAMBDA)) .
 
 publish: _require_lambda ## push one image (LAMBDA=<name>, optional YES=1)
-	python3 utils/manage_lambdas.py confirm-publish --registry "$(REGISTRY)" "$(LAMBDA)" $(if $(filter 1,$(YES)),--yes,)
+	uv run python3 utils/manage_lambdas.py confirm-publish --registry "$(REGISTRY)" "$(LAMBDA)" $(if $(filter 1,$(YES)),--yes,)
 	docker push $(call lambda_image,$(LAMBDA))
 
 build-all: ## build every lambda
 	@set -e; for l in $(LAMBDAS); do echo ">> build $$l"; $(MAKE) --no-print-directory build LAMBDA=$$l; done
 
 publish-all: ## push every lambda (optional YES=1)
-	python3 utils/manage_lambdas.py confirm-publish --registry "$(REGISTRY)" all $(if $(filter 1,$(YES)),--yes,)
+	uv run python3 utils/manage_lambdas.py confirm-publish --registry "$(REGISTRY)" all $(if $(filter 1,$(YES)),--yes,)
 	@set -e; $(foreach lambda,$(LAMBDAS),echo ">> publish $(call lambda_image,$(lambda))"; docker push "$(call lambda_image,$(lambda))";)
 
 image-name: _require_lambda ## print the resolved image:tag (LAMBDA=<name>)
@@ -97,16 +97,16 @@ image-names: ## print all resolved images and tags
 ##@ validation
 
 check-lambda-image-matches-registry: _require_lambda_selector ## compare local and published images (LAMBDA=<name>|all)
-	python3 utils/manage_lambdas.py check-image-matches-registry --registry "$(REGISTRY)" "$(LAMBDA)"
+	uv run python3 utils/manage_lambdas.py check-image-matches-registry --registry "$(REGISTRY)" "$(LAMBDA)"
 
 check-workflow-images-public: ## check that lambda images used in workflows use the public onedata registry
-	python3 utils/manage_workflows.py check-public "$(LAMBDA)"
+	uv run python3 utils/manage_workflows.py check-public "$(LAMBDA)"
 
 check-workflow-images-published: ## check that lambda images used in workflows are published
-	python3 utils/manage_workflows.py check-published "$(LAMBDA)"
+	uv run python3 utils/manage_workflows.py check-published "$(LAMBDA)"
 
 check-lambda-images-used: ## check that every current lambda image is used in at least one workflow
-	python3 utils/manage_workflows.py check-lambda-images-used "$(LAMBDA)"
+	uv run python3 utils/manage_workflows.py check-lambda-images-used "$(LAMBDA)"
 
 ##@ housekeeping
 
