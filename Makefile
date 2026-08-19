@@ -13,16 +13,16 @@ SDK_REPO ?= ../onedata-lambda-utils
 LAMBDAS := $(notdir $(patsubst %/,%,$(dir $(wildcard lambdas/*/pyproject.toml))))
 
 # Image for a lambda: <registry>/lambda-<name>:v<version> (version from its pyproject).
-lambda_version = $(shell python3 -c "import tomllib; print(tomllib.load(open('lambdas/$(1)/pyproject.toml','rb'))['project']['version'])")
+lambda_version = $(shell uv run python3 -c "import tomllib; print(tomllib.load(open('lambdas/$(1)/pyproject.toml','rb'))['project']['version'])")
 lambda_image   = $(REGISTRY)/lambda-$(1):v$(call lambda_version,$(1))
-
-bold := $(shell tput bold)
-normal := $(shell tput sgr0)
-blue := $(shell tput setaf 4)
 
 define print_target
 	@echo ""
-	@echo "$(blue)$(bold)$@:$(normal)"
+	@if [ -t 1 ] && [ -n "$$TERM" ] && command -v tput >/dev/null 2>&1; then \
+		printf '%s%s%s:%s\n' "$$(tput setaf 4)" "$$(tput bold)" "$@" "$$(tput sgr0)"; \
+	else \
+		printf '%s:\n' "$@"; \
+	fi
 endef
 
 .DEFAULT_GOAL := help
