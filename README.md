@@ -68,14 +68,19 @@ The canonical `Dockerfile` builds any member, selected by a build arg:
 make build LAMBDA=calculate-checksum-mounted      # docker.onedata.org/lambda-<name>:v<version>
 make publish LAMBDA=calculate-checksum-mounted    # push it
 make build-all                                    # build every lambda
-make publish-all REGISTRY=onedata                 # build/push public images (onedata/*)
+make publish-all REGISTRY=onedata                 # push all public images (onedata/*)
+make publish-all REGISTRY=onedata YES=1           # skip existing-tag confirmation
+make check-lambda-image-matches-registry LAMBDA=calculate-checksum-mounted REGISTRY=onedata
+make check-lambda-image-matches-registry LAMBDA=all REGISTRY=onedata
 ```
 
 `make build LAMBDA=<name>` is a thin wrapper over
 `docker build --build-arg LAMBDA_PACKAGE=<name> .`; the image gets only that
 lambda's dependency subtree. The tag's version comes from the member's
 `pyproject.toml`. Run `make help` (or `make image-name LAMBDA=<name>`) for
-details.
+details. The image comparison target resolves the same name and version, then
+checks that the locally built image has the same content digest as the image
+published under that tag.
 
 ## Development
 
@@ -94,6 +99,9 @@ make test     # pytest only
 
 Each lambda should have focused tests under `lambdas/<name>/tests/`. There are
 two complementary types of tests.
+
+Tests of repository automation tools live under `utils/tests/`. They are
+discovered by the same `make test` command and do not need a separate CI job.
 
 `test_handler.py` contains unit tests of the lambda's own logic. These tests call
 the handler directly, without starting the SDK runtime. `build_jobs()` and
@@ -150,6 +158,6 @@ To add or change a lambda or workflow schema:
    it; the image tag follows the version, so this avoids overwriting a published
    image.
 3. Before merging, make sure every image referenced by a workflow schema is
-   public (`onedata/*`) and pushed — `make publish-all REGISTRY=onedata`, and use
-   the `utils/` scripts to sync `dockerImage` references and recompute workflow
-   checksums.
+   public (`onedata/*`), pushed, and current — use `make publish-all
+   REGISTRY=onedata` followed by the workflow image validation targets. Recompute
+   the workflow checksum after editing a dump.
