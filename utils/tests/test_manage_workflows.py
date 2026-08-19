@@ -68,7 +68,7 @@ def test_rejects_invalid_docker_image_value(tmp_path: Path) -> None:
         manage_workflows.discover_workflow_dumps(tmp_path)
 
 
-def test_lambda_usage_ignores_external_images_and_reports_both_directions() -> None:
+def test_lambda_usage_ignores_external_and_obsolete_images() -> None:
     with pytest.raises(manage_workflows.WorkflowImageValidationError) as error:
         manage_workflows.assert_all_lambda_images_used(
             {
@@ -82,10 +82,7 @@ def test_lambda_usage_ignores_external_images_and_reports_both_directions() -> N
             },
         )
 
-    assert error.value.errors == [
-        "lambda image is not used in any workflow: lambda-missing:v2",
-        "lambda image used in a workflow is obsolete or unknown: lambda-obsolete:v1",
-    ]
+    assert error.value.errors == ["lambda image is not used in any workflow: lambda-missing:v2"]
 
 
 def test_single_lambda_usage_does_not_report_other_lambda_images() -> None:
@@ -95,7 +92,6 @@ def test_single_lambda_usage_does_not_report_other_lambda_images() -> None:
             "onedata/lambda-other:v1",
         },
         {"lambda-selected": "lambda-selected:v2"},
-        check_unknown_images=False,
     )
 
 

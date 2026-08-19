@@ -238,9 +238,8 @@ def assert_published(images: set[str]) -> None:
 def assert_all_lambda_images_used(
     workflow_images: set[str],
     current_lambda_images: dict[str, str],
-    check_unknown_images: bool = True,
 ) -> None:
-    """Validate current image usage and, in all mode, reject obsolete references."""
+    """Require every selected current lambda image to occur in a workflow."""
 
     expected_images = set(current_lambda_images.values())
     used_lambda_images = {
@@ -253,17 +252,9 @@ def assert_all_lambda_images_used(
         f"lambda image is not used in any workflow: {image}"
         for image in sorted(expected_images - used_lambda_images)
     ]
-    if check_unknown_images:
-        errors.extend(
-            f"lambda image used in a workflow is obsolete or unknown: {image}"
-            for image in sorted(used_lambda_images - expected_images)
-        )
     if errors:
         raise WorkflowImageValidationError(errors)
-    if check_unknown_images:
-        print("Every current lambda image is used in at least one workflow.")
-    else:
-        print("The selected lambda image is used in at least one workflow.")
+    print("Every selected lambda image is used in at least one workflow.")
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -328,7 +319,6 @@ def run(args: argparse.Namespace, repo_root: Path) -> None:
         assert_all_lambda_images_used(
             workflow_images,
             selected_images,
-            check_unknown_images=lambda_name is None,
         )
 
 
