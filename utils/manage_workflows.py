@@ -96,9 +96,7 @@ def run(args: argparse.Namespace) -> None:
             )
         assert_published(images_to_check)
     elif args.command == "check-lambda-images-used":
-        selected_images = select_current_lambda_images(
-            load_current_lambda_images(), lambda_name
-        )
+        selected_images = select_current_lambda_images(load_current_lambda_images(), lambda_name)
         assert_all_lambda_images_used(
             workflow_images,
             selected_images,

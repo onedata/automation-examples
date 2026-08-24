@@ -43,9 +43,7 @@ def test_commands_accept_positional_lambda_selector(
     assert args.lambda_selector == expected_selector
 
 
-def test_discovers_nested_workflows_and_collects_unique_images(
-    tmp_path: Path, monkeypatch
-) -> None:
+def test_discovers_nested_workflows_and_collects_unique_images(tmp_path: Path, monkeypatch) -> None:
     create_workflow(tmp_path, "first.json", ["onedata/lambda-first:v1"])
     create_workflow(
         tmp_path,
