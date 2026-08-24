@@ -43,7 +43,9 @@ def test_commands_accept_positional_lambda_selector(
     assert args.lambda_selector == expected_selector
 
 
-def test_discovers_nested_workflows_and_collects_unique_images(tmp_path: Path) -> None:
+def test_discovers_nested_workflows_and_collects_unique_images(
+    tmp_path: Path, monkeypatch
+) -> None:
     create_workflow(tmp_path, "first.json", ["onedata/lambda-first:v1"])
     create_workflow(
         tmp_path,
@@ -51,7 +53,8 @@ def test_discovers_nested_workflows_and_collects_unique_images(tmp_path: Path) -
         ["onedata/lambda-first:v1", "onedata/lambda-second:v2"],
     )
 
-    dumps = manage_workflows.discover_workflow_dumps(tmp_path)
+    monkeypatch.setattr(manage_workflows, "REPO_ROOT", tmp_path)
+    dumps = manage_workflows.discover_workflow_dumps()
 
     assert manage_workflows.collect_docker_images(dumps) == {
         "onedata/lambda-first:v1",
@@ -59,13 +62,30 @@ def test_discovers_nested_workflows_and_collects_unique_images(tmp_path: Path) -
     }
 
 
-def test_rejects_invalid_docker_image_value(tmp_path: Path) -> None:
+def test_rejects_invalid_docker_image_value(tmp_path: Path, monkeypatch) -> None:
     workflow_path = tmp_path / "workflows" / "invalid.json"
     workflow_path.parent.mkdir()
     workflow_path.write_text('{"dockerImage": null}', encoding="utf-8")
 
-    with pytest.raises(manage_workflows.WorkflowImageError, match="non-empty string"):
-        manage_workflows.discover_workflow_dumps(tmp_path)
+    monkeypatch.setattr(manage_workflows, "REPO_ROOT", tmp_path)
+    with pytest.raises(manage_workflows.WorkflowManagementError, match="non-empty string"):
+        manage_workflows.discover_workflow_dumps()
+
+
+def test_load_current_lambda_images_reads_project_name_from_pyproject(
+    tmp_path: Path, monkeypatch
+) -> None:
+    pyproject_path = tmp_path / "lambdas" / "directory-name" / "pyproject.toml"
+    pyproject_path.parent.mkdir(parents=True)
+    pyproject_path.write_text(
+        '[project]\nname = "project-name"\nversion = "4-dev1"\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(manage_workflows, "REPO_ROOT", tmp_path)
+
+    images = manage_workflows.load_current_lambda_images()
+
+    assert images == {"lambda-project-name": "lambda-project-name:v4-dev1"}
 
 
 def test_lambda_usage_ignores_external_and_obsolete_images() -> None:
