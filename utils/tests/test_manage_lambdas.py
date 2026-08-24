@@ -28,18 +28,32 @@ def test_accepts_supported_version(version: str) -> None:
 
 @pytest.mark.parametrize("version", ["v4-dev2", "4-dev", "4-dev0", "4.1", "04-dev2"])
 def test_rejects_unsupported_version(version: str) -> None:
-    with pytest.raises(manage_lambdas.VersionManagementError):
+    with pytest.raises(manage_lambdas.LambdaManagementError):
         manage_lambdas.validate_version(version)
 
 
-def test_select_projects_accepts_all(tmp_path: Path) -> None:
+def test_select_projects_accepts_all(tmp_path: Path, monkeypatch) -> None:
     create_lambda(tmp_path, "first", "4-dev1")
     create_lambda(tmp_path, "second", "5-dev1")
-    projects = manage_lambdas.discover_lambda_projects(tmp_path)
+    monkeypatch.setattr(manage_lambdas, "REPO_ROOT", tmp_path)
+    projects = manage_lambdas.discover_lambda_projects()
 
     selected = manage_lambdas.select_projects(projects, "all")
 
     assert [project.name for project in selected] == ["first", "second"]
+
+
+def test_load_lambda_project_reads_name_from_pyproject(tmp_path: Path) -> None:
+    pyproject_path = create_lambda(
+        tmp_path,
+        "directory-name",
+        "4-dev1",
+        project_name="project-name",
+    )
+
+    project = manage_lambdas.load_lambda_project(pyproject_path)
+
+    assert project.name == "project-name"
 
 
 def test_docker_image_exists_distinguishes_missing_manifest(monkeypatch) -> None:
@@ -63,7 +77,10 @@ def test_docker_image_exists_rejects_registry_errors(monkeypatch) -> None:
     )
     monkeypatch.setattr(manage_lambdas.subprocess, "run", lambda *args, **kwargs: result)
 
-    with pytest.raises(manage_lambdas.VersionManagementError, match="cannot verify"):
+    with pytest.raises(
+        manage_lambdas.LambdaManagementError,
+        match="cannot inspect published Docker image",
+    ):
         manage_lambdas.docker_image_exists("onedata/lambda-example:v5")
 
 
@@ -121,16 +138,15 @@ def test_confirm_publish_can_skip_prompt_for_existing_tags(monkeypatch, capsys) 
 
 def test_assert_image_matches_registry_for_single_platform(monkeypatch, capsys) -> None:
     project = lambda_project("example", "4-dev2")
-    local_image = manage_lambdas.LocalDockerImage(
-        image_id="sha256:config",
-        os="linux",
-        architecture="amd64",
-    )
-    monkeypatch.setattr(manage_lambdas, "inspect_local_docker_image", lambda _: local_image)
     monkeypatch.setattr(
         manage_lambdas,
-        "inspect_remote_manifest",
-        lambda _: {"config": {"digest": "sha256:config"}},
+        "inspect_local_docker_image",
+        lambda _: "sha256:config",
+    )
+    monkeypatch.setattr(
+        manage_lambdas,
+        "inspect_published_docker_image",
+        lambda _: "sha256:config",
     )
 
     manage_lambdas.assert_image_matches_registry(project, "onedata/")
@@ -142,23 +158,24 @@ def test_assert_image_matches_registry_for_single_platform(monkeypatch, capsys) 
 
 def test_assert_image_matches_registry_rejects_different_images(monkeypatch) -> None:
     project = lambda_project("example", "4-dev2")
-    local_image = manage_lambdas.LocalDockerImage(
-        image_id="sha256:local",
-        os="linux",
-        architecture="amd64",
-    )
-    monkeypatch.setattr(manage_lambdas, "inspect_local_docker_image", lambda _: local_image)
     monkeypatch.setattr(
         manage_lambdas,
-        "inspect_remote_manifest",
-        lambda _: {"config": {"digest": "sha256:published"}},
+        "inspect_local_docker_image",
+        lambda _: "sha256:local",
+    )
+    monkeypatch.setattr(
+        manage_lambdas,
+        "inspect_published_docker_image",
+        lambda _: "sha256:published",
     )
 
-    with pytest.raises(manage_lambdas.VersionManagementError, match="images differ") as error:
+    with pytest.raises(manage_lambdas.LambdaManagementError, match="images differ") as error:
         manage_lambdas.assert_image_matches_registry(project, "onedata")
 
     assert "sha256:local" in str(error.value)
     assert "sha256:published" in str(error.value)
+    assert "image:            onedata/lambda-example:v4-dev2" in str(error.value)
+    assert "version/tag:      4-dev2" in str(error.value)
 
 
 def test_assert_images_match_registry_reports_all_failures(monkeypatch) -> None:
@@ -167,12 +184,12 @@ def test_assert_images_match_registry_reports_all_failures(monkeypatch) -> None:
 
     def fail_comparison(project, registry: str) -> None:
         checked_projects.append((project.name, registry))
-        raise manage_lambdas.VersionManagementError(f"{project.name} differs")
+        raise manage_lambdas.LambdaManagementError(f"{project.name} differs")
 
     monkeypatch.setattr(manage_lambdas, "assert_image_matches_registry", fail_comparison)
 
     with pytest.raises(
-        manage_lambdas.VersionManagementError, match=r"2 lambda image comparison\(s\) failed"
+        manage_lambdas.LambdaManagementError, match=r"2 lambda image comparison\(s\) failed"
     ) as error:
         manage_lambdas.assert_images_match_registry(projects, "onedata")
 
@@ -181,53 +198,31 @@ def test_assert_images_match_registry_reports_all_failures(monkeypatch) -> None:
     assert "second differs" in str(error.value)
 
 
-def test_remote_config_digest_selects_local_platform_from_image_index(monkeypatch) -> None:
-    image = "registry.example:5000/lambda-example:v4"
-    local_image = manage_lambdas.LocalDockerImage(
-        image_id="sha256:amd64-config",
-        os="linux",
-        architecture="amd64",
+def test_inspect_published_docker_image_rejects_missing_image(monkeypatch) -> None:
+    result = subprocess.CompletedProcess(
+        args=[],
+        returncode=1,
+        stdout="",
+        stderr="manifest unknown",
     )
-    inspected_images = []
+    monkeypatch.setattr(manage_lambdas.subprocess, "run", lambda *args, **kwargs: result)
 
-    def inspect_manifest(reference: str):
-        inspected_images.append(reference)
-        if reference == image:
-            return {
-                "manifests": [
-                    {
-                        "digest": "sha256:arm64-manifest",
-                        "platform": {"os": "linux", "architecture": "arm64"},
-                    },
-                    {
-                        "digest": "sha256:amd64-manifest",
-                        "platform": {"os": "linux", "architecture": "amd64"},
-                    },
-                ]
-            }
-        return {"config": {"digest": "sha256:amd64-config"}}
-
-    monkeypatch.setattr(manage_lambdas, "inspect_remote_manifest", inspect_manifest)
-
-    digest = manage_lambdas.remote_config_digest(image, local_image)
-
-    assert digest == "sha256:amd64-config"
-    assert inspected_images == [
-        image,
-        "registry.example:5000/lambda-example@sha256:amd64-manifest",
-    ]
+    with pytest.raises(manage_lambdas.LambdaManagementError, match="does not exist"):
+        manage_lambdas.inspect_published_docker_image("onedata/lambda-example:v4")
 
 
-def test_remote_config_digest_rejects_missing_published_image(monkeypatch) -> None:
-    local_image = manage_lambdas.LocalDockerImage(
-        image_id="sha256:local",
-        os="linux",
-        architecture="amd64",
+def test_inspect_published_docker_image_reads_digest(monkeypatch) -> None:
+    result = subprocess.CompletedProcess(
+        args=[],
+        returncode=0,
+        stdout=json.dumps({"config": {"digest": "sha256:config"}}),
+        stderr="",
     )
-    monkeypatch.setattr(manage_lambdas, "inspect_remote_manifest", lambda _: None)
+    monkeypatch.setattr(manage_lambdas.subprocess, "run", lambda *args, **kwargs: result)
 
-    with pytest.raises(manage_lambdas.VersionManagementError, match="does not exist"):
-        manage_lambdas.remote_config_digest("onedata/lambda-example:v4", local_image)
+    digest = manage_lambdas.inspect_published_docker_image("onedata/lambda-example:v4")
+
+    assert digest == "sha256:config"
 
 
 def test_inspect_local_docker_image_rejects_missing_image(monkeypatch) -> None:
@@ -239,11 +234,11 @@ def test_inspect_local_docker_image_rejects_missing_image(monkeypatch) -> None:
     )
     monkeypatch.setattr(manage_lambdas.subprocess, "run", lambda *args, **kwargs: result)
 
-    with pytest.raises(manage_lambdas.VersionManagementError, match="local Docker image"):
+    with pytest.raises(manage_lambdas.LambdaManagementError, match="local Docker image"):
         manage_lambdas.inspect_local_docker_image("onedata/lambda-example:v4")
 
 
-def test_inspect_local_docker_image_reads_platform_and_id(monkeypatch) -> None:
+def test_inspect_local_docker_image_reads_id(monkeypatch) -> None:
     result = subprocess.CompletedProcess(
         args=[],
         returncode=0,
@@ -251,9 +246,6 @@ def test_inspect_local_docker_image_reads_platform_and_id(monkeypatch) -> None:
             [
                 {
                     "Id": "sha256:config",
-                    "Os": "linux",
-                    "Architecture": "arm64",
-                    "Variant": "v8",
                 }
             ]
         ),
@@ -261,10 +253,9 @@ def test_inspect_local_docker_image_reads_platform_and_id(monkeypatch) -> None:
     )
     monkeypatch.setattr(manage_lambdas.subprocess, "run", lambda *args, **kwargs: result)
 
-    image = manage_lambdas.inspect_local_docker_image("onedata/lambda-example:v4")
+    digest = manage_lambdas.inspect_local_docker_image("onedata/lambda-example:v4")
 
-    assert image.image_id == "sha256:config"
-    assert image.platform == "linux/arm64/v8"
+    assert digest == "sha256:config"
 
 
 def lambda_project(name: str, version: str):
@@ -274,12 +265,18 @@ def lambda_project(name: str, version: str):
     )
 
 
-def create_lambda(repo_root: Path, name: str, version: str) -> Path:
+def create_lambda(
+    repo_root: Path,
+    name: str,
+    version: str,
+    *,
+    project_name: str | None = None,
+) -> Path:
     lambda_dir = repo_root / "lambdas" / name
     lambda_dir.mkdir(parents=True)
     pyproject_path = lambda_dir / "pyproject.toml"
     pyproject_path.write_text(
-        f'[project]\nname = "{name}"\nversion = "{version}"\n',
+        f'[project]\nname = "{project_name or name}"\nversion = "{version}"\n',
         encoding="utf-8",
     )
     return pyproject_path
