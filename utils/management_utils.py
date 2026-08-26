@@ -16,6 +16,9 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+# Lambda versions are integer releases (for example `4`) optionally followed by
+# a numbered development suffix (for example `4-dev1`). Semantic versions such
+# as `4.0.0` are not supported.
 VERSION_PATTERN = re.compile(r"^(?:0|[1-9][0-9]*)(?:-dev[1-9][0-9]*)?$")
 MISSING_MANIFEST_MARKERS = ("manifest unknown", "no such manifest")
 
