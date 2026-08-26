@@ -52,10 +52,10 @@ class WorkflowDump:
         yield from iter_docker_images(self.content, self.path)
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def main() -> int:
     """Run the command-line interface and return its exit code."""
 
-    args = create_parser().parse_args(argv)
+    args = create_parser().parse_args()
     try:
         run(args)
     except WorkflowImageValidationError as error:
@@ -186,9 +186,7 @@ def assert_all_lambda_images_used(
 
     expected_images = set(current_lambda_images.values())
     used_lambda_images = {
-        image.rsplit("/", maxsplit=1)[-1]
-        for image in workflow_images
-        if image_repository(image).startswith("lambda-")
+        image.rsplit("/", maxsplit=1)[-1] for image in workflow_images
     }
 
     errors = [
@@ -304,7 +302,7 @@ def load_workflow_dump(path: Path) -> WorkflowDump:
 
 
 def iter_docker_images(value: Any, path: Path) -> Iterator[str]:
-    """Recursively yield valid ``dockerImage`` values from workflow data."""
+    """Recursively yield valid `dockerImage` values from workflow data."""
 
     if isinstance(value, dict):
         for key, child in value.items():
@@ -358,7 +356,7 @@ def inspect_manifest(image: str) -> tuple[str, str]:
 
 
 def normalize_lambda_selector(lambda_name: str | None) -> str | None:
-    """Represent an empty or ``all`` selector as no lambda filter."""
+    """Represent an empty or `all` selector as no lambda filter."""
 
     return None if not lambda_name or lambda_name == "all" else lambda_name
 

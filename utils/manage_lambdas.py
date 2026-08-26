@@ -2,7 +2,7 @@
 
 """Validate and guard publication of lambda Docker images.
 
-Versions are stored in ``lambdas/<name>/pyproject.toml`` without the ``v``
+Versions are stored in `lambdas/<name>/pyproject.toml` without the `v`
 prefix. The root Makefile adds that prefix when constructing Docker image tags.
 """
 
@@ -53,35 +53,18 @@ class LambdaProject:
         return f"lambda-{self.name}:v{self.version}"
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    parser = create_parser()
-    args = parser.parse_args(argv)
+def main() -> int:
+    args = parse_args()
     try:
         run(args)
-    except LambdaManagementError as error:
-        parser.error(str(error))
-    except OperationCancelled as error:
+    except (LambdaManagementError, OperationCancelled) as error:
         print(f"Error: {error}", file=sys.stderr)
         return 1
     return 0
 
 
-def run(args: argparse.Namespace) -> None:
-    """Execute the requested publication guard or image comparison command."""
-
-    projects = discover_lambda_projects()
-    selected = select_projects(projects, args.lambda_selector)
-
-    if args.command == "confirm-publish":
-        confirm_publish(selected, args.registry, args.yes)
-        return
-
-    if args.command == "check-image-matches-registry":
-        assert_images_match_registry(selected, args.registry)
-
-
-def create_parser() -> argparse.ArgumentParser:
-    """Build the command-line interface used by image and release Make targets."""
+def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments used by image and release Make targets."""
 
     parser = argparse.ArgumentParser(
         description="Validate lambda images and guard their publication.",
@@ -123,7 +106,21 @@ def create_parser() -> argparse.ArgumentParser:
         help="Docker registry or namespace containing the published image",
     )
 
-    return parser
+    return parser.parse_args()
+
+
+def run(args: argparse.Namespace) -> None:
+    """Execute the requested publication guard or image comparison command."""
+
+    projects = discover_lambda_projects()
+    selected = select_projects(projects, args.lambda_selector)
+
+    if args.command == "confirm-publish":
+        confirm_publish(selected, args.registry, args.yes)
+        return
+
+    if args.command == "check-image-matches-registry":
+        assert_images_match_registry(selected, args.registry)
 
 
 def confirm_publish(
@@ -206,7 +203,7 @@ def assert_image_matches_registry(project: LambdaProject, registry: str) -> None
 
 
 def discover_lambda_projects() -> dict[str, LambdaProject]:
-    """Load every lambda and its version from ``lambdas/*/pyproject.toml``."""
+    """Load every lambda and its version from `lambdas/*/pyproject.toml`."""
 
     projects_dir = lambdas_dir()
     if not projects_dir.is_dir():
@@ -224,7 +221,7 @@ def discover_lambda_projects() -> dict[str, LambdaProject]:
 def select_projects(
     projects: dict[str, LambdaProject], lambda_selector: str
 ) -> list[LambdaProject]:
-    """Return one validated lambda project or every project for ``all``."""
+    """Return one validated lambda project or every project for `all`."""
 
     if lambda_selector == "all":
         return list(projects.values())
@@ -334,7 +331,7 @@ def inspect_docker_json(
             text=True,
         )
     except OSError as error:
-        command_name = " ".join(docker_command[:-1])
+        command_name = " ".join(docker_command)
         raise LambdaManagementError(f"cannot run {command_name}: {error}") from error
 
     if result.returncode != 0:
