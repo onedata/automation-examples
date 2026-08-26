@@ -12,16 +12,22 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 import argparse
 import json
-import subprocess
 import sys
-import tomllib
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from utils.management_utils import (
+    LambdaProjectError,
+    command_output,
+    discover_lambda_projects,
+    manifest_is_missing,
+    run_docker,
+    workflows_dir,
+)
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+
 DEFAULT_PUBLIC_REGISTRY = "onedata"
 
 
@@ -62,7 +68,7 @@ def main() -> int:
         for message in error.errors:
             print(f"Error: {message}", file=sys.stderr)
         return 1
-    except WorkflowManagementError as error:
+    except (WorkflowManagementError, LambdaProjectError) as error:
         print(f"Error: {error}", file=sys.stderr)
         return 1
     return 0
@@ -185,9 +191,7 @@ def assert_all_lambda_images_used(
     """Require every selected current lambda image to occur in a workflow."""
 
     expected_images = set(current_lambda_images.values())
-    used_lambda_images = {
-        image.rsplit("/", maxsplit=1)[-1] for image in workflow_images
-    }
+    used_lambda_images = {image.rsplit("/", maxsplit=1)[-1] for image in workflow_images}
 
     errors = [
         f"lambda image is not used in any workflow: {image}"
@@ -228,36 +232,8 @@ def collect_docker_images(workflow_dumps: Sequence[WorkflowDump]) -> set[str]:
 def load_current_lambda_images() -> dict[str, str]:
     """Resolve current lambda image names and tags from their project versions."""
 
-    projects_dir = lambdas_dir()
-    if not projects_dir.is_dir():
-        raise WorkflowManagementError(f"lambda directory does not exist: {projects_dir}")
-
-    images = {}
-    for pyproject_path in sorted(projects_dir.glob("*/pyproject.toml")):
-        try:
-            with pyproject_path.open("rb") as pyproject_file:
-                project = tomllib.load(pyproject_file)["project"]
-            name = project["name"]
-            version = project["version"]
-        except (OSError, tomllib.TOMLDecodeError, KeyError, TypeError) as error:
-            raise WorkflowManagementError(
-                f"cannot read project metadata from {pyproject_path}: {error}"
-            ) from error
-        if not isinstance(name, str) or not name:
-            raise WorkflowManagementError(
-                f"project.name in {pyproject_path} must be a non-empty string"
-            )
-        if not isinstance(version, str) or not version:
-            raise WorkflowManagementError(
-                f"project.version in {pyproject_path} must be a non-empty string"
-            )
-
-        repository = f"lambda-{name}"
-        images[repository] = f"{repository}:v{version}"
-
-    if not images:
-        raise WorkflowManagementError(f"no lambda pyproject.toml files found under {projects_dir}")
-    return images
+    projects = discover_lambda_projects()
+    return {project.repository: project.image for project in projects.values()}
 
 
 def select_current_lambda_images(
@@ -331,21 +307,16 @@ def inspect_manifest(image: str) -> tuple[str, str]:
     """Classify a remote manifest as published, missing, unauthorized or erroneous."""
 
     try:
-        result = subprocess.run(
-            ["docker", "manifest", "inspect", image],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
+        result = run_docker("manifest", "inspect", image)
     except OSError as error:
         return "error", str(error)
 
     if result.returncode == 0:
         return "published", ""
 
-    output = "\n".join(part for part in (result.stderr, result.stdout) if part).strip()
+    output = command_output(result)
     normalized_output = output.lower()
-    if "manifest unknown" in normalized_output or "no such manifest" in normalized_output:
+    if manifest_is_missing(output):
         return "missing", output
     if any(
         marker in normalized_output
@@ -359,18 +330,6 @@ def normalize_lambda_selector(lambda_name: str | None) -> str | None:
     """Represent an empty or `all` selector as no lambda filter."""
 
     return None if not lambda_name or lambda_name == "all" else lambda_name
-
-
-def workflows_dir() -> Path:
-    """Return the repository directory containing workflow dumps."""
-
-    return REPO_ROOT / "workflows"
-
-
-def lambdas_dir() -> Path:
-    """Return the repository directory containing lambda projects."""
-
-    return REPO_ROOT / "lambdas"
 
 
 if __name__ == "__main__":

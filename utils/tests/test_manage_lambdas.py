@@ -11,6 +11,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from utils import management_utils
 
 
 SCRIPT_PATH = Path(__file__).parents[1] / "manage_lambdas.py"
@@ -23,20 +24,20 @@ SPEC.loader.exec_module(manage_lambdas)
 
 @pytest.mark.parametrize("version", ["4", "4-dev2"])
 def test_accepts_supported_version(version: str) -> None:
-    assert manage_lambdas.validate_version(version) == version
+    assert management_utils.validate_version(version) == version
 
 
 @pytest.mark.parametrize("version", ["v4-dev2", "4-dev", "4-dev0", "4.1", "04-dev2"])
 def test_rejects_unsupported_version(version: str) -> None:
-    with pytest.raises(manage_lambdas.LambdaManagementError):
-        manage_lambdas.validate_version(version)
+    with pytest.raises(management_utils.LambdaProjectError):
+        management_utils.validate_version(version)
 
 
 def test_select_projects_accepts_all(tmp_path: Path, monkeypatch) -> None:
     create_lambda(tmp_path, "first", "4-dev1")
     create_lambda(tmp_path, "second", "5-dev1")
-    monkeypatch.setattr(manage_lambdas, "REPO_ROOT", tmp_path)
-    projects = manage_lambdas.discover_lambda_projects()
+    monkeypatch.setattr(management_utils, "REPO_ROOT", tmp_path)
+    projects = management_utils.discover_lambda_projects()
 
     selected = manage_lambdas.select_projects(projects, "all")
 
@@ -51,7 +52,7 @@ def test_load_lambda_project_reads_name_from_pyproject(tmp_path: Path) -> None:
         project_name="project-name",
     )
 
-    project = manage_lambdas.load_lambda_project(pyproject_path)
+    project = management_utils.load_lambda_project(pyproject_path)
 
     assert project.name == "project-name"
 
@@ -63,7 +64,7 @@ def test_docker_image_exists_distinguishes_missing_manifest(monkeypatch) -> None
         stdout="",
         stderr="manifest unknown",
     )
-    monkeypatch.setattr(manage_lambdas.subprocess, "run", lambda *args, **kwargs: result)
+    monkeypatch.setattr(manage_lambdas, "run_docker", lambda *args: result)
 
     assert not manage_lambdas.docker_image_exists("onedata/lambda-example:v5")
 
@@ -75,7 +76,7 @@ def test_docker_image_exists_rejects_registry_errors(monkeypatch) -> None:
         stdout="",
         stderr="unauthorized: authentication required",
     )
-    monkeypatch.setattr(manage_lambdas.subprocess, "run", lambda *args, **kwargs: result)
+    monkeypatch.setattr(manage_lambdas, "run_docker", lambda *args: result)
 
     with pytest.raises(
         manage_lambdas.LambdaManagementError,
@@ -205,7 +206,7 @@ def test_inspect_published_docker_image_rejects_missing_image(monkeypatch) -> No
         stdout="",
         stderr="manifest unknown",
     )
-    monkeypatch.setattr(manage_lambdas.subprocess, "run", lambda *args, **kwargs: result)
+    monkeypatch.setattr(manage_lambdas, "run_docker", lambda *args: result)
 
     with pytest.raises(manage_lambdas.LambdaManagementError, match="does not exist"):
         manage_lambdas.inspect_published_docker_image("onedata/lambda-example:v4")
@@ -218,7 +219,7 @@ def test_inspect_published_docker_image_reads_digest(monkeypatch) -> None:
         stdout=json.dumps({"config": {"digest": "sha256:config"}}),
         stderr="",
     )
-    monkeypatch.setattr(manage_lambdas.subprocess, "run", lambda *args, **kwargs: result)
+    monkeypatch.setattr(manage_lambdas, "run_docker", lambda *args: result)
 
     digest = manage_lambdas.inspect_published_docker_image("onedata/lambda-example:v4")
 
@@ -232,7 +233,7 @@ def test_inspect_local_docker_image_rejects_missing_image(monkeypatch) -> None:
         stdout="",
         stderr="Error: No such image: onedata/lambda-example:v4",
     )
-    monkeypatch.setattr(manage_lambdas.subprocess, "run", lambda *args, **kwargs: result)
+    monkeypatch.setattr(manage_lambdas, "run_docker", lambda *args: result)
 
     with pytest.raises(manage_lambdas.LambdaManagementError, match="local Docker image"):
         manage_lambdas.inspect_local_docker_image("onedata/lambda-example:v4")
@@ -251,7 +252,7 @@ def test_inspect_local_docker_image_reads_id(monkeypatch) -> None:
         ),
         stderr="",
     )
-    monkeypatch.setattr(manage_lambdas.subprocess, "run", lambda *args, **kwargs: result)
+    monkeypatch.setattr(manage_lambdas, "run_docker", lambda *args: result)
 
     digest = manage_lambdas.inspect_local_docker_image("onedata/lambda-example:v4")
 
@@ -261,7 +262,7 @@ def test_inspect_local_docker_image_reads_id(monkeypatch) -> None:
 def lambda_project(name: str, version: str):
     return manage_lambdas.LambdaProject(
         name=name,
-        version=manage_lambdas.validate_version(version),
+        version=management_utils.validate_version(version),
     )
 
 

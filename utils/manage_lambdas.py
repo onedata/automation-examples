@@ -16,17 +16,17 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 import argparse
 import json
-import re
-import subprocess
 import sys
-import tomllib
 from collections.abc import Sequence
-from dataclasses import dataclass
-from pathlib import Path
 
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
-VERSION_PATTERN = re.compile(r"^(?:0|[1-9][0-9]*)(?:-dev[1-9][0-9]*)?$")
+from utils.management_utils import (
+    MISSING_MANIFEST_MARKERS,
+    LambdaProject,
+    LambdaProjectError,
+    command_output,
+    discover_lambda_projects,
+    run_docker,
+)
 
 
 class LambdaManagementError(Exception):
@@ -41,23 +41,11 @@ class OperationCancelled(Exception):
     """Raised when the user declines a potentially destructive operation."""
 
 
-@dataclass(frozen=True)
-class LambdaProject:
-    """Lambda name and validated image version."""
-
-    name: str
-    version: str
-
-    @property
-    def image(self) -> str:
-        return f"lambda-{self.name}:v{self.version}"
-
-
 def main() -> int:
     args = parse_args()
     try:
         run(args)
-    except (LambdaManagementError, OperationCancelled) as error:
+    except (LambdaManagementError, LambdaProjectError, OperationCancelled) as error:
         print(f"Error: {error}", file=sys.stderr)
         return 1
     return 0
@@ -202,22 +190,6 @@ def assert_image_matches_registry(project: LambdaProject, registry: str) -> None
     print(f"Local and published Docker images match: {image} ({local_digest})")
 
 
-def discover_lambda_projects() -> dict[str, LambdaProject]:
-    """Load every lambda and its version from `lambdas/*/pyproject.toml`."""
-
-    projects_dir = lambdas_dir()
-    if not projects_dir.is_dir():
-        raise LambdaManagementError(f"lambda directory does not exist: {projects_dir}")
-
-    projects = {
-        path.parent.name: load_lambda_project(path)
-        for path in sorted(projects_dir.glob("*/pyproject.toml"))
-    }
-    if not projects:
-        raise LambdaManagementError(f"no lambda pyproject.toml files found under {projects_dir}")
-    return projects
-
-
 def select_projects(
     projects: dict[str, LambdaProject], lambda_selector: str
 ) -> list[LambdaProject]:
@@ -235,31 +207,6 @@ def select_projects(
         ) from error
 
 
-def load_lambda_project(pyproject_path: Path) -> LambdaProject:
-    """Read and validate one lambda's project name and version."""
-
-    try:
-        with pyproject_path.open("rb") as pyproject_file:
-            pyproject = tomllib.load(pyproject_file)
-        project = pyproject["project"]
-        name_value = project["name"]
-        version_value = project["version"]
-    except (OSError, tomllib.TOMLDecodeError, KeyError, TypeError) as error:
-        raise LambdaManagementError(
-            f"cannot read project metadata from {pyproject_path}: {error}"
-        ) from error
-
-    if not isinstance(name_value, str) or not name_value:
-        raise LambdaManagementError(f"project.name in {pyproject_path} must be a non-empty string")
-    if not isinstance(version_value, str):
-        raise LambdaManagementError(f"project.version in {pyproject_path} must be a string")
-
-    return LambdaProject(
-        name=name_value,
-        version=validate_version(version_value),
-    )
-
-
 def docker_image_exists(image: str) -> bool:
     """Return whether a remote tag exists, raising on access or registry errors."""
 
@@ -268,7 +215,7 @@ def docker_image_exists(image: str) -> bool:
             ["manifest", "inspect"],
             image,
             image_description="published Docker image",
-            missing_markers=("manifest unknown", "no such manifest"),
+            missing_markers=MISSING_MANIFEST_MARKERS,
         )
     except DockerImageNotFound:
         return False
@@ -302,7 +249,7 @@ def inspect_published_docker_image(image: str) -> str:
             ["manifest", "inspect"],
             image,
             image_description="published Docker image",
-            missing_markers=("manifest unknown", "no such manifest"),
+            missing_markers=MISSING_MANIFEST_MARKERS,
         )
         digest = manifest["config"]["digest"]  # type: ignore[index]
     except (KeyError, TypeError) as error:
@@ -322,20 +269,15 @@ def inspect_docker_json(
 ) -> object:
     """Run a Docker inspection command and return its decoded JSON output."""
 
-    docker_command = ["docker", *command, image]
+    docker_arguments = [*command, image]
     try:
-        result = subprocess.run(
-            docker_command,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
+        result = run_docker(*docker_arguments)
     except OSError as error:
-        command_name = " ".join(docker_command)
+        command_name = " ".join(["docker", *docker_arguments])
         raise LambdaManagementError(f"cannot run {command_name}: {error}") from error
 
     if result.returncode != 0:
-        error_output = "\n".join(part for part in (result.stderr, result.stdout) if part).strip()
+        error_output = command_output(result)
         normalized_error = error_output.lower()
         if any(marker in normalized_error for marker in missing_markers):
             raise DockerImageNotFound(f"{image_description} does not exist: {image}")
@@ -356,22 +298,6 @@ def validate_docker_digest(digest: object, image: str, image_description: str) -
     if not isinstance(digest, str) or not digest:
         raise LambdaManagementError(f"{image_description} has no config digest: {image}")
     return digest
-
-
-def validate_version(value: str) -> str:
-    """Validate and return a version used to construct a lambda image tag."""
-
-    if VERSION_PATTERN.fullmatch(value) is None:
-        raise LambdaManagementError(
-            f"unsupported version {value!r}; expected <release> or <release>-dev<number>"
-        )
-    return value
-
-
-def lambdas_dir() -> Path:
-    """Return the repository directory containing lambda projects."""
-
-    return REPO_ROOT / "lambdas"
 
 
 if __name__ == "__main__":

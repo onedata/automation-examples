@@ -11,6 +11,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from utils import management_utils
 
 
 SCRIPT_PATH = Path(__file__).parents[1] / "manage_workflows.py"
@@ -51,7 +52,7 @@ def test_discovers_nested_workflows_and_collects_unique_images(tmp_path: Path, m
         ["onedata/lambda-first:v1", "onedata/lambda-second:v2"],
     )
 
-    monkeypatch.setattr(manage_workflows, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(management_utils, "REPO_ROOT", tmp_path)
     dumps = manage_workflows.discover_workflow_dumps()
 
     assert manage_workflows.collect_docker_images(dumps) == {
@@ -65,7 +66,7 @@ def test_rejects_invalid_docker_image_value(tmp_path: Path, monkeypatch) -> None
     workflow_path.parent.mkdir()
     workflow_path.write_text('{"dockerImage": null}', encoding="utf-8")
 
-    monkeypatch.setattr(manage_workflows, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(management_utils, "REPO_ROOT", tmp_path)
     with pytest.raises(manage_workflows.WorkflowManagementError, match="non-empty string"):
         manage_workflows.discover_workflow_dumps()
 
@@ -79,7 +80,7 @@ def test_load_current_lambda_images_reads_project_name_from_pyproject(
         '[project]\nname = "project-name"\nversion = "4-dev1"\n',
         encoding="utf-8",
     )
-    monkeypatch.setattr(manage_workflows, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(management_utils, "REPO_ROOT", tmp_path)
 
     images = manage_workflows.load_current_lambda_images()
 
@@ -124,11 +125,7 @@ def test_single_lambda_usage_does_not_report_other_lambda_images() -> None:
 )
 def test_manifest_status(monkeypatch, returncode: int, stderr: str, expected_status: str) -> None:
     result = subprocess.CompletedProcess([], returncode, stdout="", stderr=stderr)
-    monkeypatch.setattr(
-        manage_workflows.subprocess,
-        "run",
-        lambda *args, **kwargs: result,
-    )
+    monkeypatch.setattr(manage_workflows, "run_docker", lambda *args: result)
 
     status, _ = manage_workflows.inspect_manifest("onedata/lambda-example:v1")
 
