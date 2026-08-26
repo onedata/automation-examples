@@ -74,6 +74,34 @@ def main() -> int:
     return 0
 
 
+def create_parser() -> argparse.ArgumentParser:
+    """Build the command-line interface used by workflow-related Make targets."""
+
+    parser = argparse.ArgumentParser(
+        description="Validate lambda image references in workflow JSON dumps."
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    public_parser = subparsers.add_parser(
+        "check-public",
+        help="check that lambda images in workflows use the public registry",
+    )
+    public_parser.add_argument("--registry", default=DEFAULT_PUBLIC_REGISTRY)
+    add_lambda_selector(public_parser, "check")
+
+    published_parser = subparsers.add_parser(
+        "check-published",
+        help="check that lambda images in workflows are published",
+    )
+    add_lambda_selector(published_parser, "check")
+    used_parser = subparsers.add_parser(
+        "check-lambda-images-used",
+        help="check that every current lambda image is used in a workflow",
+    )
+    add_lambda_selector(used_parser, "check")
+    return parser
+
+
 def run(args: argparse.Namespace) -> None:
     """Execute the selected workflow image update or validation command."""
 
@@ -107,34 +135,6 @@ def run(args: argparse.Namespace) -> None:
             workflow_images,
             selected_images,
         )
-
-
-def create_parser() -> argparse.ArgumentParser:
-    """Build the command-line interface used by workflow-related Make targets."""
-
-    parser = argparse.ArgumentParser(
-        description="Validate lambda image references in workflow JSON dumps."
-    )
-    subparsers = parser.add_subparsers(dest="command", required=True)
-
-    public_parser = subparsers.add_parser(
-        "check-public",
-        help="check that lambda images in workflows use the public registry",
-    )
-    public_parser.add_argument("--registry", default=DEFAULT_PUBLIC_REGISTRY)
-    add_lambda_selector(public_parser, "check")
-
-    published_parser = subparsers.add_parser(
-        "check-published",
-        help="check that lambda images in workflows are published",
-    )
-    add_lambda_selector(published_parser, "check")
-    used_parser = subparsers.add_parser(
-        "check-lambda-images-used",
-        help="check that every current lambda image is used in a workflow",
-    )
-    add_lambda_selector(used_parser, "check")
-    return parser
 
 
 def add_lambda_selector(parser: argparse.ArgumentParser, action: str) -> None:
