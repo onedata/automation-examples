@@ -61,7 +61,7 @@ class WorkflowDump:
 def main() -> int:
     """Run the command-line interface and return its exit code."""
 
-    args = create_parser().parse_args()
+    args = parse_args()
     try:
         run(args)
     except WorkflowImageValidationError as error:
@@ -74,7 +74,7 @@ def main() -> int:
     return 0
 
 
-def create_parser() -> argparse.ArgumentParser:
+def parse_args() -> argparse.Namespace:
     """Build the command-line interface used by workflow-related Make targets."""
 
     parser = argparse.ArgumentParser(
@@ -99,7 +99,8 @@ def create_parser() -> argparse.ArgumentParser:
         help="check that every current lambda image is used in a workflow",
     )
     add_lambda_selector(used_parser, "check")
-    return parser
+
+    return parser.parse_args()
 
 
 def run(args: argparse.Namespace) -> None:
