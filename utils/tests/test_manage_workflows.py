@@ -37,9 +37,11 @@ def test_all_lambda_selectors_are_normalized(selector: str | None) -> None:
     ],
 )
 def test_commands_accept_positional_lambda_selector(
-    arguments: list[str], expected_selector: str
+    arguments: list[str], expected_selector: str, monkeypatch
 ) -> None:
-    args = manage_workflows.create_parser().parse_args(arguments)
+    monkeypatch.setattr(sys, "argv", ["manage_workflows.py", *arguments])
+
+    args = manage_workflows.parse_args()
 
     assert args.lambda_selector == expected_selector
 
