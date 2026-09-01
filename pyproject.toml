@@ -10,9 +10,9 @@ bagit-archive = { workspace = true }
 checksum = { workspace = true }
 # Unpublished SDK -> vendored wheel (kept in the build context so it resolves the same
 # host-side and inside `docker build`). Refresh: rebuild the wheel into vendor/, then
-# `uv lock --refresh-package onedata-lambda-utils`.
+# `uv lock --refresh-package onedata-lambda-sdk`.
 # TODO(remove-after-pypi-publish): drop this section + vendor/; `>=1.0` resolves from PyPI.
-onedata-lambda-utils = { path = "vendor/onedata_lambda_utils-1.0.0-py3-none-any.whl" }
+onedata-lambda-sdk = { path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" }
 
 [dependency-groups]
 dev = [

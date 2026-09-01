@@ -10,7 +10,7 @@ from http import HTTPStatus
 from typing import Any, Final, TypedDict, cast
 
 import requests
-from onedata_lambda_utils import (
+from onedata_lambda_sdk import (
     DEFAULT_MAX_WORKERS,
     AtmFile,
     AtmObject,

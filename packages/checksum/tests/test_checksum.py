@@ -8,7 +8,7 @@ import hashlib
 import zlib
 
 import pytest
-from onedata_lambda_utils import JobException
+from onedata_lambda_sdk import JobException
 
 from checksum import (
     AVAILABLE_CHECKSUM_ALGORITHMS,

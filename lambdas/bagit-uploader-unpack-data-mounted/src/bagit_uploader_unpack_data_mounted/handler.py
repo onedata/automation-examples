@@ -13,7 +13,7 @@ from pathlib import Path, PurePosixPath
 from threading import Event, Thread
 from typing import IO, Final, NamedTuple, TypedDict
 
-from onedata_lambda_utils import (
+from onedata_lambda_sdk import (
     DEFAULT_MAX_WORKERS,
     AtmFile,
     AtmObject,
@@ -24,7 +24,7 @@ from onedata_lambda_utils import (
     mounted_file_path,
     per_job,
 )
-from onedata_lambda_utils.streaming import ResultStreamer
+from onedata_lambda_sdk.streaming import ResultStreamer
 
 from bagit_archive import is_unsafe_relative_archive_path, open_mounted_archive
 

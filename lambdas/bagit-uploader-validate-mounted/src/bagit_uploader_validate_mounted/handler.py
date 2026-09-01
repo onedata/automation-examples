@@ -11,7 +11,7 @@ import traceback
 from pathlib import Path
 from typing import Final, TypedDict
 
-from onedata_lambda_utils import (
+from onedata_lambda_sdk import (
     DEFAULT_MAX_WORKERS,
     AtmFile,
     AtmObject,

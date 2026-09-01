@@ -4,7 +4,7 @@ version = "4.0.0"
 description = "Substitute placeholders in a template"
 requires-python = ">=3.12"
 dependencies = [
-    "onedata-lambda-utils>=1.0",
+    "onedata-lambda-sdk>=1.0",
 ]
 
 [project.entry-points."onedata.lambda"]

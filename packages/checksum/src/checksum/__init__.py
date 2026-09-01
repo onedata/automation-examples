@@ -9,7 +9,7 @@ import zlib
 from collections.abc import Callable, Iterable
 from typing import Final, Literal, TypeGuard, get_args
 
-from onedata_lambda_utils import JobException
+from onedata_lambda_sdk import JobException
 
 
 # Plain (non-PEP 695) alias on purpose: `get_args` reads members off a `Literal` directly.

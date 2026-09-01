@@ -13,7 +13,7 @@ import hashlib
 from pathlib import Path
 
 import pytest
-from onedata_lambda_utils.testing import build_request, run_local
+from onedata_lambda_sdk.testing import build_request, run_local
 from pytest_httpserver import HTTPServer
 
 from calculate_checksum_rest.handler import handle

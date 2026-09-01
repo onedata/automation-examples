@@ -12,7 +12,7 @@ from collections.abc import Generator, Iterable
 from pathlib import Path, PurePosixPath
 from typing import IO, Final
 
-from onedata_lambda_utils import AtmFile, JobException, mounted_file_path
+from onedata_lambda_sdk import AtmFile, JobException, mounted_file_path
 
 
 BAGIT_TXT_PATH_PARTS: Final[int] = 2

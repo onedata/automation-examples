@@ -15,7 +15,7 @@ from threading import Event, Thread
 from typing import Final, NamedTuple, TypedDict
 
 import xattr
-from onedata_lambda_utils import (
+from onedata_lambda_sdk import (
     DEFAULT_MAX_WORKERS,
     AtmObject,
     Job,
@@ -24,7 +24,7 @@ from onedata_lambda_utils import (
     mount_point,
     per_job,
 )
-from onedata_lambda_utils.streaming import ResultStreamer
+from onedata_lambda_sdk.streaming import ResultStreamer
 
 from checksum import ChecksumAlgorithm, calculate_checksum, require_supported
 

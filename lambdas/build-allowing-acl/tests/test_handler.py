@@ -6,7 +6,7 @@ __author__ = "Wojciech Szmelich"
 __copyright__ = "Copyright (C) 2026 ACK CYFRONET AGH"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
-from onedata_lambda_utils.testing import build_job_context, build_jobs
+from onedata_lambda_sdk.testing import build_job_context, build_jobs
 
 from build_allowing_acl.handler import handle
 

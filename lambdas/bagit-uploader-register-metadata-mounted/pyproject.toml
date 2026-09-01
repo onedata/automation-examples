@@ -5,7 +5,7 @@ description = "Register expected checksums from BagIt manifests as mounted-file 
 requires-python = ">=3.12"
 dependencies = [
     "bagit-archive",
-    "onedata-lambda-utils>=1.0",
+    "onedata-lambda-sdk>=1.0",
     "xattr>=1.1",
 ]
 

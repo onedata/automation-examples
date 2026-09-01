@@ -11,7 +11,7 @@ import random
 import time
 from typing import NotRequired, TypedDict
 
-from onedata_lambda_utils import (
+from onedata_lambda_sdk import (
     AtmException,
     AtmObject,
     Job,

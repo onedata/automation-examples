@@ -11,7 +11,7 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 from pathlib import Path, PurePosixPath
 from typing import TypedDict
 
-from onedata_lambda_utils import (
+from onedata_lambda_sdk import (
     AtmFile,
     AtmObject,
     Job,

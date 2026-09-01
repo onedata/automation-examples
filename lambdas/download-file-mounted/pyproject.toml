@@ -4,7 +4,7 @@ version = "4.0.0"
 description = "Download a file using http or xrootd (mounted Oneclient)"
 requires-python = ">=3.12"
 dependencies = [
-    "onedata-lambda-utils>=1.0",
+    "onedata-lambda-sdk>=1.0",
     "requests>=2.32",
     "XRootD>=6.1.0",
 ]

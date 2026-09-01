@@ -7,7 +7,7 @@ __copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 import pytest
-from onedata_lambda_utils.testing import build_job_context, build_jobs
+from onedata_lambda_sdk.testing import build_job_context, build_jobs
 
 from echo import handler
 

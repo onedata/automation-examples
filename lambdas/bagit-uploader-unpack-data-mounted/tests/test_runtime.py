@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from onedata_lambda_utils.testing import build_request, run_local
+from onedata_lambda_sdk.testing import build_request, run_local
 
 from bagit_uploader_unpack_data_mounted.handler import handle
 

@@ -5,7 +5,7 @@ description = "Verify BagIt file checksums using mounted Oneclient"
 requires-python = ">=3.12"
 dependencies = [
     "checksum",
-    "onedata-lambda-utils>=1.0",
+    "onedata-lambda-sdk>=1.0",
     "xattr>=1.1",
 ]
 

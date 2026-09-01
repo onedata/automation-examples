@@ -9,7 +9,7 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 from pathlib import Path
 
 import pytest
-from onedata_lambda_utils.testing import build_request, run_local
+from onedata_lambda_sdk.testing import build_request, run_local
 
 from detect_file_mime_type_mounted import handler
 

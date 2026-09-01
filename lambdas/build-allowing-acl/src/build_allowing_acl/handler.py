@@ -10,8 +10,8 @@ __license__ = "This software is released under the MIT license cited in LICENSE.
 
 from typing import TypedDict
 
-from onedata_lambda_utils import Job, JobContext, per_job
-from onedata_lambda_utils.types import (
+from onedata_lambda_sdk import Job, JobContext, per_job
+from onedata_lambda_sdk.types import (
     AtmGroup,
     AtmObject,
 )

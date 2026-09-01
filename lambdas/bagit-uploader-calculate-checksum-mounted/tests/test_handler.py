@@ -11,7 +11,7 @@ import zlib
 from pathlib import Path
 
 import pytest
-from onedata_lambda_utils.testing import build_job_context, build_jobs
+from onedata_lambda_sdk.testing import build_job_context, build_jobs
 
 from bagit_uploader_calculate_checksum_mounted import handler as handler_parallel
 

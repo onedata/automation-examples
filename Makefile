@@ -7,7 +7,7 @@ PUBLIC_REGISTRY := onedata
 REGISTRY        ?= $(DEV_REGISTRY)
 
 # Local SDK source, vendored as a wheel until it's published to PyPI (see `vendor-sdk`).
-SDK_REPO ?= ../onedata-lambda-utils
+SDK_REPO ?= ../onedata-lambda-sdk
 
 # Migrated lambdas (= directories with a pyproject in the lambdas/ workspace).
 LAMBDAS := $(notdir $(patsubst %/,%,$(dir $(wildcard lambdas/*/pyproject.toml))))
@@ -116,7 +116,7 @@ clean: ## remove tool caches + __pycache__
 
 vendor-sdk: ## rebuild & vendor the local SDK wheel (temporary, pre-PyPI)
 	cd $(SDK_REPO) && uv build --wheel --no-create-gitignore --out-dir "$(CURDIR)/vendor"
-	uv lock --refresh-package onedata-lambda-utils
+	uv lock --refresh-package onedata-lambda-sdk
 
 _require_lambda:
 	@test -n "$(LAMBDA)" && test -d "lambdas/$(LAMBDA)" || { echo "error: set LAMBDA to one of: $(LAMBDAS)"; exit 1; }

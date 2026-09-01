@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Final, TypedDict
 
 import requests
-from onedata_lambda_utils import (
+from onedata_lambda_sdk import (
     DEFAULT_MAX_WORKERS,
     AtmObject,
     Job,
@@ -20,8 +20,8 @@ from onedata_lambda_utils import (
     mount_point,
     per_job,
 )
-from onedata_lambda_utils.logging import Logger
-from onedata_lambda_utils.streaming import ResultStreamer
+from onedata_lambda_sdk.logging import Logger
+from onedata_lambda_sdk.streaming import ResultStreamer
 
 
 ##===================================================================

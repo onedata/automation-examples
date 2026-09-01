@@ -16,7 +16,7 @@ from typing import Any, Final, TypedDict
 from urllib.parse import quote
 
 import requests
-from onedata_lambda_utils import (
+from onedata_lambda_sdk import (
     DEFAULT_MAX_WORKERS,
     AtmFile,
     AtmObject,

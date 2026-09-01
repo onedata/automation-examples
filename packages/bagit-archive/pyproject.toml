@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "Shared BagIt archive access helpers for Onedata Automation lambdas"
 requires-python = ">=3.12"
 dependencies = [
-    "onedata-lambda-utils>=1.0",
+    "onedata-lambda-sdk>=1.0",
 ]
 
 [build-system]

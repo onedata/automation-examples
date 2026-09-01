@@ -14,7 +14,7 @@ import os
 from typing import Final, TypedDict
 
 import xattr
-from onedata_lambda_utils import (
+from onedata_lambda_sdk import (
     DEFAULT_MAX_WORKERS,
     Job,
     JobContext,

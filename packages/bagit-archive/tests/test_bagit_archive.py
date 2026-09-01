@@ -12,7 +12,7 @@ import zipfile
 from pathlib import Path, PurePosixPath
 
 import pytest
-from onedata_lambda_utils import JobException
+from onedata_lambda_sdk import JobException
 
 from bagit_archive import extract_safe_data_relative_path, open_archive
 

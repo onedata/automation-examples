@@ -13,7 +13,7 @@ from typing import NamedTuple, TypedDict
 
 import magic
 import xattr
-from onedata_lambda_utils import (
+from onedata_lambda_sdk import (
     AtmFile,
     AtmObject,
     Job,

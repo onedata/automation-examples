@@ -13,7 +13,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
-from onedata_lambda_utils.testing import build_job_context, build_jobs
+from onedata_lambda_sdk.testing import build_job_context, build_jobs
 
 from download_file_mounted import handler
 
