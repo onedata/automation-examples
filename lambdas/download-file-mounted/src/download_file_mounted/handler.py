@@ -43,7 +43,7 @@ STATS_STREAM: Final[str] = "stats"
 
 LOGS_STREAM: Final[str] = "logs"
 
-USER_AGENT: Final[str] = "onedata-download-file-mounted/4.0"
+USER_AGENT: Final[str] = "onedata-download-file-mounted"
 
 
 class FilesProcessed(TimeSeriesMeasurementBuilder, ts_name="filesProcessed", unit=None):
