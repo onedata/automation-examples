@@ -11,6 +11,10 @@ dependencies = [
 [project.entry-points."onedata.lambda"]
 handler = "detect_file_mime_type_mounted.handler:handle"
 
+# libmagic shared library, needed by python-magic at runtime; installed by build-lambda.
+[tool.onedata.lambda]
+system-packages = ["libmagic1"]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
