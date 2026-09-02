@@ -6,9 +6,6 @@ DEV_REGISTRY    := docker.onedata.org
 PUBLIC_REGISTRY := onedata
 REGISTRY        ?= $(DEV_REGISTRY)
 
-# Local SDK source, vendored as a wheel until it's published to PyPI (see `vendor-sdk`).
-SDK_REPO ?= ../onedata-lambda-sdk
-
 # Migrated lambdas (= directories with a pyproject in the lambdas/ workspace).
 LAMBDAS := $(notdir $(patsubst %/,%,$(dir $(wildcard lambdas/*/pyproject.toml))))
 
@@ -27,7 +24,7 @@ endef
 
 .DEFAULT_GOAL := help
 .PHONY: help sync format format-check static-analysis type-check test lint check \
-        build build-all publish publish-all image-name image-names clean vendor-sdk \
+        build build-all publish publish-all image-name image-names clean \
         _require_lambda _require_lambda_selector \
         check-lambda-image-matches-registry \
         check-workflow-images-public check-workflow-images-published \
@@ -113,10 +110,6 @@ check-lambda-images-used: ## check that every current lambda image is used in at
 clean: ## remove tool caches + __pycache__
 	rm -rf .ruff_cache .mypy_cache .pytest_cache
 	@find . -name __pycache__ -type d -prune -exec rm -rf {} + 2>/dev/null || true
-
-vendor-sdk: ## rebuild & vendor the local SDK wheel (temporary, pre-PyPI)
-	cd $(SDK_REPO) && uv build --wheel --no-create-gitignore --out-dir "$(CURDIR)/vendor"
-	uv lock --refresh-package onedata-lambda-sdk
 
 _require_lambda:
 	@test -n "$(LAMBDA)" && test -d "lambdas/$(LAMBDA)" || { echo "error: set LAMBDA to one of: $(LAMBDAS)"; exit 1; }

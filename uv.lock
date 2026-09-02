@@ -62,7 +62,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "numpy", specifier = ">=1.26" },
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "pillow", specifier = ">=10.4" },
     { name = "scipy", specifier = ">=1.14" },
     { name = "webcolors", specifier = ">=24.8" },
@@ -118,7 +118,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" }]
+requires-dist = [{ name = "onedata-lambda-sdk", specifier = ">=1.0" }]
 
 [[package]]
 name = "bagit-uploader-archive-destination-rest"
@@ -131,7 +131,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "requests", specifier = ">=2.32" },
 ]
 
@@ -148,7 +148,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "checksum", editable = "packages/checksum" },
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "xattr", specifier = ">=1.1" },
 ]
 
@@ -164,7 +164,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "bagit-archive", editable = "packages/bagit-archive" },
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
 ]
 
 [[package]]
@@ -180,7 +180,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "bagit-archive", editable = "packages/bagit-archive" },
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "xattr", specifier = ">=1.1" },
 ]
 
@@ -196,7 +196,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "bagit-archive", editable = "packages/bagit-archive" },
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
 ]
 
 [[package]]
@@ -213,7 +213,7 @@ dependencies = [
 requires-dist = [
     { name = "bagit-archive", editable = "packages/bagit-archive" },
     { name = "checksum", editable = "packages/checksum" },
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
 ]
 
 [[package]]
@@ -225,7 +225,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" }]
+requires-dist = [{ name = "onedata-lambda-sdk", specifier = ">=1.0" }]
 
 [[package]]
 name = "calculate-checksum-mounted"
@@ -240,7 +240,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "checksum", editable = "packages/checksum" },
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "xattr", specifier = ">=1.1" },
 ]
 
@@ -257,7 +257,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "checksum", editable = "packages/checksum" },
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "requests", specifier = ">=2.32" },
 ]
 
@@ -274,7 +274,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "checksum", editable = "packages/checksum" },
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "xattr", specifier = ">=1.1" },
 ]
 
@@ -426,7 +426,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" }]
+requires-dist = [{ name = "onedata-lambda-sdk", specifier = ">=1.0" }]
 
 [[package]]
 name = "colorama"
@@ -448,7 +448,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "requests", specifier = ">=2.32" },
 ]
 
@@ -514,7 +514,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" }]
+requires-dist = [{ name = "onedata-lambda-sdk", specifier = ">=1.0" }]
 
 [[package]]
 name = "detached-ro-crate-parse"
@@ -525,7 +525,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" }]
+requires-dist = [{ name = "onedata-lambda-sdk", specifier = ">=1.0" }]
 
 [[package]]
 name = "detached-ro-crate-register"
@@ -538,7 +538,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "requests", specifier = ">=2.32" },
 ]
 
@@ -553,7 +553,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "xattr", specifier = ">=1.1" },
 ]
 
@@ -568,7 +568,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "xattr", specifier = ">=1.1" },
 ]
 
@@ -584,7 +584,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "python-magic", specifier = ">=0.4" },
     { name = "xattr", specifier = ">=1.1" },
 ]
@@ -600,7 +600,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "xattr", specifier = ">=1.1" },
 ]
 
@@ -616,7 +616,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "requests", specifier = ">=2.32" },
     { name = "xrootd", specifier = ">=6.1.0" },
 ]
@@ -630,7 +630,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" }]
+requires-dist = [{ name = "onedata-lambda-sdk", specifier = ">=1.0" }]
 
 [[package]]
 name = "idna"
@@ -880,16 +880,14 @@ wheels = [
 [[package]]
 name = "onedata-lambda-sdk"
 version = "1.0.0"
-source = { path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/ac/cd/85824bf24addd0d985322fdac848b2e7c8bc1cd2363984f92eee773124a1/onedata_lambda_sdk-1.0.0.tar.gz", hash = "sha256:c05d4c04deef35b7d485784678b7306e3c9ca0760d3a3f39f614c75d6d0fc59e", size = 84481, upload-time = "2026-09-02T14:25:29.158Z" }
 wheels = [
-    { filename = "onedata_lambda_sdk-1.0.0-py3-none-any.whl", hash = "sha256:7d132425a52b0de9abf7308ad67f8cce6bd03628de42e244408fa34a5ced5cef" },
+    { url = "https://files.pythonhosted.org/packages/f0/ad/492bc8a42903c07d7591a89d1ad60c172a2649155987f1451939461dfba1/onedata_lambda_sdk-1.0.0-py3-none-any.whl", hash = "sha256:a57881f4466742d0fd0c3b0d3f9b25528cc1cb8a85047adc4c087c297b22110f", size = 27987, upload-time = "2026-09-02T14:25:27.575Z" },
 ]
-
-[package.metadata]
-requires-dist = [{ name = "requests", specifier = ">=2.32" }]
 
 [[package]]
 name = "packaging"
@@ -909,7 +907,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" }]
+requires-dist = [{ name = "onedata-lambda-sdk", specifier = ">=1.0" }]
 
 [[package]]
 name = "pathspec"
@@ -1157,7 +1155,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "requests", specifier = ">=2.32" },
 ]
 
@@ -1170,7 +1168,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "onedata-lambda-sdk", path = "vendor/onedata_lambda_sdk-1.0.0-py3-none-any.whl" }]
+requires-dist = [{ name = "onedata-lambda-sdk", specifier = ">=1.0" }]
 
 [[package]]
 name = "trustme"
