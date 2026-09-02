@@ -10,9 +10,9 @@ This repository serves two purposes:
    action in the workflows tab.
 
 The lambdas are built on **lambda-base v3** and the
-**[`onedata-lambda-utils`](https://pypi.org/project/onedata-lambda-utils/) SDK**.
+**[`onedata-lambda-sdk`](https://pypi.org/project/onedata-lambda-sdk/) SDK**.
 Their full authoring documentation (the handler API, testing, streaming, file
-access) lives with the SDK, under `docs/` in `onedata-lambda-utils`.
+access) lives with the SDK, under `docs/` in `onedata-lambda-sdk`.
 
 ## Layout
 
@@ -36,7 +36,7 @@ automation-examples/
 > migration — not part of the workspace.
 
 For the full explanation of this layout, see `docs/guides/shared-code-uv-workspace.md`
-in `onedata-lambda-utils`.
+in `onedata-lambda-sdk`.
 
 ## Creating a lambda
 
@@ -50,7 +50,7 @@ Each lambda is a workspace member under `lambdas/<name>/`:
    ```
 2. A handler in `src/<pkg>/handler.py` written against the SDK — a per-job
    `@per_job` function or a batch `handle(jobs, ctx)`. See
-   `docs/guides/writing-a-handler.md` in `onedata-lambda-utils`.
+   `docs/guides/writing-a-handler.md` in `onedata-lambda-sdk`.
 3. A `<name>.json` schema dump (downloaded from the automation inventory GUI),
    used to register and run the lambda.
 
@@ -89,11 +89,6 @@ make sync     # uv sync --all-packages — one .venv with every member, editable
 make check    # lint (ruff + mypy) + tests across the workspace
 make test     # pytest only
 ```
-
-> [!NOTE]
-> The SDK is not yet on PyPI, so it is vendored as a wheel under `vendor/` and
-> refreshed with `make vendor-sdk`. See
-> `docs/guides/local-sdk-vendored-wheel.md` in `onedata-lambda-utils`.
 
 ## Testing guidelines
 
