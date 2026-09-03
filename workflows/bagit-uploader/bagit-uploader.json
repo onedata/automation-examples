@@ -100,7 +100,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-download-file-mounted:v4-dev2",
+                      "dockerImage": "docker.onedata.org/lambda-download-file-mounted:v6",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -210,7 +210,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-bagit-uploader-validate-mounted:v4-dev3",
+                      "dockerImage": "docker.onedata.org/lambda-bagit-uploader-validate-mounted:v4",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -336,7 +336,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-bagit-uploader-archive-destination-rest:v4-dev2",
+                      "dockerImage": "docker.onedata.org/lambda-bagit-uploader-archive-destination-rest:v5",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -484,7 +484,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-bagit-uploader-unpack-data-mounted:v4-dev2",
+                      "dockerImage": "docker.onedata.org/lambda-bagit-uploader-unpack-data-mounted:v4",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -622,7 +622,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-bagit-uploader-calculate-checksum-mounted:v4-dev2",
+                      "dockerImage": "docker.onedata.org/lambda-bagit-uploader-calculate-checksum-mounted:v4",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -731,7 +731,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-bagit-uploader-parse-fetch-file-mounted:v4-dev2",
+                      "dockerImage": "docker.onedata.org/lambda-bagit-uploader-parse-fetch-file-mounted:v4",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -827,7 +827,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-bagit-uploader-register-metadata-mounted:v4-dev2",
+                      "dockerImage": "docker.onedata.org/lambda-bagit-uploader-register-metadata-mounted:v4",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
