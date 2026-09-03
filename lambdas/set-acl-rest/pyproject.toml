@@ -1,6 +1,6 @@
 [project]
 name = "set-acl-rest"
-version = "4.0.0"
+version = "3"
 description = "Set ACL metadata using Oneprovider REST API"
 requires-python = ">=3.12"
 dependencies = [

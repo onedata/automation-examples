@@ -1,6 +1,6 @@
 [project]
 name = "substitute-placeholders"
-version = "4.0.0"
+version = "3"
 description = "Substitute placeholders in a template"
 requires-python = ">=3.12"
 dependencies = [

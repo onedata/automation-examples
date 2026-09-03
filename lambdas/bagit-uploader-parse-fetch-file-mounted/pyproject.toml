@@ -1,6 +1,6 @@
 [project]
 name = "bagit-uploader-parse-fetch-file-mounted"
-version = "4.0.0"
+version = "4"
 description = "Parse BagIt fetch.txt from an archive using mounted Oneclient"
 requires-python = ">=3.12"
 dependencies = [

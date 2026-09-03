@@ -1,6 +1,6 @@
 [project]
 name = "bagit-uploader-archive-destination-rest"
-version = "4.0.0"
+version = "5"
 description = "Archive BagIt destination directory using the Oneprovider REST API"
 requires-python = ">=3.12"
 dependencies = [

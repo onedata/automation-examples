@@ -1,6 +1,6 @@
 [project]
 name = "download-file-mounted"
-version = "4.0.0"
+version = "6"
 description = "Download a file using http or xrootd (mounted Oneclient)"
 requires-python = ">=3.12"
 dependencies = [

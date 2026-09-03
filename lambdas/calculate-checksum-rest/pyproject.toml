@@ -1,6 +1,6 @@
 [project]
 name = "calculate-checksum-rest"
-version = "4.0.0"
+version = "4"
 description = "Calculate a file's checksum (and optionally store it as metadata) using the Oneprovider REST API"
 requires-python = ">=3.12"
 dependencies = [

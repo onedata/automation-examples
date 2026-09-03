@@ -1,6 +1,6 @@
 [project]
 name = "bagit-uploader-register-metadata-mounted"
-version = "4.0.0"
+version = "4"
 description = "Register expected checksums from BagIt manifests as mounted-file xattrs"
 requires-python = ">=3.12"
 dependencies = [

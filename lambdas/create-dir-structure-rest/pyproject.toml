@@ -1,6 +1,6 @@
 [project]
 name = "create-dir-structure-rest"
-version = "4.0.0"
+version = "3"
 description = "Create directory structure"
 requires-python = ">=3.12"
 dependencies = [

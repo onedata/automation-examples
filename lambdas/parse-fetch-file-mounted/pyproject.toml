@@ -1,6 +1,6 @@
 [project]
 name = "parse-fetch-file-mounted"
-version = "4.0.0"
+version = "4"
 description = "Parse fetch file using mounted Oneclient"
 requires-python = ">=3.12"
 dependencies = [

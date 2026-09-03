@@ -1,6 +1,6 @@
 [project]
 name = "build-allowing-acl"
-version = "4.0.0"
+version = "3"
 description = ""
 requires-python = ">=3.12"
 dependencies = [
