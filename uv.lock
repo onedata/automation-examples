@@ -23,10 +23,6 @@ members = [
     "checksum",
     "create-dir-structure-rest",
     "demo",
-    "detached-ro-crate-parse",
-    "detached-ro-crate-register",
-    "detached-ro-crate-register-mounted",
-    "detached-ro-crate-save-metadata-rest",
     "detect-file-format-mounted",
     "detect-file-mime-type-mounted",
     "download-file-mounted",
@@ -48,7 +44,7 @@ dev = [
 
 [[package]]
 name = "annotate-image-mounted"
-version = "4.dev2"
+version = "3"
 source = { editable = "lambdas/annotate-image-mounted" }
 dependencies = [
     { name = "numpy" },
@@ -122,7 +118,7 @@ requires-dist = [{ name = "onedata-lambda-sdk", specifier = ">=1.0" }]
 
 [[package]]
 name = "bagit-uploader-archive-destination-rest"
-version = "4.dev2"
+version = "5"
 source = { editable = "lambdas/bagit-uploader-archive-destination-rest" }
 dependencies = [
     { name = "onedata-lambda-sdk" },
@@ -137,7 +133,7 @@ requires-dist = [
 
 [[package]]
 name = "bagit-uploader-calculate-checksum-mounted"
-version = "4.dev2"
+version = "4"
 source = { editable = "lambdas/bagit-uploader-calculate-checksum-mounted" }
 dependencies = [
     { name = "checksum" },
@@ -154,7 +150,7 @@ requires-dist = [
 
 [[package]]
 name = "bagit-uploader-parse-fetch-file-mounted"
-version = "4.dev2"
+version = "4"
 source = { editable = "lambdas/bagit-uploader-parse-fetch-file-mounted" }
 dependencies = [
     { name = "bagit-archive" },
@@ -169,7 +165,7 @@ requires-dist = [
 
 [[package]]
 name = "bagit-uploader-register-metadata-mounted"
-version = "4.dev2"
+version = "4"
 source = { editable = "lambdas/bagit-uploader-register-metadata-mounted" }
 dependencies = [
     { name = "bagit-archive" },
@@ -186,7 +182,7 @@ requires-dist = [
 
 [[package]]
 name = "bagit-uploader-unpack-data-mounted"
-version = "4.dev2"
+version = "4"
 source = { editable = "lambdas/bagit-uploader-unpack-data-mounted" }
 dependencies = [
     { name = "bagit-archive" },
@@ -201,7 +197,7 @@ requires-dist = [
 
 [[package]]
 name = "bagit-uploader-validate-mounted"
-version = "4.dev3"
+version = "4"
 source = { editable = "lambdas/bagit-uploader-validate-mounted" }
 dependencies = [
     { name = "bagit-archive" },
@@ -218,7 +214,7 @@ requires-dist = [
 
 [[package]]
 name = "build-allowing-acl"
-version = "4.dev2"
+version = "3"
 source = { editable = "lambdas/build-allowing-acl" }
 dependencies = [
     { name = "onedata-lambda-sdk" },
@@ -229,7 +225,7 @@ requires-dist = [{ name = "onedata-lambda-sdk", specifier = ">=1.0" }]
 
 [[package]]
 name = "calculate-checksum-mounted"
-version = "4.dev2"
+version = "4"
 source = { editable = "lambdas/calculate-checksum-mounted" }
 dependencies = [
     { name = "checksum" },
@@ -246,7 +242,7 @@ requires-dist = [
 
 [[package]]
 name = "calculate-checksum-rest"
-version = "4.dev2"
+version = "4"
 source = { editable = "lambdas/calculate-checksum-rest" }
 dependencies = [
     { name = "checksum" },
@@ -263,7 +259,7 @@ requires-dist = [
 
 [[package]]
 name = "calculate-downloaded-file-checksum-mounted"
-version = "4.dev2"
+version = "4"
 source = { editable = "lambdas/calculate-downloaded-file-checksum-mounted" }
 dependencies = [
     { name = "checksum" },
@@ -439,7 +435,7 @@ wheels = [
 
 [[package]]
 name = "create-dir-structure-rest"
-version = "4.dev2"
+version = "3"
 source = { editable = "lambdas/create-dir-structure-rest" }
 dependencies = [
     { name = "onedata-lambda-sdk" },
@@ -507,7 +503,7 @@ wheels = [
 
 [[package]]
 name = "demo"
-version = "4.dev2"
+version = "4"
 source = { editable = "lambdas/demo" }
 dependencies = [
     { name = "onedata-lambda-sdk" },
@@ -517,64 +513,8 @@ dependencies = [
 requires-dist = [{ name = "onedata-lambda-sdk", specifier = ">=1.0" }]
 
 [[package]]
-name = "detached-ro-crate-parse"
-version = "4.dev2"
-source = { editable = "lambdas/detached-ro-crate-parse" }
-dependencies = [
-    { name = "onedata-lambda-sdk" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "onedata-lambda-sdk", specifier = ">=1.0" }]
-
-[[package]]
-name = "detached-ro-crate-register"
-version = "4.dev2"
-source = { editable = "lambdas/detached-ro-crate-register" }
-dependencies = [
-    { name = "onedata-lambda-sdk" },
-    { name = "requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
-    { name = "requests", specifier = ">=2.32" },
-]
-
-[[package]]
-name = "detached-ro-crate-register-mounted"
-version = "4.dev2"
-source = { editable = "lambdas/detached-ro-crate-register-mounted" }
-dependencies = [
-    { name = "onedata-lambda-sdk" },
-    { name = "xattr" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
-    { name = "xattr", specifier = ">=1.1" },
-]
-
-[[package]]
-name = "detached-ro-crate-save-metadata-rest"
-version = "4.dev2"
-source = { editable = "lambdas/detached-ro-crate-save-metadata-rest" }
-dependencies = [
-    { name = "onedata-lambda-sdk" },
-    { name = "xattr" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
-    { name = "xattr", specifier = ">=1.1" },
-]
-
-[[package]]
 name = "detect-file-format-mounted"
-version = "4.dev2"
+version = "4"
 source = { editable = "lambdas/detect-file-format-mounted" }
 dependencies = [
     { name = "onedata-lambda-sdk" },
@@ -591,7 +531,7 @@ requires-dist = [
 
 [[package]]
 name = "detect-file-mime-type-mounted"
-version = "4.dev2"
+version = "4"
 source = { editable = "lambdas/detect-file-mime-type-mounted" }
 dependencies = [
     { name = "onedata-lambda-sdk" },
@@ -606,7 +546,7 @@ requires-dist = [
 
 [[package]]
 name = "download-file-mounted"
-version = "4.dev2"
+version = "6"
 source = { editable = "lambdas/download-file-mounted" }
 dependencies = [
     { name = "onedata-lambda-sdk" },
@@ -623,7 +563,7 @@ requires-dist = [
 
 [[package]]
 name = "echo"
-version = "4.dev2"
+version = "5"
 source = { editable = "lambdas/echo" }
 dependencies = [
     { name = "onedata-lambda-sdk" },
@@ -900,7 +840,7 @@ wheels = [
 
 [[package]]
 name = "parse-fetch-file-mounted"
-version = "4.dev2"
+version = "4"
 source = { editable = "lambdas/parse-fetch-file-mounted" }
 dependencies = [
     { name = "onedata-lambda-sdk" },
@@ -1146,7 +1086,7 @@ wheels = [
 
 [[package]]
 name = "set-acl-rest"
-version = "4.dev2"
+version = "3"
 source = { editable = "lambdas/set-acl-rest" }
 dependencies = [
     { name = "onedata-lambda-sdk" },
@@ -1161,7 +1101,7 @@ requires-dist = [
 
 [[package]]
 name = "substitute-placeholders"
-version = "4.dev2"
+version = "3"
 source = { editable = "lambdas/substitute-placeholders" }
 dependencies = [
     { name = "onedata-lambda-sdk" },
