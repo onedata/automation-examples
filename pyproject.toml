@@ -17,6 +17,7 @@ dev = [
     "pytest-httpserver>=1.0",
     "trustme>=1.1",
     "types-requests>=2.32",
+    "onedata-lambda-sdk>=1.0",
 ]
 
 [tool.ruff]
@@ -26,10 +27,8 @@ target-version = "py312"
 # tests, packages) except the dirs below.
 src = ["lambdas/*/src", "packages/*/src"]
 extend-exclude = [
-    "lambdas/*/docker",
     "lambdas_old",
     "utils/recalculate-workflow-checksums.py",
-    "vendor",
 ]
 
 [tool.ruff.lint]
