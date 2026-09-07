@@ -2,7 +2,7 @@
   "schemaFormatVersion": 3,
   "revision": {
     "schemaFormatVersion": 3,
-    "originalRevisionNumber": 1,
+    "originalRevisionNumber": 2,
     "atmLambdaRevision": {
       "_version": 1,
       "_data": {
@@ -13,7 +13,24 @@
             "_version": 1,
             "_data": {
               "relayMethod": "returnValue",
-              "name": "result",
+              "name": "processedFilePath",
+              "dataSpec": {
+                "_version": 2,
+                "_data": {
+                  "type": "string",
+                  "_version": 1,
+                  "_data": {
+                    "allowedValues": null
+                  }
+                }
+              }
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "relayMethod": "filePipe",
+              "name": "logs",
               "dataSpec": {
                 "_version": 2,
                 "_data": {
@@ -77,7 +94,7 @@
             "engine": "openfaas",
             "_version": 1,
             "_data": {
-              "dockerImage": "onedata/lambda-calculate-downloaded-file-checksum-mounted:v4",
+              "dockerImage": "onedata/lambda-download-file-mounted:v6",
               "dockerExecutionOptions": {
                 "readonly": false,
                 "oneclientOptions": "",
@@ -87,63 +104,9 @@
             }
           }
         },
-        "name": "calculate-downloaded-file-checksum-mounted",
+        "name": "download-file-mounted",
         "description": "",
-        "configParameterSpecs": [
-          {
-            "_version": 1,
-            "_data": {
-              "name": "algorithm",
-              "isOptional": false,
-              "defaultValue": null,
-              "dataSpec": {
-                "_version": 2,
-                "_data": {
-                  "type": "string",
-                  "_version": 1,
-                  "_data": {
-                    "allowedValues": [
-                      "adler32",
-                      "blake2b",
-                      "blake2s",
-                      "md5",
-                      "sha1",
-                      "sha224",
-                      "sha256",
-                      "sha384",
-                      "sha512",
-                      "sha3_224",
-                      "sha3_256",
-                      "sha3_384",
-                      "sha3_512",
-                      "shake_128",
-                      "shake_256"
-                    ]
-                  }
-                }
-              }
-            }
-          },
-          {
-            "_version": 1,
-            "_data": {
-              "name": "metadataKey",
-              "isOptional": false,
-              "defaultValue": "",
-              "dataSpec": {
-                "_version": 2,
-                "_data": {
-                  "type": "string",
-                  "_version": 1,
-                  "_data": {
-                    "allowedValues": null
-                  }
-                }
-              }
-            }
-          }
-        ],
-        "checksum": "4910677235b45113e3e07240827fe515",
+        "configParameterSpecs": [],
         "argumentSpecs": [
           {
             "_version": 1,
@@ -165,5 +128,5 @@
       }
     }
   },
-  "originalAtmLambdaId": "245e1a01b7ce8047b258f0a5617e732dch343d"
+  "originalAtmLambdaId": "6b5d982abf02875fa33772ec42f19099ch6b98"
 }

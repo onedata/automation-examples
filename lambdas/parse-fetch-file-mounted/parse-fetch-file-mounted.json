@@ -13,15 +13,37 @@
             "_version": 1,
             "_data": {
               "relayMethod": "returnValue",
-              "name": "result",
+              "name": "filesToDownload",
               "dataSpec": {
                 "_version": 2,
                 "_data": {
-                  "type": "string",
+                  "type": "array",
                   "_version": 1,
                   "_data": {
-                    "allowedValues": null
+                    "itemDataSpec": {
+                      "_version": 2,
+                      "_data": {
+                        "type": "object",
+                        "_version": 1,
+                        "_data": {}
+                      }
+                    }
                   }
+                }
+              }
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "relayMethod": "returnValue",
+              "name": "statusLog",
+              "dataSpec": {
+                "_version": 2,
+                "_data": {
+                  "type": "object",
+                  "_version": 1,
+                  "_data": {}
                 }
               }
             }
@@ -45,25 +67,24 @@
             "engine": "openfaas",
             "_version": 1,
             "_data": {
-              "dockerImage": "onedata/lambda-demo:v4",
+              "dockerImage": "onedata/lambda-parse-fetch-file-mounted:v4",
               "dockerExecutionOptions": {
                 "readonly": false,
                 "oneclientOptions": "",
                 "oneclientMountPoint": "/mnt/onedata",
-                "mountOneclient": false
+                "mountOneclient": true
               }
             }
           }
         },
-        "name": "demo",
+        "name": "parse-fetch-file-mounted",
         "description": "",
         "configParameterSpecs": [],
-        "checksum": "47025f8166d7f17570b342afb7e18768",
         "argumentSpecs": [
           {
             "_version": 1,
             "_data": {
-              "name": "item",
+              "name": "fetchFile",
               "isOptional": false,
               "defaultValue": null,
               "dataSpec": {
@@ -74,7 +95,29 @@
                   "_data": {
                     "fileType": "ANY",
                     "attributes": [
+                      "fileId",
                       "name"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "name": "destinationDir",
+              "isOptional": false,
+              "defaultValue": null,
+              "dataSpec": {
+                "_version": 2,
+                "_data": {
+                  "type": "file",
+                  "_version": 1,
+                  "_data": {
+                    "fileType": "DIR",
+                    "attributes": [
+                      "fileId"
                     ]
                   }
                 }
@@ -85,5 +128,5 @@
       }
     }
   },
-  "originalAtmLambdaId": "b803dff05fa694909a5cbdf050461725chfdb3"
+  "originalAtmLambdaId": "52ef64a76540afb360c68dc4fbc70456ch0865"
 }

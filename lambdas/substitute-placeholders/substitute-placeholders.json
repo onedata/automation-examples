@@ -13,7 +13,7 @@
             "_version": 1,
             "_data": {
               "relayMethod": "returnValue",
-              "name": "result",
+              "name": "output",
               "dataSpec": {
                 "_version": 2,
                 "_data": {
@@ -38,14 +38,14 @@
             "cpuLimit": null
           }
         },
-        "preferredBatchSize": 100,
+        "preferredBatchSize": 10,
         "operationSpec": {
           "_version": 1,
           "_data": {
             "engine": "openfaas",
             "_version": 1,
             "_data": {
-              "dockerImage": "onedata/lambda-demo:v4",
+              "dockerImage": "onedata/lambda-substitute-placeholders:v3",
               "dockerExecutionOptions": {
                 "readonly": false,
                 "oneclientOptions": "",
@@ -55,28 +55,40 @@
             }
           }
         },
-        "name": "demo",
+        "name": "substitute-placeholders",
         "description": "",
         "configParameterSpecs": [],
-        "checksum": "47025f8166d7f17570b342afb7e18768",
         "argumentSpecs": [
           {
             "_version": 1,
             "_data": {
-              "name": "item",
+              "name": "template",
               "isOptional": false,
               "defaultValue": null,
               "dataSpec": {
                 "_version": 2,
                 "_data": {
-                  "type": "file",
+                  "type": "string",
                   "_version": 1,
                   "_data": {
-                    "fileType": "ANY",
-                    "attributes": [
-                      "name"
-                    ]
+                    "allowedValues": null
                   }
+                }
+              }
+            }
+          },
+          {
+            "_version": 1,
+            "_data": {
+              "name": "mappings",
+              "isOptional": false,
+              "defaultValue": null,
+              "dataSpec": {
+                "_version": 2,
+                "_data": {
+                  "type": "object",
+                  "_version": 1,
+                  "_data": {}
                 }
               }
             }
@@ -85,5 +97,5 @@
       }
     }
   },
-  "originalAtmLambdaId": "b803dff05fa694909a5cbdf050461725chfdb3"
+  "originalAtmLambdaId": "e0ce820ba9be88838db92cec67acab69chd289"
 }
