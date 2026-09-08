@@ -2,7 +2,7 @@
   "schemaFormatVersion": 3,
   "revision": {
     "schemaFormatVersion": 3,
-    "originalRevisionNumber": 1,
+    "originalRevisionNumber": 11,
     "atmLambdaRevision": {
       "_version": 1,
       "_data": {
@@ -132,7 +132,8 @@
                     "fileType": "ANY",
                     "attributes": [
                       "fileId",
-                      "name"
+                      "name",
+                      "type"
                     ]
                   }
                 }
@@ -153,7 +154,8 @@
                   "_data": {
                     "fileType": "DIR",
                     "attributes": [
-                      "fileId"
+                      "fileId",
+                      "type"
                     ]
                   }
                 }
@@ -164,5 +166,5 @@
       }
     }
   },
-  "originalAtmLambdaId": "bdfee063c3be646a2dc0d01500f2b431cha66e"
+  "originalAtmLambdaId": "1c840ab27eb8997a1fd701f889eda417ch48e0"
 }
