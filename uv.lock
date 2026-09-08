@@ -35,6 +35,7 @@ members = [
 [manifest.dependency-groups]
 dev = [
     { name = "mypy", specifier = ">=2.1" },
+    { name = "onedata-lambda-sdk", specifier = ">=1.0" },
     { name = "pytest", specifier = ">=8" },
     { name = "pytest-httpserver", specifier = ">=1.0" },
     { name = "ruff", specifier = ">=0.15" },
