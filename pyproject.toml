@@ -27,7 +27,6 @@ target-version = "py312"
 # tests, packages) except the dirs below.
 src = ["lambdas/*/src", "packages/*/src"]
 extend-exclude = [
-    "lambdas_old",
     "utils/recalculate-workflow-checksums.py",
 ]
 
