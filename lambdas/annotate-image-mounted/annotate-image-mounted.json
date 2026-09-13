@@ -38,7 +38,7 @@
           }
         },
         "name": "Annotate image mounted",
-        "description": "",
+        "description": "Processes the input file; if it's an image, examines its main characteristics and sets corresponding xattrs (width, height, orientation, average_colour, dominant_colour).",
         "configParameterSpecs": [],
         "argumentSpecs": [
           {
@@ -67,5 +67,5 @@
       }
     }
   },
-  "originalAtmLambdaId": "2e69b16d0d1b3150787814f250fe6c03ch6029"
+  "originalAtmLambdaId": "5d0321fafa5a06265a679d3f0b859a66ch5fff"
 }
