@@ -2,7 +2,7 @@
   "schemaFormatVersion": 3,
   "revision": {
     "schemaFormatVersion": 3,
-    "originalRevisionNumber": 1,
+    "originalRevisionNumber": 9,
     "atmLambdaRevision": {
       "_version": 1,
       "_data": {
@@ -79,7 +79,7 @@
             "engine": "openfaas",
             "_version": 1,
             "_data": {
-              "dockerImage": "onedata/lambda-bagit-uploader-archive-destination-rest:v4",
+              "dockerImage": "onedata/lambda-bagit-uploader-archive-destination-rest:v5",
               "dockerExecutionOptions": {
                 "readonly": false,
                 "oneclientOptions": "",
@@ -118,5 +118,5 @@
       }
     }
   },
-  "originalAtmLambdaId": "7ee6f7f2f6a89eb0a4f0144fbe2dfe7fch411e"
+  "originalAtmLambdaId": "0a1828b8a5c52de6240cd6f4ea36faebche7e6"
 }

@@ -1,117 +1,158 @@
 # Automation examples
 
-Examples of automation lambdas and workflow schemas that can be used in Onedata.
+Example automation lambdas and workflow schemas for [Onedata](https://onedata.org).
 
 This repository serves two purposes:
 
-1. Provides examples to easily get started with creating your lambdas and workflows.
-2. Provides ready-to-use JSON dumps of workflow schemas that can be loaded
-   into an automation inventory; just download a JSON of the desired workflow
-   schema onto your disk and use the "Upload JSON" action in the workflows tab.
+1. **Examples** to get started writing your own lambdas and workflows.
+2. **Ready-to-use workflow schema dumps** (`<name>.json`) you can load straight
+   into an automation inventory — download the JSON and use the *Upload JSON*
+   action in the workflows tab.
 
+The lambdas are built on **lambda-base v3** and the
+**[`onedata-lambda-sdk`](https://pypi.org/project/onedata-lambda-sdk/) SDK**.
+Their full authoring documentation (the handler API, testing, streaming, file
+access) lives with the SDK, under `docs/` in `onedata-lambda-sdk`.
 
-## Creating lambda Docker image
+## Layout
 
-> This process requires basic knowledge about Python and Docker, and assumes 
-  that you have access to a Docker repository where you can push Docker images.
+This repo is a [uv workspace](https://docs.astral.sh/uv/concepts/projects/workspaces/):
 
-**Lambda Docker image** defines the internal logic of **Automation lambda**.  
-To create one, follow these steps:
-1. Navigate to the `lambdas/` directory where subdirectories define sample lambda
-   functions.
-2. Explore specific lambda examples in the `lambdas/` directory to understand how 
-   different lambdas are structured and defined. Each lambda include its dump, 
-   that is a json file downloaded from automation inventory of default lamda 
-   implementation in GUI and `docker/` subdirectory containing:
-   - `handler.py`: the definition of the function executed by the lambda. 
-   It MUST define the `handle` function:
-      ```
-      def handle(
-         job_batch_request: AtmJobBatchRequest[JobArgs, AtmObject],
-         heartbeat_callback: AtmHeartbeatCallback,
-      ) -> AtmJobBatchResponse[JobResults]:
-         ...
-      ```
+```
+automation-examples/
+├── pyproject.toml        # virtual workspace root (members, shared dev tooling)
+├── uv.lock               # one lockfile for every member
+├── Dockerfile            # one canonical template, shared by all lambdas
+├── lambdas/              # deployable lambdas — one workspace member each
+│   └── <name>/
+│       ├── pyproject.toml         # deps + the single onedata.lambda entry point
+│       ├── src/<pkg>/handler.py   # the handler
+│       └── <name>.json            # the workflow/lambda schema dump
+├── packages/            # shared libraries used by several lambdas
+└── utils/               # workflow/dump maintenance scripts
+```
 
-   - `requirements.txt`: external Python dependencies/libraries needed to define 
-   the function. It is recommended to familiarize yourself and utilize 
-   [`onedata-lambda-utils` library](https://pypi.org/project/onedata-lambda-utils/), 
-   which provides various utilities for writing lambdas (e.g. including the `types` 
-   module with documented argument and result types for use in lambdas).
+> `lambdas_old/` holds the legacy v2 lambdas, kept for reference during the v3
+> migration — not part of the workspace.
 
-   - `Dockerfile`: specifies the base image that MUST be used to build the Docker 
-   image. Also, if your function requires additional non-Python dependencies, 
-   this is the place you can install them. To do that, switch the user to ROOT, 
-   install your dependencies and lastly switch the user to APP, e.g.:
-      ```
-      FROM onedata/lambda-base-slim:v1
+For the full explanation of this layout, see `docs/guides/shared-code-uv-workspace.md`
+in `onedata-lambda-sdk`.
 
-      USER root
+## Creating a lambda
 
-      RUN ...
+Each lambda is a workspace member under `lambdas/<name>/`:
 
-      USER app
-      ```
-      See the `Dockerfile` in `download-file-mounted` or 
-      `detect-file-format-mounted` for concrete examples.
+1. A `pyproject.toml` declaring its dependencies and **exactly one**
+   `onedata.lambda` entry point:
+   ```toml
+   [project.entry-points."onedata.lambda"]
+   handler = "<pkg>.handler:handle"
+   ```
+2. A handler in `src/<pkg>/handler.py` written against the SDK — a per-job
+   `@per_job` function or a batch `handle(jobs, ctx)`. See
+   `docs/guides/writing-a-handler.md` in `onedata-lambda-sdk`.
+3. A `<name>.json` schema dump (downloaded from the automation inventory GUI),
+   used to register and run the lambda.
 
-   - `Makefile`: specifies the Docker repository name (REPO_NAME) and tag (TAG), 
-   along with other useful commands:
-      - `type-check`: performs type-checking on the lambda code using `mypy` tool.
+Shared logic goes in a `packages/*` member that lambdas depend on by name; the
+contract `TypedDict`s stay in each lambda. The easiest start is to copy the
+closest existing lambda and rework it — `echo` (minimal batch),
+`calculate-checksum-mounted` (per-job, mounted file access), and
+`calculate-checksum-rest` (per-job, REST) are good starting points.
 
-      - `format`: formats the lambda code using `isort` and `black` tools.
+## Building and publishing images
 
-      - `black-check`: checks if the lambda code is formatted according to `black` 
-      standards.
+The canonical `Dockerfile` builds any member, selected by a build arg:
 
-      - `static-analysis`: conducts static code analysis on the lambda code 
-      using `pylint`.
+```bash
+make build LAMBDA=calculate-checksum-mounted      # docker.onedata.org/lambda-<name>:v<version>
+make publish LAMBDA=calculate-checksum-mounted    # push it
+make build-all                                    # build every lambda
+make publish-all REGISTRY=onedata                 # push all public images (onedata/*)
+make publish-all REGISTRY=onedata YES=1           # skip existing-tag confirmation
+make check-lambda-image-matches-registry LAMBDA=calculate-checksum-mounted REGISTRY=onedata
+make check-lambda-image-matches-registry LAMBDA=all REGISTRY=onedata
+```
 
-      - `build`: builds the Docker image for the lambda. By default, the image 
-      is built in the format `docker.onedata.org/<REPO_NAME>:<TAG>` where 
-      `docker.onedata.org` is the private Docker registry for the Onedata team, 
-      to which you may not have access. To use a different registry or user, 
-      you need to specify/override the `REGISTRY` and/or `HUB_USER` variables 
-      either in the Makefile:
-         ```makefile
-         REGISTRY = docker.io
-         HUB_USER = onedata
-         REPO_NAME = ...
-         TAG = ...
-         ```      
-         or when running commands from the command line, for example:
-         ```console
-         make build REGISTRY=docker.io HUB_USER=onedata
-         ```
+`make build LAMBDA=<name>` is a thin wrapper over
+`docker build --build-arg LAMBDA_PACKAGE=<name> .`; the image gets only that
+lambda's dependency subtree. The tag's version comes from the member's
+`pyproject.toml`. Run `make help` (or `make image-name LAMBDA=<name>`) for
+details. The image comparison target resolves the same name and version, then
+checks that the locally built image has the same content digest as the image
+published under that tag.
 
-      - `publish`: publishes the Docker image to the specified repository. 
-      It uses the same rules for naming the image as `make build`.
+## Development
 
-3. Create a new directory with the above-mentioned structure (or copy one of 
-the existing subdirectories and rework it accordingly).
+```bash
+make sync     # uv sync --all-packages — one .venv with every member, editable
+make check    # lint (ruff + mypy) + tests across the workspace
+make test     # pytest only
+```
 
-4. Define function logic in `handler.py`.
+## Testing guidelines
 
-5. Build a Docker image.
+Each lambda should have focused tests under `lambdas/<name>/tests/`. There are
+two complementary types of tests.
 
-6. Publish a Docker image.
+Tests of repository automation tools live under `utils/tests/`. They are
+discovered by the same `make test` command and do not need a separate CI job.
 
-Now, you can use a built image when defining automation lambda in Onezone.
+`test_handler.py` contains unit tests of the lambda's own logic. These tests call
+the handler directly, without starting the SDK runtime. `build_jobs()` and
+`build_job_context()` prepare the required input and context. Calls that the
+handler makes to loggers, streamers, and heartbeats are captured in memory so
+that tests can inspect them.
 
+Use `test_handler.py` to:
 
-## Contributing to this repo
+- test successful results as well as validation failures, error handling,
+  per-job exceptions, and other error paths;
+- test `handle()` or individual helper functions from the lambda;
+- mock external services and other dependencies;
+- check returned values and side effects such as created files, xattrs, REST
+  calls, logs, and streamed items.
 
-To add a new lambda/workflow schema or modify an existing one, follow these steps:
+These tests confirm what the handler sends to loggers and streamers, but they do
+not test how the SDK buffers, writes, or flushes that data.
 
-1. Develop using the dev channel (docker.onedata.org - see above), use lambda
-   images pushed to this repo for testing on bamboo (you can simply edit the
-   workflow JSON dumps to change the lambda docker image).
-2. Always update image tags when introducing any changes to a lambda,
-   especially when preparing an official image to be pushed (see below).
-3. At the end, when the code is ready to be merged, you will have to
-   make sure all the images used in workflow schemas are publicly available:
-   - all referenced images belong to the docker.io registry
-     (you can use `make workflows-ensure-all-used-docker-images-are-public`)
-   - all of the referenced images are pushed to the registry
-     (you can use `make lambdas-publish-public` - but be sure that the images
-     are properly tagged! otherwise, you may overwrite existing ones)
+`test_runtime.py` contains end-to-end tests of the lambda and SDK working
+together. `build_request()` creates a request in the same format as the backend,
+and `run_local()` passes it through the real SDK runtime. This covers request
+parsing, `JobContext` creation, the decorated handler, stream output, and the
+final response. It does not start Docker, but it is the closest local equivalent
+of a real lambda invocation.
+
+Use `test_runtime.py` to:
+
+- invoke only the exported handler through `build_request()` and `run_local()`;
+- leave the handler and SDK unchanged, while mocking systems outside the lambda
+  such as REST services, filesystem integrations, xattr access, or optional
+  native clients;
+- check the final response, flushed streams, output files, and other externally
+  visible effects.
+
+A runtime test is most valuable when it checks SDK behaviour that a handler unit
+test does not. Repeating the same assertion through `run_local()` may add little
+value for a very small lambda that only performs a simple transformation.
+
+This division is a guideline rather than a strict rule.
+
+When adding tests, keep them deterministic. Avoid depending on external network
+access, real providers, wall-clock time, or host-specific files. Mock REST
+clients and xattr access locally, create mounted files under `tmp_path`, and
+verify both the returned values and the important side effects.
+
+## Contributing
+
+To add or change a lambda or workflow schema:
+
+1. Develop against the dev registry (`docker.onedata.org`) — point the workflow
+   JSON's `dockerImage` at your dev image while testing.
+2. **Bump the lambda's `version`** in its `pyproject.toml` whenever you change
+   it; the image tag follows the version, so this avoids overwriting a published
+   image.
+3. Before merging, make sure every image referenced by a workflow schema is
+   public (`onedata/*`), pushed, and current — use `make publish-all
+   REGISTRY=onedata` followed by the workflow image validation targets. Recompute
+   the workflow checksum after editing a dump.

@@ -1,0 +1,20 @@
+[project]
+name = "bagit-uploader-register-metadata-mounted"
+version = "4"
+description = "Register expected checksums from BagIt manifests as mounted-file xattrs"
+requires-python = ">=3.12"
+dependencies = [
+    "bagit-archive",
+    "onedata-lambda-sdk>=1.0",
+    "xattr>=1.1",
+]
+
+[project.entry-points."onedata.lambda"]
+handler = "bagit_uploader_register_metadata_mounted.handler:handle"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bagit_uploader_register_metadata_mounted"]

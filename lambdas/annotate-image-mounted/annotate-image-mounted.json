@@ -2,7 +2,7 @@
   "schemaFormatVersion": 3,
   "revision": {
     "schemaFormatVersion": 3,
-    "originalRevisionNumber": 1,
+    "originalRevisionNumber": 2,
     "atmLambdaRevision": {
       "_version": 1,
       "_data": {
@@ -27,7 +27,7 @@
             "engine": "openfaas",
             "_version": 1,
             "_data": {
-              "dockerImage": "onedata/lambda-annotate-image-mounted:v2",
+              "dockerImage": "onedata/lambda-annotate-image-mounted:v3",
               "dockerExecutionOptions": {
                 "readonly": false,
                 "oneclientOptions": "",
@@ -67,5 +67,5 @@
       }
     }
   },
-  "originalAtmLambdaId": "83a0d318940c6d4ae74b275cfc02fe90ch8bc9"
+  "originalAtmLambdaId": "5d0321fafa5a06265a679d3f0b859a66ch5fff"
 }
