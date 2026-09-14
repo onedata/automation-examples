@@ -2,7 +2,7 @@
   "schemaFormatVersion": 3,
   "revision": {
     "schemaFormatVersion": 3,
-    "originalRevisionNumber": 8,
+    "originalRevisionNumber": 9,
     "atmLambdaRevision": {
       "_version": 1,
       "_data": {
@@ -84,7 +84,7 @@
                 "readonly": false,
                 "oneclientOptions": "",
                 "oneclientMountPoint": "/mnt/onedata",
-                "mountOneclient": true
+                "mountOneclient": false
               }
             }
           }
@@ -118,5 +118,5 @@
       }
     }
   },
-  "originalAtmLambdaId": "ebebd7b483c7ebb6c7139535f0921b62ch82bf"
+  "originalAtmLambdaId": "0a1828b8a5c52de6240cd6f4ea36faebche7e6"
 }
