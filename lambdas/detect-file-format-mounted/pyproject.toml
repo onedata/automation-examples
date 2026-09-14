@@ -1,10 +1,10 @@
 [project]
 name = "detect-file-format-mounted"
-version = "4.0.0"
+version = "4"
 description = "Detect a file's format from name and content (libmagic) and optionally store it as metadata (mounted Oneclient)"
 requires-python = ">=3.12"
 dependencies = [
-    "onedata-lambda-utils>=1.0",
+    "onedata-lambda-sdk>=1.0",
     "xattr>=1.1",
     "python-magic>=0.4",
 ]

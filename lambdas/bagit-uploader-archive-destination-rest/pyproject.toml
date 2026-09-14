@@ -1,0 +1,19 @@
+[project]
+name = "bagit-uploader-archive-destination-rest"
+version = "5"
+description = "Archive BagIt destination directory using the Oneprovider REST API"
+requires-python = ">=3.12"
+dependencies = [
+    "onedata-lambda-sdk>=1.0",
+    "requests>=2.32",
+]
+
+[project.entry-points."onedata.lambda"]
+handler = "bagit_uploader_archive_destination_rest.handler:handle"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bagit_uploader_archive_destination_rest"]

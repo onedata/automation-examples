@@ -11,7 +11,7 @@ import mimetypes
 from typing import TypedDict
 
 import xattr
-from onedata_lambda_utils import (
+from onedata_lambda_sdk import (
     AtmFile,
     AtmObject,
     Job,

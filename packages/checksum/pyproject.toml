@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "Shared checksum logic for Onedata Automation lambdas (algorithms, streaming hash, stats builders, report shape)"
 requires-python = ">=3.12"
 dependencies = [
-    "onedata-lambda-utils>=1.0",
+    "onedata-lambda-sdk>=1.0",
 ]
 
 [build-system]

@@ -3,14 +3,14 @@ Unit tests for the REST checksum handler: call `handle(jobs, ctx)` directly (fak
 with the provider domain pointed at a local mock HTTPS server.
 """
 
-__author__ = "Bartosz Walkowicz"
-__copyright__ = "Copyright (C) 2022-2026 Onedata (onedata.org)"
+__author__ = "Bartosz Walkowicz, Wojciech Szmelich"
+__copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
 __license__ = "This software is released under the MIT license cited in LICENSE.txt"
 
 import hashlib
 
 import pytest
-from onedata_lambda_utils.testing import build_job_context, build_jobs
+from onedata_lambda_sdk.testing import build_job_context, build_jobs
 from pytest_httpserver import HTTPServer
 
 from calculate_checksum_rest.handler import handle

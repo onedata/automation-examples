@@ -14,7 +14,7 @@ from collections.abc import Iterator
 from typing import Final, TypedDict
 
 import requests
-from onedata_lambda_utils import (
+from onedata_lambda_sdk import (
     DEFAULT_MAX_WORKERS,
     AtmFile,
     Job,

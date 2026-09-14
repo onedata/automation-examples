@@ -1,16 +1,21 @@
 """Unit tests for the shared checksum core."""
 
+__author__ = "Bartosz Walkowicz"
+__copyright__ = "Copyright (C) 2026 Onedata (onedata.org)"
+__license__ = "This software is released under the MIT license cited in LICENSE.txt"
+
 import hashlib
 import zlib
 
 import pytest
-from onedata_lambda_utils import JobException
+from onedata_lambda_sdk import JobException
 
 from checksum import (
     AVAILABLE_CHECKSUM_ALGORITHMS,
     assert_supported,
     calculate_checksum,
     is_supported,
+    require_supported,
 )
 
 
@@ -52,3 +57,9 @@ def test_assert_supported_raises_job_exception() -> None:
     assert_supported("sha256")  # supported -> no error
     with pytest.raises(JobException):
         assert_supported("crc32")
+
+
+def test_require_supported_returns_algorithm_or_raises() -> None:
+    assert require_supported("sha256") == "sha256"
+    with pytest.raises(JobException):
+        require_supported("crc32")

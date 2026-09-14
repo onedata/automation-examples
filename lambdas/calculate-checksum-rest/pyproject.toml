@@ -1,10 +1,10 @@
 [project]
 name = "calculate-checksum-rest"
-version = "4.0.0"
+version = "4"
 description = "Calculate a file's checksum (and optionally store it as metadata) using the Oneprovider REST API"
 requires-python = ">=3.12"
 dependencies = [
-    "onedata-lambda-utils>=1.0",
+    "onedata-lambda-sdk>=1.0",
     # Declared explicitly: the handler imports requests directly. v2's base shipped it
     # globally, so this was undeclared; v3 prunes to declared deps (the migration trap).
     "requests>=2.32",

@@ -3,7 +3,177 @@
   "schemaFormatVersion": 3,
   "revision": {
     "supplementaryAtmLambdas": {
-      "e31db40e031051199260497d666e4641cha00d": {
+      "28a4d2a68ea3ae76f28e16b92ec3ef59chcc38": {
+        "2": {
+          "schemaFormatVersion": 3,
+          "revision": {
+            "schemaFormatVersion": 3,
+            "originalRevisionNumber": 2,
+            "atmLambdaRevision": {
+              "_version": 1,
+              "_data": {
+                "summary": "",
+                "state": "draft",
+                "resultSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "relayMethod": "returnValue",
+                      "name": "result",
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "object",
+                          "_version": 1,
+                          "_data": {}
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "relayMethod": "filePipe",
+                      "name": "stats",
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "timeSeriesMeasurement",
+                          "_version": 1,
+                          "_data": {
+                            "specs": [
+                              {
+                                "_version": 1,
+                                "_data": {
+                                  "unit": "none",
+                                  "nameMatcherType": "exact",
+                                  "nameMatcher": "filesProcessed"
+                                }
+                              },
+                              {
+                                "_version": 1,
+                                "_data": {
+                                  "unit": "bytes",
+                                  "nameMatcherType": "exact",
+                                  "nameMatcher": "bytesProcessed"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                ],
+                "resourceSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "memoryRequested": 104857600,
+                    "memoryLimit": null,
+                    "ephemeralStorageRequested": 104857600,
+                    "ephemeralStorageLimit": null,
+                    "cpuRequested": 0.1,
+                    "cpuLimit": null
+                  }
+                },
+                "preferredBatchSize": 100,
+                "operationSpec": {
+                  "_version": 1,
+                  "_data": {
+                    "engine": "openfaas",
+                    "_version": 1,
+                    "_data": {
+                      "dockerImage": "onedata/lambda-calculate-downloaded-file-checksum-mounted:v4",
+                      "dockerExecutionOptions": {
+                        "readonly": false,
+                        "oneclientOptions": "",
+                        "oneclientMountPoint": "/mnt/onedata",
+                        "mountOneclient": true
+                      }
+                    }
+                  }
+                },
+                "name": "calculate-downloaded-file-checksum-mounted",
+                "description": "",
+                "configParameterSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "algorithm",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": [
+                              "adler32",
+                              "blake2b",
+                              "blake2s",
+                              "md5",
+                              "sha1",
+                              "sha224",
+                              "sha256",
+                              "sha384",
+                              "sha512",
+                              "sha3_224",
+                              "sha3_256",
+                              "sha3_384",
+                              "sha3_512",
+                              "shake_128",
+                              "shake_256"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "metadataKey",
+                      "isOptional": false,
+                      "defaultValue": "",
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "string",
+                          "_version": 1,
+                          "_data": {
+                            "allowedValues": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                ],
+                "argumentSpecs": [
+                  {
+                    "_version": 1,
+                    "_data": {
+                      "name": "downloadInfo",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "dataSpec": {
+                        "_version": 2,
+                        "_data": {
+                          "type": "object",
+                          "_version": 1,
+                          "_data": {}
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "originalAtmLambdaId": "28a4d2a68ea3ae76f28e16b92ec3ef59chcc38"
+        }
+      },
+      "1d1b6a91b91fdc8ce10bc16096789866chd925": {
         "3": {
           "schemaFormatVersion": 3,
           "revision": {
@@ -100,7 +270,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "onedata/lambda-download-file-mounted:v5",
+                      "dockerImage": "onedata/lambda-download-file-mounted:v6",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -134,185 +304,15 @@
               }
             }
           },
-          "originalAtmLambdaId": "e31db40e031051199260497d666e4641cha00d"
+          "originalAtmLambdaId": "1d1b6a91b91fdc8ce10bc16096789866chd925"
         }
       },
-      "c050afa7b4c774cdd76b3446812782a5ch5c62": {
-        "2": {
+      "09e54d308bdd22fc6cff79db2f2a84f7ch238a": {
+        "5": {
           "schemaFormatVersion": 3,
           "revision": {
             "schemaFormatVersion": 3,
-            "originalRevisionNumber": 2,
-            "atmLambdaRevision": {
-              "_version": 1,
-              "_data": {
-                "summary": "",
-                "state": "draft",
-                "resultSpecs": [
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "relayMethod": "returnValue",
-                      "name": "result",
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "object",
-                          "_version": 1,
-                          "_data": {}
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "relayMethod": "filePipe",
-                      "name": "stats",
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "timeSeriesMeasurement",
-                          "_version": 1,
-                          "_data": {
-                            "specs": [
-                              {
-                                "_version": 1,
-                                "_data": {
-                                  "unit": "none",
-                                  "nameMatcherType": "exact",
-                                  "nameMatcher": "filesProcessed"
-                                }
-                              },
-                              {
-                                "_version": 1,
-                                "_data": {
-                                  "unit": "bytes",
-                                  "nameMatcherType": "exact",
-                                  "nameMatcher": "bytesProcessed"
-                                }
-                              }
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                ],
-                "resourceSpec": {
-                  "_version": 1,
-                  "_data": {
-                    "memoryRequested": 104857600,
-                    "memoryLimit": null,
-                    "ephemeralStorageRequested": 104857600,
-                    "ephemeralStorageLimit": null,
-                    "cpuRequested": 0.1,
-                    "cpuLimit": null
-                  }
-                },
-                "preferredBatchSize": 100,
-                "operationSpec": {
-                  "_version": 1,
-                  "_data": {
-                    "engine": "openfaas",
-                    "_version": 1,
-                    "_data": {
-                      "dockerImage": "onedata/lambda-calculate-downloaded-file-checksum-mounted:v3",
-                      "dockerExecutionOptions": {
-                        "readonly": false,
-                        "oneclientOptions": "",
-                        "oneclientMountPoint": "/mnt/onedata",
-                        "mountOneclient": true
-                      }
-                    }
-                  }
-                },
-                "name": "calculate-downloaded-file-checksum-mounted",
-                "description": "",
-                "configParameterSpecs": [
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "name": "algorithm",
-                      "isOptional": false,
-                      "defaultValue": null,
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "string",
-                          "_version": 1,
-                          "_data": {
-                            "allowedValues": [
-                              "adler32",
-                              "blake2b",
-                              "blake2s",
-                              "md5",
-                              "sha1",
-                              "sha224",
-                              "sha256",
-                              "sha384",
-                              "sha512",
-                              "sha3_224",
-                              "sha3_256",
-                              "sha3_384",
-                              "sha3_512",
-                              "shake_128",
-                              "shake_256"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "name": "metadataKey",
-                      "isOptional": false,
-                      "defaultValue": "",
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "string",
-                          "_version": 1,
-                          "_data": {
-                            "allowedValues": null
-                          }
-                        }
-                      }
-                    }
-                  }
-                ],
-                "argumentSpecs": [
-                  {
-                    "_version": 1,
-                    "_data": {
-                      "name": "downloadInfo",
-                      "isOptional": false,
-                      "defaultValue": null,
-                      "dataSpec": {
-                        "_version": 2,
-                        "_data": {
-                          "type": "object",
-                          "_version": 1,
-                          "_data": {}
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          "originalAtmLambdaId": "c050afa7b4c774cdd76b3446812782a5ch5c62"
-        }
-      },
-      "2357f2d1a241cbd3d5eaf6a50113bf08ch4577": {
-        "4": {
-          "schemaFormatVersion": 3,
-          "revision": {
-            "schemaFormatVersion": 3,
-            "originalRevisionNumber": 4,
+            "originalRevisionNumber": 5,
             "atmLambdaRevision": {
               "_version": 1,
               "_data": {
@@ -377,7 +377,7 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "onedata/lambda-parse-fetch-file-mounted:v3",
+                      "dockerImage": "onedata/lambda-parse-fetch-file-mounted:v4",
                       "dockerExecutionOptions": {
                         "readonly": false,
                         "oneclientOptions": "",
@@ -406,7 +406,8 @@
                             "fileType": "ANY",
                             "attributes": [
                               "fileId",
-                              "name"
+                              "name",
+                              "type"
                             ]
                           }
                         }
@@ -438,12 +439,12 @@
               }
             }
           },
-          "originalAtmLambdaId": "2357f2d1a241cbd3d5eaf6a50113bf08ch4577"
+          "originalAtmLambdaId": "09e54d308bdd22fc6cff79db2f2a84f7ch238a"
         }
       }
     },
     "schemaFormatVersion": 3,
-    "originalRevisionNumber": 1,
+    "originalRevisionNumber": 2,
     "atmWorkflowSchemaRevision": {
       "_version": 1,
       "_data": {
@@ -612,8 +613,8 @@
                           ],
                           "resourceSpecOverride": null,
                           "name": "parse-fetch-file-mounted",
-                          "lambdaRevisionNumber": 4,
-                          "lambdaId": "2357f2d1a241cbd3d5eaf6a50113bf08ch4577",
+                          "lambdaRevisionNumber": 5,
+                          "lambdaId": "09e54d308bdd22fc6cff79db2f2a84f7ch238a",
                           "lambdaConfig": {},
                           "id": "656746a9bef5000e2b7f233cbd6fb7a085580e",
                           "argumentMappings": [
@@ -654,6 +655,7 @@
               ],
               "name": "collect-download-info",
               "maxRetries": 1,
+              "instantFailureExceptionThreshold": 0.1,
               "id": "e6230b9c5705a916cae4d23ef316da7c104df3",
               "dashboardSpec": null
             }
@@ -1089,7 +1091,7 @@
                           "resourceSpecOverride": null,
                           "name": "download-file-mounted",
                           "lambdaRevisionNumber": 3,
-                          "lambdaId": "e31db40e031051199260497d666e4641cha00d",
+                          "lambdaId": "1d1b6a91b91fdc8ce10bc16096789866chd925",
                           "lambdaConfig": {},
                           "id": "45b640e9396cae8d4853663e0f5d09db3e9eb4",
                           "argumentMappings": [
@@ -1517,7 +1519,7 @@
                           "resourceSpecOverride": null,
                           "name": "calculate-downloaded-file-checksum-mounted",
                           "lambdaRevisionNumber": 2,
-                          "lambdaId": "c050afa7b4c774cdd76b3446812782a5ch5c62",
+                          "lambdaId": "28a4d2a68ea3ae76f28e16b92ec3ef59chcc38",
                           "lambdaConfig": {
                             "metadataKey": "checksum.md5",
                             "algorithm": "md5"
@@ -1548,6 +1550,7 @@
               ],
               "name": "download-files",
               "maxRetries": 2,
+              "instantFailureExceptionThreshold": 0.1,
               "id": "5dc54110eeb1f3749062f1c4234a7a148b079e",
               "dashboardSpec": null
             }
@@ -2090,6 +2093,6 @@
       }
     }
   },
-  "originalAtmWorkflowSchemaId": "7a47546ce6efa5c0fa90461f37dba49achd8f4",
+  "originalAtmWorkflowSchemaId": "a56eb818a68c065b364428fe56b0dfafch367f",
   "name": "download-files"
 }

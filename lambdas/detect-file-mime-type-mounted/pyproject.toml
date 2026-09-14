@@ -1,15 +1,19 @@
 [project]
 name = "detect-file-mime-type-mounted"
-version = "4.0.0"
+version = "4"
 description = "Detect a file's MIME type from its name and optionally store it as metadata (mounted Oneclient)"
 requires-python = ">=3.12"
 dependencies = [
-    "onedata-lambda-utils>=1.0",
+    "onedata-lambda-sdk>=1.0",
     "xattr>=1.1",
 ]
 
 [project.entry-points."onedata.lambda"]
 handler = "detect_file_mime_type_mounted.handler:handle"
+
+# libmagic shared library, needed by python-magic at runtime; installed by build-lambda.
+[tool.onedata.lambda]
+system-packages = ["libmagic1"]
 
 [build-system]
 requires = ["hatchling"]
