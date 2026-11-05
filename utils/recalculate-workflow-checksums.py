@@ -38,6 +38,7 @@ from typing import Final, NamedTuple
 import requests
 import urllib3
 
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 REST_REQUEST_TIMEOUT: Final[int] = 60
@@ -84,7 +85,8 @@ def parse_args() -> Args:
 
     parser.add_argument(
         "workflow_name",
-        help='Name of dumped workflow. It should correspond to JSON file name in "workflows" directory (without extension).',
+        help="Name of dumped workflow. It should correspond to JSON file name in "
+        '"workflows" directory (without extension).',
     )
 
     named_required_args = parser.add_argument_group("required named arguments")
@@ -102,7 +104,8 @@ def parse_args() -> Args:
     named_optional_args.add_argument(
         "--domain",
         "-d",
-        help="Domain of Onezone instance which should be used to recalculate checksums. It is optional and fallbacks to default Onezone domain deployed by one-env.",
+        help="Domain of Onezone instance which should be used to recalculate checksums. "
+        "backs to default Onezone domain deployed by one-env.",
         default="dev-onezone.default.svc.cluster.local",
     )
 
@@ -163,7 +166,7 @@ def load_workflow_dump(ctx: Ctx) -> dict:
     print(f'Loading "{ctx.workflow_name}" workflow dump from file... ', end="")
 
     dump_path = get_workflow_dump_path(ctx.workflow_name)
-    with open(dump_path, "r") as fd:
+    with open(dump_path) as fd:
         dump = json.load(fd)
 
     print("Done.")
@@ -188,9 +191,7 @@ def update_lambda_checksums(ctx: Ctx, inventory_id: str, lambda_dump: dict) -> b
     return have_checksums_changed
 
 
-def update_lambda_revision_checksum(
-    ctx: Ctx, inventory_id: str, lambda_rev_dump: dict
-) -> bool:
+def update_lambda_revision_checksum(ctx: Ctx, inventory_id: str, lambda_rev_dump: dict) -> bool:
     lambda_rev_no = int(lambda_rev_dump["revision"]["originalRevisionNumber"])
     revision_content = lambda_rev_dump["revision"]["atmLambdaRevision"]
 
@@ -255,9 +256,7 @@ def dump_uploaded_lambda_revision(ctx: Ctx, lambda_id: str, lambda_rev_no: int) 
     return dump_lambda_response.json()
 
 
-def remove_uploaded_lambda_revision(
-    ctx: Ctx, inventory_id: str, lambda_id: str
-) -> None:
+def remove_uploaded_lambda_revision(ctx: Ctx, inventory_id: str, lambda_id: str) -> None:
     remove_lambda_response = requests.delete(
         f"{ctx.api_base_url}/atm_lambdas/{lambda_id}/atm_inventories/{inventory_id}",
         headers=ctx.api_base_headers,

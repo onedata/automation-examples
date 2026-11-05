@@ -1,0 +1,24 @@
+[project]
+name = "download-file-mounted"
+version = "6"
+description = "Download a file using http or xrootd (mounted Oneclient)"
+requires-python = ">=3.12"
+dependencies = [
+    "onedata-lambda-sdk>=1.0",
+    "requests>=2.32",
+    "XRootD>=6.1.0",
+]
+
+[project.entry-points."onedata.lambda"]
+handler = "download_file_mounted.handler:handle"
+
+# libmagic shared library, needed by python-magic at runtime; installed by build-lambda.
+[tool.onedata.lambda]
+system-packages = ["libmagic1"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/download_file_mounted"]

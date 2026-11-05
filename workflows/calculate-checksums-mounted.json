@@ -83,10 +83,10 @@
                     "engine": "openfaas",
                     "_version": 1,
                     "_data": {
-                      "dockerImage": "docker.onedata.org/lambda-calculate-checksum-mounted:v1",
+                      "dockerImage": "onedata/lambda-calculate-checksum-mounted:v4",
                       "dockerExecutionOptions": {
                         "readonly": false,
-                        "oneclientOptions": "-i",
+                        "oneclientOptions": "",
                         "oneclientMountPoint": "/mnt/onedata",
                         "mountOneclient": true
                       }
@@ -149,7 +149,6 @@
                     }
                   }
                 ],
-                "checksum": "adae1d21872130d78ab95a2549ba84e4",
                 "argumentSpecs": [
                   {
                     "_version": 1,
@@ -165,7 +164,7 @@
                           "_data": {
                             "fileType": "ANY",
                             "attributes": [
-                              "file_id"
+                              "fileId"
                             ]
                           }
                         }
